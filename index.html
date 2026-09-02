@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Recomendador de Rutas de Colectivos — Beta Punta Arenas</title>
+  
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      display: flex;
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+      color: #2c3e50;
+      background: #f8fafc;
+    }
+
+    #sidebar {
+      width: 390px;
+      min-width: 350px;
+      height: 100%;
+      background: #ffffff;
+      border-right: 1px solid #e2e8f0;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+      z-index: 1000;
+    }
+
+    /* Adaptabilidad Responsiva para Celulares y Tablets */
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+        height: 100dvh;
+      }
+
+      #map {
+        height: 45vh !important;
+        min-height: 240px;
+        order: 1;
+      }
+
+      #sidebar {
+        width: 100% !important;
+        min-width: 100% !important;
+        height: 55vh !important;
+        order: 2;
+        border-right: none;
+        border-top: 2px solid #e2e8f0;
+      }
+
+      .header {
+        padding: 10px 16px;
+      }
+
+      .header h1 {
+        font-size: 0.95rem;
+      }
+
+      .content {
+        padding: 12px 14px;
+        gap: 10px;
+      }
+
+      .footer-actions {
+        padding: 10px 14px;
+      }
+
+      .legend {
+        max-height: 140px !important;
+        max-width: 200px !important;
+        padding: 8px 10px !important;
+        font-size: 0.7rem !important;
+      }
+    }
+
+    .header {
+      padding: 16px 20px;
+      background: #1e293b;
+      color: #ffffff;
+    }
+
+    .header h1 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .header p {
+      font-size: 0.78rem;
+      color: #94a3b8;
+      margin-top: 4px;
+    }
+
+    .content {
+      padding: 18px 20px;
+      overflow-y: auto;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .step-box {
+      background: #f1f5f9;
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 0.85rem;
+      border-left: 4px solid #3b82f6;
+    }
+
+    .step-box strong {
+      display: block;
+      color: #0f172a;
+      margin-bottom: 3px;
+    }
+
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .control-group label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #475569;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .control-group input[type="range"] {
+      width: 100%;
+      accent-color: #2563eb;
+    }
+
+    .badge-status {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .badge-origin {
+      background: #dcfce7;
+      color: #15803d;
+    }
+
+    .badge-dest {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .badge-sentido {
+      font-size: 0.72rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .badge-ida {
+      background: #e0f2fe;
+      color: #0369a1;
+      border: 1px solid #bae6fd;
+    }
+
+    .badge-vuelta {
+      background: #fef3c7;
+      color: #92400e;
+      border: 1px solid #fde68a;
+    }
+
+    .strategy-card {
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 14px;
+      background: #ffffff;
+      transition: all 0.2s ease;
+    }
+
+    .strategy-card h3 {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .strategy-desc {
+      font-size: 0.76rem;
+      color: #64748b;
+      margin-bottom: 10px;
+      line-height: 1.35;
+    }
+
+    .time-tag {
+      font-family: monospace;
+      font-size: 0.75rem;
+      background: #f1f5f9;
+      color: #334155;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+
+    .results-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .result-card {
+      font-size: 0.8rem;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 9px 11px;
+      border-radius: 6px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      transition: all 0.15s ease;
+    }
+
+    .result-card:hover {
+      border-color: #cbd5e1;
+      background: #f1f5f9;
+    }
+
+    .result-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .rank-badge {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 1px 5px;
+      border-radius: 4px;
+      background: #e2e8f0;
+      color: #334155;
+    }
+
+    .rank-top {
+      background: #fef08a;
+      color: #854d0e;
+      border: 1px solid #fde047;
+    }
+
+    .result-metrics {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      font-size: 0.74rem;
+      color: #475569;
+      background: #ffffff;
+      padding: 5px 8px;
+      border-radius: 4px;
+      border: 1px solid #eef2f6;
+    }
+
+    .metric-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .metric-val.highlight-dist {
+      color: #0f172a;
+      font-size: 0.78rem;
+    }
+
+    .metric-sub {
+      display: flex;
+      gap: 5px;
+      font-size: 0.7rem;
+      color: #64748b;
+      flex-wrap: wrap;
+    }
+
+    .result-left {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .color-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .no-results {
+      font-size: 0.78rem;
+      color: #94a3b8;
+      font-style: italic;
+    }
+
+    .comparison-box {
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      line-height: 1.4;
+    }
+
+    .comparison-same {
+      background: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+    }
+
+    .comparison-diff {
+      background: #fffbeb;
+      color: #92400e;
+      border: 1px solid #fde68a;
+    }
+
+    .footer-actions {
+      padding: 14px 20px;
+      border-top: 1px solid #e2e8f0;
+      background: #ffffff;
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s ease;
+      text-align: center;
+    }
+
+    .btn-primary {
+      background: #2563eb;
+      color: #ffffff;
+      border-color: #1d4ed8;
+    }
+
+    .btn-primary:hover {
+      background: #1d4ed8;
+    }
+
+    .btn-primary:disabled {
+      background: #94a3b8;
+      border-color: #94a3b8;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      background: #f1f5f9;
+      color: #334155;
+      border-color: #cbd5e1;
+    }
+
+    .btn-secondary:hover {
+      background: #e2e8f0;
+    }
+
+    #map {
+      flex: 1;
+      height: 100%;
+      background: #e5e7eb;
+    }
+
+    /* Custom Leaflet Marker styles */
+    .point-marker {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      color: white;
+      font-size: 11px;
+      font-weight: bold;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+      border: 2px solid white;
+    }
+
+    .origin-marker {
+      background: #16a34a;
+    }
+
+    .dest-marker {
+      background: #dc2626;
+    }
+
+    .legend {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 12px 14px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+      font-size: 0.76rem;
+      line-height: 1.4;
+      max-height: 280px;
+      overflow-y: auto;
+      max-width: 250px;
+    }
+
+    .legend h4 {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: #0f172a;
+    }
+
+    .legend-type {
+      display: flex;
+      gap: 12px;
+      padding-bottom: 8px;
+      margin-bottom: 8px;
+      border-bottom: 1px solid #e2e8f0;
+      font-size: 0.74rem;
+      color: #475569;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 5px;
+    }
+
+    .legend-color {
+      width: 14px;
+      height: 4px;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar UI -->
+  <aside id="sidebar">
+    <div class="header">
+      <h1>Recomendador de Colectivos</h1>
+      <p>Beta con sentido de circulación — Punta Arenas</p>
+    </div>
+
+    <div class="content">
+      <div id="instruction-box" class="step-box">
+        <strong>Paso 1 de 2</strong>
+        Haz clic en el mapa para marcar el <span class="badge-status badge-origin">Origen</span>.
+      </div>
+
+      <div class="control-group">
+        <label for="radius-input">
+          <span>Radio de búsqueda (r)</span>
+          <span id="radius-val">500 m</span>
+        </label>
+        <input type="range" id="radius-input" min="100" max="1500" step="50" value="500" />
+      </div>
+
+      <!-- Estrategia 1 Card -->
+      <div class="strategy-card" id="card-e1">
+        <h3>
+          <span>Estrategia 1</span>
+          <span class="time-tag" id="time-e1">-- ms</span>
+        </h3>
+        <p class="strategy-desc">Proximidad a vértices: filtra por sentido de circulación y ordena por menor distancia caminada a los nodos.</p>
+        <div id="results-e1">
+          <span class="no-results">Esperando selección de puntos...</span>
+        </div>
+      </div>
+
+      <!-- Estrategia 2 Card -->
+      <div class="strategy-card" id="card-e2">
+        <h3>
+          <span>Estrategia 2</span>
+          <span class="time-tag" id="time-e2">-- ms</span>
+        </h3>
+        <p class="strategy-desc">Proyección sobre segmentos: calcula la distancia perpendicular real a la calzada y ordena por menor caminata total.</p>
+        <div id="results-e2">
+          <span class="no-results">Esperando selección de puntos...</span>
+        </div>
+      </div>
+
+      <!-- Comparación Card -->
+      <div id="comparison-container" style="display: none;">
+        <div id="comparison-box" class="comparison-box">
+          <!-- Dinámico -->
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-actions">
+      <button class="btn btn-primary" id="btn-gps">📍 Usar mi GPS</button>
+      <button class="btn btn-secondary" id="btn-reset">Reiniciar Puntos</button>
+    </div>
+  </aside>
+
+  <!-- Mapa Leaflet -->
+  <div id="map"></div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Dataset de Líneas y Rutas -->
+  <script src="rutas.js"></script>
+
+  <script>
+    /* ==========================================================================
+       1. ESTRUCTURACIÓN DE TRAYECTORIAS (IDA Y VUELTA)
+       El dataset se carga desde 'rutas.js' (DATASET_COLECTIVOS).
+       ========================================================================== */
+    const TRAYECTORIAS = [];
+    DATASET_COLECTIVOS.forEach(linea => {
+      TRAYECTORIAS.push({
+        lineaId: linea.id,
+        nombre: linea.nombre,
+        sentido: "ida",
+        etiqueta: `${linea.nombre} (ida)`,
+        color: linea.color,
+        coords: linea.ida
+      });
+      TRAYECTORIAS.push({
+        lineaId: linea.id,
+        nombre: linea.nombre,
+        sentido: "vuelta",
+        etiqueta: `${linea.nombre} (vuelta)`,
+        color: linea.color,
+        coords: linea.vuelta
+      });
+    });
+
+    /* ==========================================================================
+       2. FUNCIONES MATEMÁTICAS GEOESPACIALES
+       ========================================================================== */
+    const EARTH_RADIUS_METERS = 6371000;
+
+    /**
+     * Distancia Haversine entre dos puntos en metros.
+     */
+    function haversineDistance(lat1, lon1, lat2, lon2) {
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const rLat1 = lat1 * Math.PI / 180;
+      const rLat2 = lat2 * Math.PI / 180;
+
+      const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(rLat1) * Math.cos(rLat2) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return EARTH_RADIUS_METERS * c;
+    }
+
+    /**
+     * Proyección ortogonal y distancia perpendicular de un punto a un segmento [A, B].
+     * Retorna { distance: metros, t: fracción 0..1 sobre el segmento }.
+     */
+    function projectPointToSegment(pLat, pLon, aLat, aLon, bLat, bLon) {
+      const cosLat = Math.cos(aLat * Math.PI / 180);
+      const kx = (Math.PI / 180) * EARTH_RADIUS_METERS * cosLat;
+      const ky = (Math.PI / 180) * EARTH_RADIUS_METERS;
+
+      const px = (pLon - aLon) * kx;
+      const py = (pLat - aLat) * ky;
+
+      const bx = (bLon - aLon) * kx;
+      const by = (bLat - aLat) * ky;
+
+      const segLenSq = bx * bx + by * by;
+
+      if (segLenSq === 0) {
+        return { distance: Math.hypot(px, py), t: 0 };
+      }
+
+      let t = (px * bx + py * by) / segLenSq;
+      t = Math.max(0, Math.min(1, t));
+
+      const projX = t * bx;
+      const projY = t * by;
+      const distance = Math.hypot(px - projX, py - projY);
+
+      return { distance, t };
+    }
+
+    /* ==========================================================================
+       3. ESTRATEGIAS DE RECOMENDACIÓN CON POSICIÓN ACUMULADA Y SENTIDO
+       ========================================================================== */
+
+    /**
+     * Estrategia 1: Proximidad simple a vértices
+     * 1. Encuentra el vértice más cercano al origen y su distancia acumulada.
+     * 2. Encuentra el vértice más cercano al destino y su distancia acumulada.
+     * 3. Valida: dOrig <= r && dDest <= r && posOrig < posDest
+     * 4. Ordena por menor distancia de caminata total (dOrigen + dDestino).
+     */
+    function estrategia1(origen, destino, trayectorias, r) {
+      const recomendadas = [];
+
+      for (const trayecto of trayectorias) {
+        const coords = trayecto.coords; // [[lon, lat], ...]
+
+        // Precalcular distancia acumulada en cada vértice
+        const cumDist = new Float64Array(coords.length);
+        cumDist[0] = 0;
+        for (let i = 1; i < coords.length; i++) {
+          const [lonPrev, latPrev] = coords[i - 1];
+          const [lonCurr, latCurr] = coords[i];
+          cumDist[i] = cumDist[i - 1] + haversineDistance(latPrev, lonPrev, latCurr, lonCurr);
+        }
+
+        // Buscar vértice más cercano a origen y destino
+        let bestOrigDist = Infinity;
+        let bestOrigPos = 0;
+
+        let bestDestDist = Infinity;
+        let bestDestPos = 0;
+
+        for (let i = 0; i < coords.length; i++) {
+          const [lon, lat] = coords[i];
+
+          const dOrig = haversineDistance(origen.lat, origen.lng, lat, lon);
+          if (dOrig < bestOrigDist) {
+            bestOrigDist = dOrig;
+            bestOrigPos = cumDist[i];
+          }
+
+          const dDest = haversineDistance(destino.lat, destino.lng, lat, lon);
+          if (dDest < bestDestDist) {
+            bestDestDist = dDest;
+            bestDestPos = cumDist[i];
+          }
+        }
+
+        // Validación de radio y sentido de circulación
+        if (bestOrigDist <= r && bestDestDist <= r && bestOrigPos < bestDestPos) {
+          recomendadas.push({
+            ...trayecto,
+            dOrigen: Math.round(bestOrigDist),
+            dDestino: Math.round(bestDestDist),
+            dTotalCaminata: Math.round(bestOrigDist + bestDestDist),
+            distanciaRecorrido: Math.round(bestDestPos - bestOrigPos)
+          });
+        }
+      }
+
+      // Ordenar de menor a mayor caminata total
+      recomendadas.sort((a, b) => a.dTotalCaminata - b.dTotalCaminata);
+
+      return recomendadas;
+    }
+
+    /**
+     * Estrategia 2: Proyección continua sobre segmentos
+     * 1. Encuentra el punto proyectado más cercano al origen y su posición exacta acumulada.
+     * 2. Encuentra el punto proyectado más cercano al destino y su posición exacta acumulada.
+     * 3. Valida: dOrig <= r && dDest <= r && posOrig < posDest
+     * 4. Ordena por menor distancia de caminata total (dOrigen + dDestino).
+     */
+    function estrategia2(origen, destino, trayectorias, r) {
+      const recomendadas = [];
+
+      for (const trayecto of trayectorias) {
+        const coords = trayecto.coords;
+
+        // Longitudes de cada segmento y acumulados
+        const segCount = coords.length - 1;
+        const cumSegDist = new Float64Array(segCount + 1);
+        const segLengths = new Float64Array(segCount);
+
+        cumSegDist[0] = 0;
+        for (let i = 0; i < segCount; i++) {
+          const [aLon, aLat] = coords[i];
+          const [bLon, bLat] = coords[i + 1];
+          const len = haversineDistance(aLat, aLon, bLat, bLon);
+          segLengths[i] = len;
+          cumSegDist[i + 1] = cumSegDist[i] + len;
+        }
+
+        let bestOrigDist = Infinity;
+        let bestOrigPos = 0;
+
+        let bestDestDist = Infinity;
+        let bestDestPos = 0;
+
+        for (let i = 0; i < segCount; i++) {
+          const [aLon, aLat] = coords[i];
+          const [bLon, bLat] = coords[i + 1];
+
+          // Proyección origen
+          const projOrig = projectPointToSegment(origen.lat, origen.lng, aLat, aLon, bLat, bLon);
+          if (projOrig.distance < bestOrigDist) {
+            bestOrigDist = projOrig.distance;
+            bestOrigPos = cumSegDist[i] + projOrig.t * segLengths[i];
+          }
+
+          // Proyección destino
+          const projDest = projectPointToSegment(destino.lat, destino.lng, aLat, aLon, bLat, bLon);
+          if (projDest.distance < bestDestDist) {
+            bestDestDist = projDest.distance;
+            bestDestPos = cumSegDist[i] + projDest.t * segLengths[i];
+          }
+        }
+
+        // Validación de radio y sentido de circulación
+        if (bestOrigDist <= r && bestDestDist <= r && bestOrigPos < bestDestPos) {
+          recomendadas.push({
+            ...trayecto,
+            dOrigen: Math.round(bestOrigDist),
+            dDestino: Math.round(bestDestDist),
+            dTotalCaminata: Math.round(bestOrigDist + bestDestDist),
+            distanciaRecorrido: Math.round(bestDestPos - bestOrigPos)
+          });
+        }
+      }
+
+      // Ordenar de menor a mayor caminata total
+      recomendadas.sort((a, b) => a.dTotalCaminata - b.dTotalCaminata);
+
+      return recomendadas;
+    }
+
+    /* ==========================================================================
+       4. GESTIÓN DEL MAPA Y ESTADO
+       ========================================================================== */
+    let origen = null;
+    let destino = null;
+    let clickCount = 0;
+    let searchRadius = 500;
+
+    let origenMarker = null;
+    let destinoMarker = null;
+    let origenCircle = null;
+    let destinoCircle = null;
+
+    // Inicializar mapa centrado en Punta Arenas
+    const map = L.map('map').setView([-53.158, -70.915], 13);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://openstreetmap.org">OpenStreetMap</a> contribuyentes'
+    }).addTo(map);
+
+    // Dibujar trayectorias (Ida: trazo sólido / Vuelta: trazo punteado)
+    const mapLayers = [];
+    let vertexMarkers = [];
+
+    TRAYECTORIAS.forEach(trayecto => {
+      const latlngs = trayecto.coords.map(coord => [coord[1], coord[0]]);
+      const isVuelta = trayecto.sentido === "vuelta";
+
+      const polyline = L.polyline(latlngs, {
+        color: trayecto.color,
+        weight: 3.5,
+        opacity: 0.75,
+        dashArray: isVuelta ? '6, 6' : null,
+        smoothFactor: 1
+      }).addTo(map);
+
+      polyline.bindTooltip(`<strong>${trayecto.etiqueta}</strong>`, { sticky: true });
+      mapLayers.push({ trayecto, polyline });
+    });
+
+    // Control de Leyenda
+    const legend = L.control({ position: 'bottomright' });
+    legend.onAdd = function () {
+      const div = L.DomUtil.create('div', 'legend');
+      div.innerHTML = `
+        <h4>Líneas y Sentidos</h4>
+        <div class="legend-type">
+          <span><strong>──</strong> Ida (sólido)</span>
+          <span><strong>╌╌</strong> Vuelta (punteado)</span>
+        </div>
+      `;
+      DATASET_COLECTIVOS.forEach(linea => {
+        div.innerHTML += `
+          <div class="legend-item">
+            <span class="legend-color" style="background:${linea.color}"></span>
+            <span>${linea.nombre}</span>
+          </div>
+        `;
+      });
+      return div;
+    };
+    legend.addTo(map);
+
+    /* ==========================================================================
+       5. INTERACCIÓN Y EVENTOS
+       ========================================================================== */
+
+    function createMarkerIcon(text, className) {
+      return L.divIcon({
+        className: 'custom-div-icon',
+        html: `<div class="point-marker ${className}" style="width:24px;height:24px;">${text}</div>`,
+        iconSize: [24, 24],
+        iconAnchor: [12, 12]
+      });
+    }
+
+    function resetPoints() {
+      clickCount = 0;
+      origen = null;
+      destino = null;
+
+      if (origenMarker) map.removeLayer(origenMarker);
+      if (destinoMarker) map.removeLayer(destinoMarker);
+      if (origenCircle) map.removeLayer(origenCircle);
+      if (destinoCircle) map.removeLayer(destinoCircle);
+
+      origenMarker = null;
+      destinoMarker = null;
+      origenCircle = null;
+      destinoCircle = null;
+
+      // Limpiar marcadores de vértices
+      vertexMarkers.forEach(m => map.removeLayer(m));
+      vertexMarkers = [];
+
+      // Restaurar estilo normal de líneas
+      mapLayers.forEach(({ polyline, trayecto }) => {
+        const isVuelta = trayecto.sentido === "vuelta";
+        polyline.setStyle({
+          color: trayecto.color,
+          weight: 3.5,
+          opacity: 0.75,
+          dashArray: isVuelta ? '6, 6' : null
+        });
+      });
+
+      // Resetear UI
+      document.getElementById('instruction-box').innerHTML = `
+        <strong>Paso 1 de 2</strong>
+        Haz clic en el mapa para marcar el <span class="badge-status badge-origin">Origen</span>.
+      `;
+      document.getElementById('time-e1').textContent = '-- ms';
+      document.getElementById('time-e2').textContent = '-- ms';
+      document.getElementById('results-e1').innerHTML = '<span class="no-results">Esperando selección de puntos...</span>';
+      document.getElementById('results-e2').innerHTML = '<span class="no-results">Esperando selección de puntos...</span>';
+      document.getElementById('comparison-container').style.display = 'none';
+    }
+
+    function executeEvaluation() {
+      if (!origen || !destino) return;
+
+      // Limpiar marcadores de vértices previos
+      vertexMarkers.forEach(m => map.removeLayer(m));
+      vertexMarkers = [];
+
+      // Ejecución Estrategia 1 con medición de tiempo
+      const t0_e1 = performance.now();
+      const resE1 = estrategia1(origen, destino, TRAYECTORIAS, searchRadius);
+      const t1_e1 = performance.now();
+      const durationE1 = (t1_e1 - t0_e1).toFixed(3);
+
+      // Ejecución Estrategia 2 con medición de tiempo
+      const t0_e2 = performance.now();
+      const resE2 = estrategia2(origen, destino, TRAYECTORIAS, searchRadius);
+      const t1_e2 = performance.now();
+      const durationE2 = (t1_e2 - t0_e2).toFixed(3);
+
+      // Conjuntos de recomendadas
+      const e1Labels = new Set(resE1.map(t => t.etiqueta));
+      const e2Labels = new Set(resE2.map(t => t.etiqueta));
+      const allRecommended = new Set([...e1Labels, ...e2Labels]);
+
+      // Resaltar en el mapa y dibujar vértices
+      mapLayers.forEach(({ polyline, trayecto }) => {
+        const isVuelta = trayecto.sentido === "vuelta";
+        if (allRecommended.has(trayecto.etiqueta)) {
+          polyline.setStyle({
+            color: trayecto.color,
+            weight: 6.5,
+            opacity: 1.0,
+            dashArray: isVuelta ? '8, 6' : null
+          });
+          polyline.bringToFront();
+
+          // Renderizar vértices de la línea seleccionada
+          trayecto.coords.forEach(([lon, lat], idx) => {
+            const vMarker = L.circleMarker([lat, lon], {
+              radius: 5,
+              color: '#ffffff',
+              weight: 2,
+              fillColor: trayecto.color,
+              fillOpacity: 0.95
+            }).addTo(map);
+
+            vMarker.bindTooltip(`<strong>${trayecto.etiqueta}</strong><br>Vértice #${idx + 1}`, {
+              direction: 'top',
+              offset: [0, -4]
+            });
+
+            vertexMarkers.push(vMarker);
+          });
+        } else {
+          polyline.setStyle({
+            color: trayecto.color,
+            weight: 2,
+            opacity: 0.15,
+            dashArray: isVuelta ? '4, 4' : null
+          });
+        }
+      });
+
+      // Renderizar resultados en Sidebar
+      document.getElementById('time-e1').textContent = `${durationE1} ms`;
+      document.getElementById('time-e2').textContent = `${durationE2} ms`;
+
+      renderResultList('results-e1', resE1);
+      renderResultList('results-e2', resE2);
+
+      // Comparación
+      const compBox = document.getElementById('comparison-box');
+      const compContainer = document.getElementById('comparison-container');
+      compContainer.style.display = 'block';
+
+      const areEqual = e1Labels.size === e2Labels.size && [...e1Labels].every(lbl => e2Labels.has(lbl));
+
+      if (areEqual) {
+        compBox.className = 'comparison-box comparison-same';
+        if (e1Labels.size === 0) {
+          compBox.innerHTML = '⚖️ <strong>Coincidencia:</strong> Ninguna dirección de línea conecta este trayecto en el sentido solicitado.';
+        } else {
+          compBox.innerHTML = `⚖️ <strong>Coincidencia:</strong> Ambas estrategias recomiendan exactamente las mismas ${e1Labels.size} opción(es) de viaje.`;
+        }
+      } else {
+        compBox.className = 'comparison-box comparison-diff';
+        compBox.innerHTML = `⚠️ <strong>Diferencia detectada:</strong><br>
+          • E1 (proximidad vértices): ${e1Labels.size} trayecto(s)<br>
+          • E2 (proyección segmento): ${e2Labels.size} trayecto(s)<br>
+          <em>La Estrategia 2 proyecta la posición a lo largo de los segmentos con mayor precisión métrica.</em>`;
+      }
+    }
+
+    function renderResultList(containerId, results) {
+      const container = document.getElementById(containerId);
+      if (results.length === 0) {
+        container.innerHTML = '<span class="no-results">Sin líneas recomendadas en este sentido</span>';
+        return;
+      }
+      let html = '<ul class="results-list">';
+      results.forEach((t, idx) => {
+        const badgeClass = t.sentido === 'ida' ? 'badge-ida' : 'badge-vuelta';
+        const rankClass = idx === 0 ? 'rank-top' : '';
+        const kmRecorrido = (t.distanciaRecorrido / 1000).toFixed(1);
+
+        html += `
+          <li class="result-card">
+            <div class="result-header">
+              <div class="result-left">
+                <span class="rank-badge ${rankClass}">#${idx + 1}</span>
+                <span class="color-dot" style="background:${t.color}"></span>
+                <span><strong>${t.nombre}</strong></span>
+              </div>
+              <span class="badge-sentido ${badgeClass}">${t.sentido}</span>
+            </div>
+            <div class="result-metrics">
+              <div class="metric-row">
+                <span>🚶 <strong>Caminata total:</strong></span>
+                <span class="metric-val highlight-dist"><strong>${t.dTotalCaminata} m</strong></span>
+              </div>
+              <div class="metric-sub">
+                <span>Subida: <strong>${t.dOrigen}m</strong></span>
+                <span>•</span>
+                <span>Bajada: <strong>${t.dDestino}m</strong></span>
+                <span>•</span>
+                <span>En colectivo: <strong>${kmRecorrido} km</strong></span>
+              </div>
+            </div>
+          </li>
+        `;
+      });
+      html += '</ul>';
+      container.innerHTML = html;
+    }
+
+    // Manejo de clics en el mapa
+    map.on('click', function(e) {
+      if (clickCount === 0) {
+        // Primer clic: Origen
+        origen = e.latlng;
+        clickCount = 1;
+
+        origenMarker = L.marker(origen, {
+          icon: createMarkerIcon('O', 'origin-marker')
+        }).addTo(map).bindPopup('<strong>Origen (O)</strong>').openPopup();
+
+        origenCircle = L.circle(origen, {
+          radius: searchRadius,
+          color: '#16a34a',
+          fillColor: '#16a34a',
+          fillOpacity: 0.1,
+          weight: 1.5,
+          dashArray: '4, 4'
+        }).addTo(map);
+
+        document.getElementById('instruction-box').innerHTML = `
+          <strong>Paso 2 de 2</strong>
+          Haz clic en el mapa para marcar el <span class="badge-status badge-dest">Destino</span>.
+        `;
+      } else if (clickCount === 1) {
+        // Segundo clic: Destino
+        destino = e.latlng;
+        clickCount = 2;
+
+        destinoMarker = L.marker(destino, {
+          icon: createMarkerIcon('D', 'dest-marker')
+        }).addTo(map).bindPopup('<strong>Destino (D)</strong>').openPopup();
+
+        destinoCircle = L.circle(destino, {
+          radius: searchRadius,
+          color: '#dc2626',
+          fillColor: '#dc2626',
+          fillOpacity: 0.1,
+          weight: 1.5,
+          dashArray: '4, 4'
+        }).addTo(map);
+
+        document.getElementById('instruction-box').innerHTML = `
+          <strong>Completado</strong>
+          Origen y destino seleccionados. Haz clic de nuevo para reiniciar.
+        `;
+
+        executeEvaluation();
+      } else {
+        // Tercer clic: Reinicia y marca nuevo origen
+        resetPoints();
+        origen = e.latlng;
+        clickCount = 1;
+
+        origenMarker = L.marker(origen, {
+          icon: createMarkerIcon('O', 'origin-marker')
+        }).addTo(map).bindPopup('<strong>Origen (O)</strong>').openPopup();
+
+        origenCircle = L.circle(origen, {
+          radius: searchRadius,
+          color: '#16a34a',
+          fillColor: '#16a34a',
+          fillOpacity: 0.1,
+          weight: 1.5,
+          dashArray: '4, 4'
+        }).addTo(map);
+
+        document.getElementById('instruction-box').innerHTML = `
+          <strong>Paso 2 de 2</strong>
+          Haz clic en el mapa para marcar el <span class="badge-status badge-dest">Destino</span>.
+        `;
+      }
+    });
+
+    // Control de slider de radio
+    const radiusInput = document.getElementById('radius-input');
+    const radiusVal = document.getElementById('radius-val');
+
+    radiusInput.addEventListener('input', function(e) {
+      searchRadius = parseInt(e.target.value, 10);
+      radiusVal.textContent = `${searchRadius} m`;
+
+      if (origenCircle) origenCircle.setRadius(searchRadius);
+      if (destinoCircle) destinoCircle.setRadius(searchRadius);
+
+      if (origen && destino) {
+        executeEvaluation();
+      }
+    });
+
+    // Botón reiniciar
+    document.getElementById('btn-reset').addEventListener('click', resetPoints);
+
+    /* ==========================================================================
+       6. GEOLOCALIZACIÓN GPS
+       ========================================================================== */
+    function solicitarUbicacionGPS(auto = false) {
+      if (!navigator.geolocation) {
+        if (!auto) alert('Tu navegador no soporta geolocalización GPS.');
+        return;
+      }
+
+      const btnGps = document.getElementById('btn-gps');
+      if (btnGps) {
+        btnGps.disabled = true;
+        btnGps.textContent = '📍 Obteniendo GPS...';
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          if (btnGps) {
+            btnGps.disabled = false;
+            btnGps.textContent = '📍 Usar mi GPS';
+          }
+
+          const userLat = position.coords.latitude;
+          const userLng = position.coords.longitude;
+
+          // Reiniciar para fijar GPS como origen limpio
+          resetPoints();
+
+          origen = L.latLng(userLat, userLng);
+          clickCount = 1;
+
+          origenMarker = L.marker(origen, {
+            icon: createMarkerIcon('O', 'origin-marker')
+          }).addTo(map).bindPopup('<strong>Tu Ubicación GPS (Origen)</strong>').openPopup();
+
+          origenCircle = L.circle(origen, {
+            radius: searchRadius,
+            color: '#16a34a',
+            fillColor: '#16a34a',
+            fillOpacity: 0.1,
+            weight: 1.5,
+            dashArray: '4, 4'
+          }).addTo(map);
+
+          map.setView(origen, 14);
+
+          document.getElementById('instruction-box').innerHTML = `
+            <strong>Paso 2 de 2</strong>
+            Origen fijado en tu posición GPS. Haz clic en el mapa para marcar el <span class="badge-status badge-dest">Destino</span>.
+          `;
+        },
+        (error) => {
+          if (btnGps) {
+            btnGps.disabled = false;
+            btnGps.textContent = '📍 Usar mi GPS';
+          }
+          console.warn('Geolocalización:', error.message);
+          if (!auto) {
+            let msg = 'No se pudo obtener la ubicación GPS.';
+            if (error.code === error.PERMISSION_DENIED) {
+              msg = 'Permiso de ubicación denegado en el navegador.';
+            } else if (error.code === error.POSITION_UNAVAILABLE) {
+              msg = 'Información de GPS no disponible en este dispositivo.';
+            } else if (error.code === error.TIMEOUT) {
+              msg = 'Se agotó el tiempo de espera para obtener el GPS.';
+            }
+            alert(msg);
+          }
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 8000,
+          maximumAge: 0
+        }
+      );
+    }
+
+    // Evento botón GPS
+    document.getElementById('btn-gps').addEventListener('click', () => solicitarUbicacionGPS(false));
+
+    // Solicitar permiso de ubicación automáticamente al cargar la página
+    window.addEventListener('DOMContentLoaded', () => {
+      solicitarUbicacionGPS(true);
+    });
+  </script>
+</body>
+</html>
