@@ -22,15 +22,19 @@ Este repositorio contiene la **Beta de Prueba / PoC interactiva**, cuyo objetivo
 
 Para esta fase de validación rápida antes de la integración con datos reales de la SEREMI, la aplicación se diseñó deliberadamente bajo una arquitectura **100% en cliente (frontend puro)**:
 
-- **Sin backend ni base de datos:** El motor geoespacial corre directamente en el motor JavaScript del navegador.
-- **Sin instalación ni dependencias locales:** Funciona de forma inmediata abriendo el archivo `index.html` en cualquier navegador moderno.
-- **Librería de mapas:** [Leaflet 1.9.4](https://leafletjs.com/) cargada vía CDN sobre cartografía base de [OpenStreetMap](https://www.openstreetmap.org/).
+- **Arquitectura Offline-First / Edge Computing:** El motor de recomendación corre en el dispositivo del usuario, eliminando latencia de red y costos de servidor.
+- **PWA (Progressive Web App):** Instalable en la pantalla de inicio de celulares y con soporte offline mediante Service Worker (`sw.js`).
+- **Librería de mapas:** [Leaflet 1.9.4](https://leafletjs.com/) cargada sobre cartografía base de [OpenStreetMap](https://www.openstreetmap.org/).
 
 ### 📁 Estructura de Archivos del Proyecto
 ```text
 tesis/
-├── index.html     # Interfaz visual, motor de cálculo y lógica de mapa
-├── rutas.js       # Dataset modular de las 10 líneas (ida, vuelta, colores)
+├── index.html     # Interfaz visual, motor de cálculo y cliente PWA
+├── rutas.js       # Dataset de rutas estructurado para JavaScript
+├── rutas.geojson  # Dataset estándar RFC 7946 interoperable (QGIS / SIG / Python)
+├── manifest.json  # Manifiesto de instalación PWA para dispositivos móviles
+├── sw.js          # Service Worker para funcionamiento 100% Offline
+├── icon.svg       # Ícono vectorial de la aplicación
 ├── README.md      # Documentación técnica, metodológica y bitácora
 └── SPEC.md ...    # Especificación de requisitos original de la beta
 ```
@@ -127,6 +131,10 @@ Ambas estrategias toman como parámetros:
 - **v1.4 (Ranking y Desglose de Caminata):**
   - Ordenamiento automático de resultados por menor distancia total a pie ($d_O + d_D$).
   - Tarjetas de resultado con insignia de posición (`#1`, `#2`, etc.), desglose en metros de caminata al subir/bajar y distancia a bordo en kilómetros.
+- **v1.5 (PWA Offline-First y Exportación GeoJSON):**
+  - Conversión a Progressive Web App (PWA) instalable en celulares (`manifest.json` e `icon.svg`).
+  - Soporte de ejecución 100% Offline mediante Service Worker (`sw.js`).
+  - Desacoplamiento del dataset modular (`rutas.js`) y generación de dataset estándar interoperable `rutas.geojson` (RFC 7946) para SIG/QGIS.
 
 ---
 

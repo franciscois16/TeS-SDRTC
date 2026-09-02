@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#1d4ed8"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Fondo redondeado -->
+  <rect width="512" height="512" rx="110" fill="url(#grad)"/>
+  
+  <!-- Ruta estilizada en el fondo -->
+  <path d="M 90 380 C 180 380, 160 220, 260 220 C 360 220, 340 120, 420 120" 
+        fill="none" stroke="#334155" stroke-width="28" stroke-linecap="round"/>
+  <path d="M 90 380 C 180 380, 160 220, 260 220 C 360 220, 340 120, 420 120" 
+        fill="none" stroke="#60a5fa" stroke-width="12" stroke-linecap="round" stroke-dasharray="16 16"/>
+
+  <!-- Pin de mapa con colectivo -->
+  <g transform="translate(106, 70)">
+    <!-- Silueta de Colectivo / Auto -->
+    <rect x="30" y="160" width="240" height="110" rx="25" fill="url(#accent)"/>
+    <!-- Techo de auto -->
+    <path d="M 60 160 L 95 95 L 205 95 L 240 160 Z" fill="#2563eb"/>
+    <!-- Letrero de Techo (Taxis Colectivos) -->
+    <rect x="110" y="70" width="80" height="25" rx="6" fill="#fbbf24"/>
+    <text x="150" y="88" font-family="sans-serif" font-weight="900" font-size="14" fill="#000" text-anchor="middle">COLECTIVO</text>
+    <!-- Ventanas -->
+    <path d="M 72 150 L 102 108 L 142 108 L 142 150 Z" fill="#e0f2fe"/>
+    <path d="M 158 108 L 198 108 L 228 150 L 158 150 Z" fill="#e0f2fe"/>
+    <!-- Luces -->
+    <circle cx="50" cy="210" r="14" fill="#fef08a"/>
+    <circle cx="250" cy="210" r="14" fill="#ef4444"/>
+    <!-- Ruedas -->
+    <circle cx="80" cy="270" r="32" fill="#0f172a" stroke="#cbd5e1" stroke-width="8"/>
+    <circle cx="220" cy="270" r="32" fill="#0f172a" stroke="#cbd5e1" stroke-width="8"/>
+    <circle cx="80" cy="270" r="12" fill="#94a3b8"/>
+    <circle cx="220" cy="270" r="12" fill="#94a3b8"/>
+  </g>
+</svg>

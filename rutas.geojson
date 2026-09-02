@@ -1,0 +1,462 @@
+{
+  "type": "FeatureCollection",
+  "name": "Lineas_Taxis_Colectivos_Punta_Arenas",
+  "crs": {
+    "type": "name",
+    "properties": {
+      "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
+    }
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "linea_id": "L01",
+        "nombre": "L01 - Costanera - Sur",
+        "sentido": "ida",
+        "color": "#2563eb",
+        "descripcion": "Ida Sur a Norte por Costanera"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-70.93, -53.185],
+          [-70.922, -53.178],
+          [-70.915, -53.17],
+          [-70.91, -53.165],
+          [-70.906, -53.162],
+          [-70.902, -53.155],
+          [-70.898, -53.148],
+          [-70.892, -53.14]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "linea_id": "L01",
+        "nombre": "L01 - Costanera - Sur",
+        "sentido": "vuelta",
+        "color": "#2563eb",
+        "descripcion": "Vuelta Norte a Sur por España y Chiloé (lazo asimétrico)"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-70.892, -53.14],
+          [-70.903, -53.147],
+          [-70.91, -53.156],
+          [-70.914, -53.164],
+          [-70.92, -53.172],
+          [-70.926, -53.179],
+          [-70.93, -53.185]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "linea_id": "L02",
+        "nombre": "L02 - Centro - Norte",
+        "sentido": "ida",
+        "color": "#dc2626",
+        "descripcion": "Ida Poniente a Norte pasando por Bories"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-70.942, -53.164],
+          [-70.932, -53.164],
+          [-70.92, -53.163],
+          [-70.91, -53.163],
+          [-70.907, -53.158],
+          [-70.902, -53.15],
+          [-70.896, -53.142],
+          [-70.89, -53.134]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "linea_id": "L02",
+        "nombre": "L02 - Centro - Norte",
+        "sentido": "vuelta",
+        "color": "#dc2626",
+        "descripcion": "Vuelta Norte a Poniente por Magallanes y Colón (lazo asimétrico)"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-70.89, -53.134],
+          [-70.897, -53.144],
+          [-70.904, -53.152],
+          [-70.912, -53.16],
+          [-70.918, -53.165],
+          [-70.93, -53.166],
+          [-70.942, -53.164]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "linea_id": "L03",
+        "nombre": "L03 - 18 de Septiembre - Zona Franca",
+        "sentido": "ida",
+        "color": "#059669",
+        "descripcion": "Ida Barrio 18 por Magallanes hacia Zona Franca"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-70.936, -53.18],
+          [-70.927, -53.174],
+          [-70.919, -53.169],
+          [-70.91, -53.164],
+          [-70.907, -53.16],
+          [-70.90, -53.151],
+          [-70.893, -53.14],
+          [-70.886, -53.128]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "linea_id": "L03",
+        "nombre": "L03 - 18 de Septiembre - Zona Franca",
+        "sentido": "vuelta",
+        "color": "#059669",
+        "descripcion": "Vuelta Zona Franca por Bulnes y 21 de Mayo (lazo asimétrico)"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-70.886, -53.128],
+          [-70.895, -53.138],
+          [-70.903, -53.149],
+          [-70.909, -53.157],
+          [-70.915, -53.166],
+          [-70.923, -53.173],
+          [-70.936, -53.18]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "linea_id": "L04",
+        "nombre": "L04 - Cerro La Cruz - Hospital",
+        "sentido": "ida",
+        "color": "#d97706",
+        "descripcion": "Ida Cerro hacia Hospital por Bulnes"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-70.948, -53.158],
+          [-70.938, -53.159],
+          [-70.924, -53.161],
+          [-70.911, -53.162],
+          [-70.908, -53.157],
+          [-70.904, -53.147],
+          [-70.898, -53.137],
+          [-70.892, -53.124]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "linea_id": "L04",
+        "nombre": "L04 - Cerro La Cruz - Hospital",
+        "sentido": "vuelta",
+        "color": "#d97706",
+        "descripcion": "Vuelta Hospital por Sarmiento y Fagnano hacia Cerro (lazo asimétrico)"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-70.892, -53.124],
+          [-70.899, -53.135],
+          [-70.906, -53.146],
+          [-70.914, -53.155],
+          [-70.92, -53.164],
+          [-70.935, -53.161],
+          [-70.948, -53.158]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "linea_id": "L05",
+        "nombre": "L05 - Playa Norte - Barrio Prat",
+        "sentido": "ida",
+        "color": "#7c3aed",
+        "descripcion": "Ida Playa Norte hacia Barrio Prat"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-70.892, -53.145],
+          [-70.902, -53.148],
+          [-70.912, -53.153],
+          [-70.916, -53.159],
+          [-70.909, -53.163],
+          [-70.913, -53.17],
+          [-70.923, -53.176],
+          [-70.933, -53.183]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "linea_id": "L05",
+        "nombre": "L05 - Playa Norte - Barrio Prat",
+        "sentido": "vuelta",
+        "color": "#7c3aed",
+        "descripcion": "Vuelta Barrio Prat hacia Playa Norte (simétrica)"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-70.933, -53.183],
+          [-70.923, -53.176],
+          [-70.913, -53.17],
+          [-70.909, -53.163],
+          [-70.916, -53.159],
+          [-70.912, -53.153],
+          [-70.902, -53.148],
+          [-70.892, -53.145]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "linea_id": "L06",
+        "nombre": "L06 - Circunvalación Poniente",
+        "sentido": "ida",
+        "color": "#0891b2",
+        "descripcion": "Ida por anillo perimetral poniente"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-70.944, -53.144],
+          [-70.95, -53.153],
+          [-70.953, -53.164],
+          [-70.95, -53.174],
+          [-70.942, -53.182],
+          [-70.932, -53.188],
+          [-70.922, -53.192],
+          [-70.912, -53.195]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "linea_id": "L06",
+        "nombre": "L06 - Circunvalación Poniente",
+        "sentido": "vuelta",
+        "color": "#0891b2",
+        "descripcion": "Vuelta por anillo perimetral poniente (simétrica)"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-70.912, -53.195],
+          [-70.922, -53.192],
+          [-70.932, -53.188],
+          [-70.942, -53.182],
+          [-70.95, -53.174],
+          [-70.953, -53.164],
+          [-70.95, -53.153],
+          [-70.944, -53.144]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "linea_id": "L07",
+        "nombre": "L07 - Archipiélago de Chiloé - Centro",
+        "sentido": "ida",
+        "color": "#db2777",
+        "descripcion": "Ida desde extremo Sur hacia Plaza de Armas"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-70.942, -53.195],
+          [-70.935, -53.186],
+          [-70.927, -53.178],
+          [-70.919, -53.171],
+          [-70.912, -53.166],
+          [-70.908, -53.163],
+          [-70.906, -53.159]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "linea_id": "L07",
+        "nombre": "L07 - Archipiélago de Chiloé - Centro",
+        "sentido": "vuelta",
+        "color": "#db2777",
+        "descripcion": "Vuelta desde Centro hacia extremo Sur (simétrica)"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-70.906, -53.159],
+          [-70.908, -53.163],
+          [-70.912, -53.166],
+          [-70.919, -53.171],
+          [-70.927, -53.178],
+          [-70.935, -53.186],
+          [-70.942, -53.195]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "linea_id": "L08",
+        "nombre": "L08 - Pampa Redonda - Tres Puentes",
+        "sentido": "ida",
+        "color": "#4b5563",
+        "descripcion": "Ida desde Pampa Redonda hacia Terminal Tres Puentes"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-70.938, -53.134],
+          [-70.926, -53.132],
+          [-70.914, -53.129],
+          [-70.901, -53.127],
+          [-70.889, -53.123],
+          [-70.882, -53.117],
+          [-70.876, -53.11]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "linea_id": "L08",
+        "nombre": "L08 - Pampa Redonda - Tres Puentes",
+        "sentido": "vuelta",
+        "color": "#4b5563",
+        "descripcion": "Vuelta Tres Puentes hacia Pampa Redonda (simétrica)"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-70.876, -53.11],
+          [-70.882, -53.117],
+          [-70.889, -53.123],
+          [-70.901, -53.127],
+          [-70.914, -53.129],
+          [-70.926, -53.132],
+          [-70.938, -53.134]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "linea_id": "L09",
+        "nombre": "L09 - Mirador - Puerto",
+        "sentido": "ida",
+        "color": "#4f46e5",
+        "descripcion": "Ida desde Mirador hacia sector Puerto y Muelle Prat"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-70.946, -53.169],
+          [-70.936, -53.168],
+          [-70.924, -53.167],
+          [-70.915, -53.165],
+          [-70.909, -53.164],
+          [-70.905, -53.163],
+          [-70.898, -53.163]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "linea_id": "L09",
+        "nombre": "L09 - Mirador - Puerto",
+        "sentido": "vuelta",
+        "color": "#4f46e5",
+        "descripcion": "Vuelta Puerto hacia sector Mirador (simétrica)"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-70.898, -53.163],
+          [-70.905, -53.163],
+          [-70.909, -53.164],
+          [-70.915, -53.165],
+          [-70.924, -53.167],
+          [-70.936, -53.168],
+          [-70.946, -53.169]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "linea_id": "L10",
+        "nombre": "L10 - Río Seco - Centro Rápido",
+        "sentido": "ida",
+        "color": "#ca8a04",
+        "descripcion": "Ida acceso rápido por Ruta 9 norte hacia Centro"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-70.865, -53.095],
+          [-70.876, -53.112],
+          [-70.886, -53.127],
+          [-70.894, -53.139],
+          [-70.9, -53.149],
+          [-70.906, -53.157],
+          [-70.909, -53.162],
+          [-70.913, -53.165]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "linea_id": "L10",
+        "nombre": "L10 - Río Seco - Centro Rápido",
+        "sentido": "vuelta",
+        "color": "#ca8a04",
+        "descripcion": "Vuelta Centro hacia Ruta 9 norte / Río Seco (simétrica)"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-70.913, -53.165],
+          [-70.909, -53.162],
+          [-70.906, -53.157],
+          [-70.9, -53.149],
+          [-70.894, -53.139],
+          [-70.886, -53.127],
+          [-70.876, -53.112],
+          [-70.865, -53.095]
+        ]
+      }
+    }
+  ]
+}
