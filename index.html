@@ -53,61 +53,90 @@
       }
 
       #map {
-        height: 45vh !important;
-        min-height: 240px;
+        height: 48vh !important;
+        min-height: 220px;
         order: 1;
       }
 
       #sidebar {
         width: 100% !important;
         min-width: 100% !important;
-        height: 55vh !important;
+        height: 52vh !important;
         order: 2;
         border-right: none;
         border-top: 2px solid #e2e8f0;
       }
 
       .header {
-        padding: 10px 16px;
+        padding: 10px 14px !important;
       }
 
       .header h1 {
-        font-size: 0.95rem;
+        font-size: 0.92rem !important;
       }
 
       .content {
-        padding: 12px 14px;
-        gap: 10px;
+        padding: 10px 14px !important;
+        gap: 10px !important;
       }
 
       .footer-actions {
-        padding: 10px 14px;
+        padding: 8px 12px !important;
       }
 
       .legend {
-        max-height: 140px !important;
+        max-height: 200px !important;
         max-width: 200px !important;
-        padding: 8px 10px !important;
+        padding: 6px 10px !important;
         font-size: 0.7rem !important;
+      }
+
+      #legend-body {
+        display: none; /* Colapsada por defecto en móviles para no tapar el mapa */
       }
     }
 
     .header {
-      padding: 16px 20px;
+      padding: 14px 20px;
       background: #1e293b;
       color: #ffffff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
     }
 
-    .header h1 {
-      font-size: 1.1rem;
+    .header-text h1 {
+      font-size: 1.05rem;
       font-weight: 700;
       letter-spacing: -0.02em;
     }
 
-    .header p {
-      font-size: 0.78rem;
+    .header-text p {
+      font-size: 0.75rem;
       color: #94a3b8;
-      margin-top: 4px;
+      margin-top: 2px;
+    }
+
+    .btn-install-pwa {
+      background: #10b981;
+      color: #ffffff;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+      box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);
+      transition: background 0.15s ease;
+    }
+
+    .btn-install-pwa:hover {
+      background: #059669;
     }
 
     .content {
@@ -419,31 +448,47 @@
     }
 
     .legend {
-      background: rgba(255, 255, 255, 0.95);
-      padding: 12px 14px;
+      background: rgba(255, 255, 255, 0.96);
+      padding: 10px 12px;
       border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
-      font-size: 0.76rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.18);
+      font-size: 0.74rem;
       line-height: 1.4;
-      max-height: 280px;
+      max-height: 260px;
       overflow-y: auto;
-      max-width: 250px;
+      max-width: 230px;
+      cursor: default;
     }
 
-    .legend h4 {
-      font-size: 0.82rem;
+    .legend-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
       font-weight: 700;
-      margin-bottom: 6px;
+      gap: 6px;
+      padding-bottom: 2px;
+    }
+
+    .legend-header h4 {
+      font-size: 0.8rem;
+      margin: 0;
       color: #0f172a;
+    }
+
+    .legend-toggle-icon {
+      font-size: 0.7rem;
+      color: #475569;
+      font-weight: bold;
     }
 
     .legend-type {
       display: flex;
       gap: 12px;
-      padding-bottom: 8px;
-      margin-bottom: 8px;
+      padding: 6px 0;
+      margin-bottom: 6px;
       border-bottom: 1px solid #e2e8f0;
-      font-size: 0.74rem;
+      font-size: 0.72rem;
       color: #475569;
     }
 
@@ -451,7 +496,7 @@
       display: flex;
       align-items: center;
       gap: 6px;
-      margin-bottom: 5px;
+      margin-bottom: 4px;
     }
 
     .legend-color {
@@ -467,8 +512,13 @@
   <!-- Sidebar UI -->
   <aside id="sidebar">
     <div class="header">
-      <h1>Recomendador de Colectivos</h1>
-      <p>Beta con sentido de circulación — Punta Arenas</p>
+      <div class="header-text">
+        <h1>Colectivos Punta Arenas</h1>
+        <p>Recomendador de rutas inteligente</p>
+      </div>
+      <button id="btn-install-pwa" class="btn-install-pwa" title="Instalar aplicación en la pantalla de inicio">
+        📲 Instalar App
+      </button>
     </div>
 
     <div class="content">
@@ -786,28 +836,49 @@
       mapLayers.push({ trayecto, polyline });
     });
 
-    // Control de Leyenda
+    // Control de Leyenda Colapsable
     const legend = L.control({ position: 'bottomright' });
     legend.onAdd = function () {
       const div = L.DomUtil.create('div', 'legend');
+      div.id = 'map-legend-box';
       div.innerHTML = `
-        <h4>Líneas y Sentidos</h4>
-        <div class="legend-type">
-          <span><strong>──</strong> Ida (sólido)</span>
-          <span><strong>╌╌</strong> Vuelta (punteado)</span>
+        <div class="legend-header" id="legend-header" onclick="toggleLegend()" title="Toca para mostrar u ocultar">
+          <h4>🗺️ Líneas y Sentidos</h4>
+          <span id="legend-toggle-icon" class="legend-toggle-icon">▼</span>
+        </div>
+        <div id="legend-body">
+          <div class="legend-type">
+            <span><strong>──</strong> Ida (sólido)</span>
+            <span><strong>╌╌</strong> Vuelta (punteado)</span>
+          </div>
+          <div id="legend-list">
+            ${DATASET_COLECTIVOS.map(linea => `
+              <div class="legend-item">
+                <span class="legend-color" style="background:${linea.color}"></span>
+                <span>${linea.nombre}</span>
+              </div>
+            `).join('')}
+          </div>
         </div>
       `;
-      DATASET_COLECTIVOS.forEach(linea => {
-        div.innerHTML += `
-          <div class="legend-item">
-            <span class="legend-color" style="background:${linea.color}"></span>
-            <span>${linea.nombre}</span>
-          </div>
-        `;
-      });
+      L.DomEvent.disableClickPropagation(div);
       return div;
     };
     legend.addTo(map);
+
+    window.toggleLegend = function() {
+      const body = document.getElementById('legend-body');
+      const icon = document.getElementById('legend-toggle-icon');
+      if (!body || !icon) return;
+      const isHidden = body.style.display === 'none' || window.getComputedStyle(body).display === 'none';
+      if (isHidden) {
+        body.style.display = 'block';
+        icon.textContent = '▼';
+      } else {
+        body.style.display = 'none';
+        icon.textContent = '▲';
+      }
+    };
 
     /* ==========================================================================
        5. INTERACCIÓN Y EVENTOS
@@ -1008,7 +1079,7 @@
 
         origenMarker = L.marker(origen, {
           icon: createMarkerIcon('O', 'origin-marker')
-        }).addTo(map).bindPopup('<strong>Origen (O)</strong>').openPopup();
+        }).addTo(map).bindPopup('<strong>Origen (O)</strong>');
 
         origenCircle = L.circle(origen, {
           radius: searchRadius,
@@ -1030,7 +1101,7 @@
 
         destinoMarker = L.marker(destino, {
           icon: createMarkerIcon('D', 'dest-marker')
-        }).addTo(map).bindPopup('<strong>Destino (D)</strong>').openPopup();
+        }).addTo(map).bindPopup('<strong>Destino (D)</strong>');
 
         destinoCircle = L.circle(destino, {
           radius: searchRadius,
@@ -1055,7 +1126,7 @@
 
         origenMarker = L.marker(origen, {
           icon: createMarkerIcon('O', 'origin-marker')
-        }).addTo(map).bindPopup('<strong>Origen (O)</strong>').openPopup();
+        }).addTo(map).bindPopup('<strong>Origen (O)</strong>');
 
         origenCircle = L.circle(origen, {
           radius: searchRadius,
@@ -1125,7 +1196,7 @@
 
           origenMarker = L.marker(origen, {
             icon: createMarkerIcon('O', 'origin-marker')
-          }).addTo(map).bindPopup('<strong>Tu Ubicación GPS (Origen)</strong>').openPopup();
+          }).addTo(map).bindPopup('<strong>Tu Ubicación GPS (Origen)</strong>');
 
           origenCircle = L.circle(origen, {
             radius: searchRadius,
@@ -1178,7 +1249,7 @@
     });
 
     /* ==========================================================================
-       7. REGISTRO DE SERVICE WORKER (PWA OFFLINE)
+       7. REGISTRO DE SERVICE WORKER E INSTALACIÓN PWA
        ========================================================================== */
     if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
       window.addEventListener('load', () => {
@@ -1187,6 +1258,34 @@
           .catch(err => console.warn('[PWA] Error registrando ServiceWorker:', err));
       });
     }
+
+    // Manejador del banner de instalación PWA en el celular
+    let deferredPrompt = null;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      const btn = document.getElementById('btn-install-pwa');
+      if (btn) btn.style.display = 'inline-flex';
+    });
+
+    const btnInstall = document.getElementById('btn-install-pwa');
+    if (btnInstall) {
+      btnInstall.addEventListener('click', async () => {
+        if (deferredPrompt) {
+          deferredPrompt.prompt();
+          const { outcome } = await deferredPrompt.userChoice;
+          console.log('[PWA] Resultado de instalación:', outcome);
+          deferredPrompt = null;
+          btnInstall.style.display = 'none';
+        }
+      });
+    }
+
+    window.addEventListener('appinstalled', () => {
+      console.log('[PWA] Aplicación instalada exitosamente');
+      const btn = document.getElementById('btn-install-pwa');
+      if (btn) btn.style.display = 'none';
+    });
   </script>
 </body>
 </html>

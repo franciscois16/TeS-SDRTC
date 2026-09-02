@@ -5,7 +5,7 @@
  * y que pueda instalarse en celulares como Progressive Web App (PWA).
  */
 
-const CACHE_NAME = 'colectivos-pua-v1';
+const CACHE_NAME = 'colectivos-pua-v2';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -13,6 +13,8 @@ const ASSETS_TO_CACHE = [
   './rutas.geojson',
   './manifest.json',
   './icon.svg',
+  './icon-192.png',
+  './icon-512.png',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'
 ];
@@ -40,7 +42,6 @@ self.addEventListener('activate', (event) => {
 
 // 3. Estrategia de Fetch: Cache First con fallback a Network
 self.addEventListener('fetch', (event) => {
-  // Evitar interceptar extensiones o protocolos no http(s)
   if (!event.request.url.startsWith('http')) return;
 
   event.respondWith(
@@ -49,7 +50,6 @@ self.addEventListener('fetch', (event) => {
         return cachedResponse;
       }
       return fetch(event.request).then((networkResponse) => {
-        // Cachear dinámicamente recursos válidos y teselas de mapa
         if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
           const responseToCache = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => {
@@ -58,7 +58,6 @@ self.addEventListener('fetch', (event) => {
         }
         return networkResponse;
       }).catch(() => {
-        // Si no hay red y se pide página principal, devolver index en caché
         if (event.request.mode === 'navigate') {
           return caches.match('./index.html');
         }
