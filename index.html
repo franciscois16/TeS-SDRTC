@@ -970,24 +970,6 @@
             dashArray: isVuelta ? '8, 6' : null
           });
           polyline.bringToFront();
-
-          // Renderizar vértices de la línea seleccionada
-          trayecto.coords.forEach(([lon, lat], idx) => {
-            const vMarker = L.circleMarker([lat, lon], {
-              radius: 5,
-              color: '#ffffff',
-              weight: 2,
-              fillColor: trayecto.color,
-              fillOpacity: 0.95
-            }).addTo(map);
-
-            vMarker.bindTooltip(`<strong>${trayecto.etiqueta}</strong><br>Vértice #${idx + 1}`, {
-              direction: 'top',
-              offset: [0, -4]
-            });
-
-            vertexMarkers.push(vMarker);
-          });
         } else {
           polyline.setStyle({
             color: trayecto.color,

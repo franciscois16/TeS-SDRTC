@@ -135,6 +135,10 @@ Ambas estrategias toman como parámetros:
   - Conversión a Progressive Web App (PWA) instalable en celulares (`manifest.json` e `icon.svg`).
   - Soporte de ejecución 100% Offline mediante Service Worker (`sw.js`).
   - Desacoplamiento del dataset modular (`rutas.js`) y generación de dataset estándar interoperable `rutas.geojson` (RFC 7946) para SIG/QGIS.
+- **v1.6 (Trazados ajustados a la Red Vial Real de Punta Arenas):**
+  - Generación de geometrías vectoriales que siguen con total precisión el eje de las calles de OpenStreetMap (Av. Bulnes, Av. Costanera, Bories, Magallanes, Av. España, Zenteno, 21 de Mayo, etc.).
+  - Conservación de sentidos de circulación y lazos asimétricos por calles unidireccionales del centro.
+  - Limpieza visual del mapa eliminando sobrecarga de marcadores de vértices.
 
 ---
 
