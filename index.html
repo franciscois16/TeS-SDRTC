@@ -10,8 +10,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <link rel="manifest" href="manifest.json" />
-  <link rel="icon" type="image/svg+xml" href="icon.svg" />
-  <link rel="apple-touch-icon" href="icon.svg" />
+  <link rel="icon" type="image/svg+xml" href="assets/icons/icon.svg" />
+  <link rel="apple-touch-icon" href="assets/icons/icon.svg" />
 
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -579,12 +579,12 @@
   <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <!-- Dataset de Líneas y Rutas -->
-  <script src="rutas.js"></script>
+  <script src="data/rutas.js"></script>
 
   <script>
     /* ==========================================================================
        1. ESTRUCTURACIÓN DE TRAYECTORIAS (IDA Y VUELTA)
-       El dataset se carga desde 'rutas.js' (DATASET_COLECTIVOS).
+       El dataset se carga desde 'data/rutas.js' (DATASET_COLECTIVOS).
        ========================================================================== */
     const TRAYECTORIAS = [];
     DATASET_COLECTIVOS.forEach(linea => {
@@ -811,9 +811,11 @@
     // Inicializar mapa centrado en Punta Arenas
     const map = L.map('map').setView([-53.158, -70.915], 13);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '&copy; <a href="https://openstreetmap.org">OpenStreetMap</a> contribuyentes'
+    // Cartografía base: OpenStreetMap France (100% libre y abierto, sin API key ni marcas de agua)
+    L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contribuyentes, teselas por <a href="https://openstreetmap.fr">OpenStreetMap France</a>',
+      subdomains: 'abc',
+      maxZoom: 20
     }).addTo(map);
 
     // Dibujar trayectorias (Ida: trazo sólido / Vuelta: trazo punteado)

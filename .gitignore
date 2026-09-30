@@ -11,3 +11,6 @@ Desktop.ini
 
 # Temporary / Scratch files
 scratch/
+
+# Agents configuration
+.agents/

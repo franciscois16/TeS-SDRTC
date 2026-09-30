@@ -5,16 +5,16 @@
  * y que pueda instalarse en celulares como Progressive Web App (PWA).
  */
 
-const CACHE_NAME = 'colectivos-pua-v2';
+const CACHE_NAME = 'colectivos-pua-v3';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
-  './rutas.js',
-  './rutas.geojson',
+  './data/rutas.js',
+  './data/rutas.geojson',
   './manifest.json',
-  './icon.svg',
-  './icon-192.png',
-  './icon-512.png',
+  './assets/icons/icon.svg',
+  './assets/icons/icon-192.png',
+  './assets/icons/icon-512.png',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'
 ];

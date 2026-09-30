@@ -24,19 +24,27 @@ Para esta fase de validación rápida antes de la integración con datos reales 
 
 - **Arquitectura Offline-First / Edge Computing:** El motor de recomendación corre en el dispositivo del usuario, eliminando latencia de red y costos de servidor.
 - **PWA (Progressive Web App):** Instalable en la pantalla de inicio de celulares y con soporte offline mediante Service Worker (`sw.js`).
-- **Librería de mapas:** [Leaflet 1.9.4](https://leafletjs.com/) cargada sobre cartografía base de [OpenStreetMap](https://www.openstreetmap.org/).
+- **Librería de mapas:** [Leaflet 1.9.4](https://leafletjs.com/) con cartografía base de [OpenStreetMap France](https://openstreetmap.fr/) (datos abiertos de [OpenStreetMap](https://www.openstreetmap.org/)).
 
 ### 📁 Estructura de Archivos del Proyecto
 ```text
 tesis/
-├── index.html     # Interfaz visual, motor de cálculo y cliente PWA
-├── rutas.js       # Dataset de rutas estructurado para JavaScript
-├── rutas.geojson  # Dataset estándar RFC 7946 interoperable (QGIS / SIG / Python)
-├── manifest.json  # Manifiesto de instalación PWA para dispositivos móviles
-├── sw.js          # Service Worker para funcionamiento 100% Offline
-├── icon.svg       # Ícono vectorial de la aplicación
-├── README.md      # Documentación técnica, metodológica y bitácora
-└── SPEC.md ...    # Especificación de requisitos original de la beta
+├── assets/
+│   └── icons/
+│       ├── icon.svg       # Ícono vectorial de la aplicación
+│       ├── icon-192.png   # Ícono PWA resolución estándar (192x192)
+│       └── icon-512.png   # Ícono PWA alta resolución (512x512)
+├── data/
+│   ├── rutas.geojson      # Dataset estándar RFC 7946 interoperable (QGIS / SIG / Python)
+│   └── rutas.js           # Dataset de rutas estructurado para JavaScript
+├── docs/
+│   ├── presentaciones/    # Presentaciones y propuesta de tesis (PPTX / PDF)
+│   ├── SPEC.md ...        # Especificación de requisitos original de la beta
+│   └── Stack_Tecnologico_y_Reunion_Profesor.md # Bitácora técnica y acuerdos
+├── index.html             # Interfaz visual, motor de cálculo y cliente PWA
+├── manifest.json          # Manifiesto de instalación PWA para dispositivos móviles
+├── sw.js                  # Service Worker para funcionamiento 100% Offline
+└── README.md              # Documentación técnica, metodológica y bitácora
 ```
 
 ---
@@ -139,6 +147,10 @@ Ambas estrategias toman como parámetros:
   - Generación de geometrías vectoriales que siguen con total precisión el eje de las calles de OpenStreetMap (Av. Bulnes, Av. Costanera, Bories, Magallanes, Av. España, Zenteno, 21 de Mayo, etc.).
   - Conservación de sentidos de circulación y lazos asimétricos por calles unidireccionales del centro.
   - Limpieza visual del mapa eliminando sobrecarga de marcadores de vértices.
+- **v1.7 (Reorganización Modular del Repositorio y Agentes):**
+  - Reestructuración de archivos en directorios semánticos: datos en `data/` (`rutas.geojson`, `rutas.js`), assets en `assets/icons/` (`icon.svg`, `icon-192.png`, `icon-512.png`), y presentaciones/documentos en `docs/`.
+  - Exclusión de configuración de agentes (`.agents/`) en `.gitignore`.
+  - Actualización de referencias en `index.html`, `manifest.json` y Service Worker (`sw.js` v3).
 
 ---
 
