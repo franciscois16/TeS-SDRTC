@@ -2,8 +2,8 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Recomendador de Rutas de Colectivos — Beta Punta Arenas</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Colectivos Punta Arenas — Recomendador de Rutas</title>
   
   <!-- PWA Meta tags y Manifest -->
   <meta name="theme-color" content="#1e293b" />
@@ -22,6 +22,7 @@
       margin: 0;
       padding: 0;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
     }
 
     body {
@@ -29,13 +30,17 @@
       height: 100vh;
       width: 100vw;
       overflow: hidden;
-      color: #2c3e50;
+      color: #1e293b;
       background: #f8fafc;
     }
 
+    /* ==========================================================================
+       SIDEBAR & DESKTOP LAYOUT (VISTA CIUDADANO)
+       ========================================================================== */
     #sidebar {
-      width: 390px;
-      min-width: 350px;
+      width: 400px;
+      min-width: 360px;
+      max-width: 440px;
       height: 100%;
       background: #ffffff;
       border-right: 1px solid #e2e8f0;
@@ -43,67 +48,29 @@
       flex-direction: column;
       box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
       z-index: 1000;
+      transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
     }
 
-    /* Adaptabilidad Responsiva para Celulares y Tablets */
-    @media (max-width: 768px) {
-      body {
-        flex-direction: column;
-        height: 100dvh;
-      }
+    #map {
+      flex: 1;
+      height: 100%;
+      background: #e2e8f0;
+      z-index: 1;
+    }
 
-      #map {
-        height: 48vh !important;
-        min-height: 220px;
-        order: 1;
-      }
-
-      #sidebar {
-        width: 100% !important;
-        min-width: 100% !important;
-        height: 52vh !important;
-        order: 2;
-        border-right: none;
-        border-top: 2px solid #e2e8f0;
-      }
-
-      .header {
-        padding: 10px 14px !important;
-      }
-
-      .header h1 {
-        font-size: 0.92rem !important;
-      }
-
-      .content {
-        padding: 10px 14px !important;
-        gap: 10px !important;
-      }
-
-      .footer-actions {
-        padding: 8px 12px !important;
-      }
-
-      .legend {
-        max-height: 200px !important;
-        max-width: 200px !important;
-        padding: 6px 10px !important;
-        font-size: 0.7rem !important;
-      }
-
-      #legend-body {
-        display: none; /* Colapsada por defecto en móviles para no tapar el mapa */
-      }
+    .sheet-handle-bar {
+      display: none;
     }
 
     .header {
-      padding: 14px 20px;
+      padding: 16px 20px;
       background: #1e293b;
       color: #ffffff;
       display: flex;
       justify-content: space-between;
       align-items: center;
       gap: 10px;
+      flex-shrink: 0;
     }
 
     .header-text h1 {
@@ -113,7 +80,7 @@
     }
 
     .header-text p {
-      font-size: 0.75rem;
+      font-size: 0.74rem;
       color: #94a3b8;
       margin-top: 2px;
     }
@@ -122,9 +89,10 @@
       background: #10b981;
       color: #ffffff;
       border: none;
-      padding: 6px 10px;
+      padding: 8px 12px;
+      min-height: 40px;
       border-radius: 6px;
-      font-size: 0.72rem;
+      font-size: 0.76rem;
       font-weight: 700;
       cursor: pointer;
       display: none;
@@ -145,7 +113,8 @@
       flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 14px;
+      -webkit-overflow-scrolling: touch;
     }
 
     .step-box {
@@ -154,12 +123,13 @@
       padding: 12px 14px;
       font-size: 0.85rem;
       border-left: 4px solid #3b82f6;
+      line-height: 1.45;
     }
 
     .step-box strong {
       display: block;
       color: #0f172a;
-      margin-bottom: 3px;
+      margin-bottom: 2px;
     }
 
     .control-group {
@@ -178,7 +148,14 @@
 
     .control-group input[type="range"] {
       width: 100%;
+      height: 38px;
       accent-color: #2563eb;
+      cursor: pointer;
+    }
+
+    .control-group input[type="range"]::-webkit-slider-thumb {
+      width: 24px;
+      height: 24px;
     }
 
     .badge-status {
@@ -201,7 +178,7 @@
 
     .badge-sentido {
       font-size: 0.72rem;
-      padding: 2px 6px;
+      padding: 2px 7px;
       border-radius: 4px;
       font-weight: 600;
       text-transform: uppercase;
@@ -222,7 +199,7 @@
     .strategy-card {
       border: 1px solid #e2e8f0;
       border-radius: 8px;
-      padding: 14px;
+      padding: 13px;
       background: #ffffff;
       transition: all 0.2s ease;
     }
@@ -267,16 +244,46 @@
       display: flex;
       flex-direction: column;
       gap: 6px;
-      padding: 9px 11px;
-      border-radius: 6px;
+      padding: 10px 12px;
+      border-radius: 8px;
       background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      transition: all 0.15s ease;
+      border: 2px solid #e2e8f0;
+      transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+      position: relative;
+      user-select: none;
     }
 
     .result-card:hover {
-      border-color: #cbd5e1;
-      background: #f1f5f9;
+      border-color: #93c5fd;
+      background: #f0f7ff;
+      box-shadow: 0 3px 8px rgba(37, 99, 235, 0.1);
+      transform: translateY(-1px);
+    }
+
+    .result-card.selected {
+      border-color: #2563eb !important;
+      background: #eff6ff !important;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.18) !important;
+      transform: translateY(-1px);
+    }
+
+    .badge-selected-status {
+      display: none;
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: #1d4ed8;
+      background: #dbeafe;
+      padding: 2px 7px;
+      border-radius: 4px;
+      border: 1px solid #bfdbfe;
+      margin-left: auto;
+    }
+
+    .result-card.selected .badge-selected-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
     }
 
     .result-header {
@@ -289,7 +296,7 @@
     .rank-badge {
       font-size: 0.68rem;
       font-weight: 700;
-      padding: 1px 5px;
+      padding: 2px 6px;
       border-radius: 4px;
       background: #e2e8f0;
       color: #334155;
@@ -304,12 +311,12 @@
     .result-metrics {
       display: flex;
       flex-direction: column;
-      gap: 2px;
-      font-size: 0.74rem;
+      gap: 4px;
+      font-size: 0.75rem;
       color: #475569;
       background: #ffffff;
-      padding: 5px 8px;
-      border-radius: 4px;
+      padding: 6px 9px;
+      border-radius: 6px;
       border: 1px solid #eef2f6;
     }
 
@@ -321,13 +328,13 @@
 
     .metric-val.highlight-dist {
       color: #0f172a;
-      font-size: 0.78rem;
+      font-size: 0.8rem;
     }
 
     .metric-sub {
       display: flex;
       gap: 5px;
-      font-size: 0.7rem;
+      font-size: 0.72rem;
       color: #64748b;
       flex-wrap: wrap;
     }
@@ -342,8 +349,8 @@
     }
 
     .color-dot {
-      width: 10px;
-      height: 10px;
+      width: 12px;
+      height: 12px;
       border-radius: 50%;
       flex-shrink: 0;
     }
@@ -355,8 +362,8 @@
     }
 
     .comparison-box {
-      border-radius: 6px;
-      padding: 10px 12px;
+      border-radius: 8px;
+      padding: 11px 13px;
       font-size: 0.8rem;
       font-weight: 500;
       line-height: 1.4;
@@ -374,24 +381,117 @@
       border: 1px solid #fde68a;
     }
 
+    .result-card.transfer-card {
+      border-left: 5px solid #8b5cf6 !important;
+      background: #faf5ff;
+    }
+
+    .result-card.transfer-card:hover {
+      border-color: #c084fc;
+      background: #f5f3ff;
+      box-shadow: 0 3px 8px rgba(126, 34, 206, 0.12);
+    }
+
+    .result-card.transfer-card.selected {
+      border-color: #7e22ce !important;
+      border-left: 5px solid #7e22ce !important;
+      background: #f3e8ff !important;
+      box-shadow: 0 4px 14px rgba(126, 34, 206, 0.22) !important;
+    }
+
+    .result-card.transfer-card.selected .badge-selected-status {
+      color: #6b21a8;
+      background: #f3e8ff;
+      border-color: #d8b4fe;
+    }
+
+    .transfer-badge {
+      background: #f3e8ff;
+      color: #7e22ce;
+      border: 1px solid #d8b4fe;
+      font-size: 0.7rem;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .transfer-flow {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      background: #ffffff;
+      padding: 8px 10px;
+      border-radius: 6px;
+      border: 1px solid #ede9fe;
+    }
+
+    .transfer-leg {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .transfer-leg-info {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 600;
+      font-size: 0.8rem;
+    }
+
+    .transfer-separator {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      color: #7e22ce;
+      font-size: 0.73rem;
+      font-weight: 600;
+      padding: 3px 6px;
+      background: #f5f3ff;
+      border-radius: 4px;
+      border: 1px dashed #d8b4fe;
+    }
+
+    .transfer-marker {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #7e22ce;
+      color: white;
+      border-radius: 50%;
+      font-size: 13px;
+      box-shadow: 0 2px 8px rgba(126, 34, 206, 0.5);
+      border: 2px solid white;
+    }
+
     .footer-actions {
-      padding: 14px 20px;
+      padding: 12px 18px;
       border-top: 1px solid #e2e8f0;
       background: #ffffff;
       display: flex;
       gap: 10px;
+      flex-shrink: 0;
     }
 
     .btn {
       flex: 1;
-      padding: 8px 12px;
-      border-radius: 6px;
-      font-size: 0.85rem;
+      min-height: 44px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 0.86rem;
       font-weight: 600;
       cursor: pointer;
       border: 1px solid transparent;
       transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
       text-align: center;
+      touch-action: manipulation;
     }
 
     .btn-primary {
@@ -404,12 +504,6 @@
       background: #1d4ed8;
     }
 
-    .btn-primary:disabled {
-      background: #94a3b8;
-      border-color: #94a3b8;
-      cursor: not-allowed;
-    }
-
     .btn-secondary {
       background: #f1f5f9;
       color: #334155;
@@ -418,12 +512,6 @@
 
     .btn-secondary:hover {
       background: #e2e8f0;
-    }
-
-    #map {
-      flex: 1;
-      height: 100%;
-      background: #e5e7eb;
     }
 
     /* Custom Leaflet Marker styles */
@@ -505,22 +593,159 @@
       border-radius: 2px;
       flex-shrink: 0;
     }
+
+    /* ==========================================================================
+       RESPONSIVE MOBILE / CELULAR (PUNTO 4: HOJA DESLIZANTE INFERIOR)
+       ========================================================================== */
+    @media (max-width: 768px) {
+      body {
+        position: relative;
+        width: 100vw;
+        height: 100dvh;
+        overflow: hidden;
+      }
+
+      #map {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+      }
+
+      #sidebar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100% !important;
+        min-width: 100% !important;
+        max-width: 100% !important;
+        max-height: 82dvh;
+        height: auto;
+        border-radius: 18px 18px 0 0;
+        box-shadow: 0 -6px 28px rgba(0, 0, 0, 0.25);
+        z-index: 1000;
+        border-right: none;
+        border-top: 1px solid #cbd5e1;
+        transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+        display: flex;
+        flex-direction: column;
+      }
+
+      .sheet-handle-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 16px;
+        background: #1e293b;
+        border-radius: 18px 18px 0 0;
+        cursor: pointer;
+        user-select: none;
+        touch-action: manipulation;
+        min-height: 52px;
+      }
+
+      .sheet-handle-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .sheet-pill {
+        width: 38px;
+        height: 5px;
+        background: #64748b;
+        border-radius: 3px;
+      }
+
+      .sheet-title-mobile {
+        color: #ffffff;
+        font-size: 0.88rem;
+        font-weight: 700;
+      }
+
+      .sheet-toggle-btn {
+        background: rgba(255, 255, 255, 0.16);
+        color: #ffffff;
+        border: none;
+        padding: 8px 14px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        cursor: pointer;
+      }
+
+      #sidebar.collapsed {
+        transform: translateY(calc(100% - 54px));
+      }
+
+      .header {
+        display: none;
+      }
+
+      .content {
+        padding: 12px 16px;
+        gap: 12px;
+        max-height: calc(82dvh - 110px);
+        overflow-y: auto;
+      }
+
+      .footer-actions {
+        padding: 10px 16px max(12px, env(safe-area-inset-bottom, 12px)) 16px;
+      }
+
+      .leaflet-bottom.leaflet-right {
+        bottom: 64px !important;
+        right: 10px;
+        transition: bottom 0.3s ease;
+      }
+
+      .legend {
+        max-height: 180px !important;
+        max-width: 190px !important;
+        padding: 6px 10px !important;
+        font-size: 0.7rem !important;
+      }
+
+      #legend-body {
+        display: none;
+      }
+    }
   </style>
 </head>
 <body>
 
-  <!-- Sidebar UI -->
+  <!-- Sidebar UI / Hoja Inferior Deslizable en Celulares -->
   <aside id="sidebar">
+    <!-- Barra Táctil Superior (Mobile) -->
+    <div class="sheet-handle-bar" onclick="handleSheetBarClick(event)">
+      <div class="sheet-handle-left">
+        <div class="sheet-pill"></div>
+        <span class="sheet-title-mobile" id="sheet-mobile-title">🚌 Paso 1: Toca el Origen</span>
+      </div>
+      <button type="button" class="sheet-toggle-btn" id="btn-toggle-sheet" onclick="toggleMobileSheet(event)" title="Colapsar o expandir panel">
+        ▲ Abrir Panel
+      </button>
+    </div>
+
+    <!-- Header Desktop -->
     <div class="header">
       <div class="header-text">
         <h1>Colectivos Punta Arenas</h1>
-        <p>Recomendador de rutas inteligente</p>
+        <p>Recomendador de Rutas Inteligente</p>
       </div>
       <button id="btn-install-pwa" class="btn-install-pwa" title="Instalar aplicación en la pantalla de inicio">
         📲 Instalar App
       </button>
     </div>
 
+    <!-- Contenido del Recomendador -->
     <div class="content">
       <div id="instruction-box" class="step-box">
         <strong>Paso 1 de 2</strong>
@@ -561,12 +786,11 @@
 
       <!-- Comparación Card -->
       <div id="comparison-container" style="display: none;">
-        <div id="comparison-box" class="comparison-box">
-          <!-- Dinámico -->
-        </div>
+        <div id="comparison-box" class="comparison-box"></div>
       </div>
     </div>
 
+    <!-- Footer Actions -->
     <div class="footer-actions">
       <button class="btn btn-primary" id="btn-gps">📍 Usar mi GPS</button>
       <button class="btn btn-secondary" id="btn-reset">Reiniciar Puntos</button>
@@ -578,250 +802,32 @@
 
   <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <!-- Dataset de Líneas y Rutas -->
+  <!-- Dataset de Rutas -->
   <script src="data/rutas.js"></script>
+  <!-- Motor Compartido de Ruteo y Geoespacial -->
+  <script src="motor.js"></script>
 
   <script>
     /* ==========================================================================
-       1. ESTRUCTURACIÓN DE TRAYECTORIAS (IDA Y VUELTA)
-       El dataset se carga desde 'data/rutas.js' (DATASET_COLECTIVOS).
+       1. INICIALIZACIÓN DEL MAPA Y TRAYECTORIAS
        ========================================================================== */
-    const TRAYECTORIAS = [];
-    DATASET_COLECTIVOS.forEach(linea => {
-      TRAYECTORIAS.push({
-        lineaId: linea.id,
-        nombre: linea.nombre,
-        sentido: "ida",
-        etiqueta: `${linea.nombre} (ida)`,
-        color: linea.color,
-        coords: linea.ida
-      });
-      TRAYECTORIAS.push({
-        lineaId: linea.id,
-        nombre: linea.nombre,
-        sentido: "vuelta",
-        etiqueta: `${linea.nombre} (vuelta)`,
-        color: linea.color,
-        coords: linea.vuelta
-      });
-    });
+    // Generar trayectorias evaluables con el motor compartido
+    const TRAYECTORIAS = generarTrayectorias(DATASET_COLECTIVOS);
+    const mapLayers = [];
 
-    /* ==========================================================================
-       2. FUNCIONES MATEMÁTICAS GEOESPACIALES
-       ========================================================================== */
-    const EARTH_RADIUS_METERS = 6371000;
+    // Centrado en Punta Arenas
+    const map = L.map('map', {
+      zoomControl: true,
+      tap: true
+    }).setView([-53.158, -70.915], 13);
 
-    /**
-     * Distancia Haversine entre dos puntos en metros.
-     */
-    function haversineDistance(lat1, lon1, lat2, lon2) {
-      const dLat = (lat2 - lat1) * Math.PI / 180;
-      const dLon = (lon2 - lon1) * Math.PI / 180;
-      const rLat1 = lat1 * Math.PI / 180;
-      const rLat2 = lat2 * Math.PI / 180;
-
-      const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                Math.cos(rLat1) * Math.cos(rLat2) *
-                Math.sin(dLon / 2) * Math.sin(dLon / 2);
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-      return EARTH_RADIUS_METERS * c;
-    }
-
-    /**
-     * Proyección ortogonal y distancia perpendicular de un punto a un segmento [A, B].
-     * Retorna { distance: metros, t: fracción 0..1 sobre el segmento }.
-     */
-    function projectPointToSegment(pLat, pLon, aLat, aLon, bLat, bLon) {
-      const cosLat = Math.cos(aLat * Math.PI / 180);
-      const kx = (Math.PI / 180) * EARTH_RADIUS_METERS * cosLat;
-      const ky = (Math.PI / 180) * EARTH_RADIUS_METERS;
-
-      const px = (pLon - aLon) * kx;
-      const py = (pLat - aLat) * ky;
-
-      const bx = (bLon - aLon) * kx;
-      const by = (bLat - aLat) * ky;
-
-      const segLenSq = bx * bx + by * by;
-
-      if (segLenSq === 0) {
-        return { distance: Math.hypot(px, py), t: 0 };
-      }
-
-      let t = (px * bx + py * by) / segLenSq;
-      t = Math.max(0, Math.min(1, t));
-
-      const projX = t * bx;
-      const projY = t * by;
-      const distance = Math.hypot(px - projX, py - projY);
-
-      return { distance, t };
-    }
-
-    /* ==========================================================================
-       3. ESTRATEGIAS DE RECOMENDACIÓN CON POSICIÓN ACUMULADA Y SENTIDO
-       ========================================================================== */
-
-    /**
-     * Estrategia 1: Proximidad simple a vértices
-     * 1. Encuentra el vértice más cercano al origen y su distancia acumulada.
-     * 2. Encuentra el vértice más cercano al destino y su distancia acumulada.
-     * 3. Valida: dOrig <= r && dDest <= r && posOrig < posDest
-     * 4. Ordena por menor distancia de caminata total (dOrigen + dDestino).
-     */
-    function estrategia1(origen, destino, trayectorias, r) {
-      const recomendadas = [];
-
-      for (const trayecto of trayectorias) {
-        const coords = trayecto.coords; // [[lon, lat], ...]
-
-        // Precalcular distancia acumulada en cada vértice
-        const cumDist = new Float64Array(coords.length);
-        cumDist[0] = 0;
-        for (let i = 1; i < coords.length; i++) {
-          const [lonPrev, latPrev] = coords[i - 1];
-          const [lonCurr, latCurr] = coords[i];
-          cumDist[i] = cumDist[i - 1] + haversineDistance(latPrev, lonPrev, latCurr, lonCurr);
-        }
-
-        // Buscar vértice más cercano a origen y destino
-        let bestOrigDist = Infinity;
-        let bestOrigPos = 0;
-
-        let bestDestDist = Infinity;
-        let bestDestPos = 0;
-
-        for (let i = 0; i < coords.length; i++) {
-          const [lon, lat] = coords[i];
-
-          const dOrig = haversineDistance(origen.lat, origen.lng, lat, lon);
-          if (dOrig < bestOrigDist) {
-            bestOrigDist = dOrig;
-            bestOrigPos = cumDist[i];
-          }
-
-          const dDest = haversineDistance(destino.lat, destino.lng, lat, lon);
-          if (dDest < bestDestDist) {
-            bestDestDist = dDest;
-            bestDestPos = cumDist[i];
-          }
-        }
-
-        // Validación de radio y sentido de circulación
-        if (bestOrigDist <= r && bestDestDist <= r && bestOrigPos < bestDestPos) {
-          recomendadas.push({
-            ...trayecto,
-            dOrigen: Math.round(bestOrigDist),
-            dDestino: Math.round(bestDestDist),
-            dTotalCaminata: Math.round(bestOrigDist + bestDestDist),
-            distanciaRecorrido: Math.round(bestDestPos - bestOrigPos)
-          });
-        }
-      }
-
-      // Ordenar de menor a mayor caminata total
-      recomendadas.sort((a, b) => a.dTotalCaminata - b.dTotalCaminata);
-
-      return recomendadas;
-    }
-
-    /**
-     * Estrategia 2: Proyección continua sobre segmentos
-     * 1. Encuentra el punto proyectado más cercano al origen y su posición exacta acumulada.
-     * 2. Encuentra el punto proyectado más cercano al destino y su posición exacta acumulada.
-     * 3. Valida: dOrig <= r && dDest <= r && posOrig < posDest
-     * 4. Ordena por menor distancia de caminata total (dOrigen + dDestino).
-     */
-    function estrategia2(origen, destino, trayectorias, r) {
-      const recomendadas = [];
-
-      for (const trayecto of trayectorias) {
-        const coords = trayecto.coords;
-
-        // Longitudes de cada segmento y acumulados
-        const segCount = coords.length - 1;
-        const cumSegDist = new Float64Array(segCount + 1);
-        const segLengths = new Float64Array(segCount);
-
-        cumSegDist[0] = 0;
-        for (let i = 0; i < segCount; i++) {
-          const [aLon, aLat] = coords[i];
-          const [bLon, bLat] = coords[i + 1];
-          const len = haversineDistance(aLat, aLon, bLat, bLon);
-          segLengths[i] = len;
-          cumSegDist[i + 1] = cumSegDist[i] + len;
-        }
-
-        let bestOrigDist = Infinity;
-        let bestOrigPos = 0;
-
-        let bestDestDist = Infinity;
-        let bestDestPos = 0;
-
-        for (let i = 0; i < segCount; i++) {
-          const [aLon, aLat] = coords[i];
-          const [bLon, bLat] = coords[i + 1];
-
-          // Proyección origen
-          const projOrig = projectPointToSegment(origen.lat, origen.lng, aLat, aLon, bLat, bLon);
-          if (projOrig.distance < bestOrigDist) {
-            bestOrigDist = projOrig.distance;
-            bestOrigPos = cumSegDist[i] + projOrig.t * segLengths[i];
-          }
-
-          // Proyección destino
-          const projDest = projectPointToSegment(destino.lat, destino.lng, aLat, aLon, bLat, bLon);
-          if (projDest.distance < bestDestDist) {
-            bestDestDist = projDest.distance;
-            bestDestPos = cumSegDist[i] + projDest.t * segLengths[i];
-          }
-        }
-
-        // Validación de radio y sentido de circulación
-        if (bestOrigDist <= r && bestDestDist <= r && bestOrigPos < bestDestPos) {
-          recomendadas.push({
-            ...trayecto,
-            dOrigen: Math.round(bestOrigDist),
-            dDestino: Math.round(bestDestDist),
-            dTotalCaminata: Math.round(bestOrigDist + bestDestDist),
-            distanciaRecorrido: Math.round(bestDestPos - bestOrigPos)
-          });
-        }
-      }
-
-      // Ordenar de menor a mayor caminata total
-      recomendadas.sort((a, b) => a.dTotalCaminata - b.dTotalCaminata);
-
-      return recomendadas;
-    }
-
-    /* ==========================================================================
-       4. GESTIÓN DEL MAPA Y ESTADO
-       ========================================================================== */
-    let origen = null;
-    let destino = null;
-    let clickCount = 0;
-    let searchRadius = 500;
-
-    let origenMarker = null;
-    let destinoMarker = null;
-    let origenCircle = null;
-    let destinoCircle = null;
-
-    // Inicializar mapa centrado en Punta Arenas
-    const map = L.map('map').setView([-53.158, -70.915], 13);
-
-    // Cartografía base: OpenStreetMap France (100% libre y abierto, sin API key ni marcas de agua)
     L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contribuyentes, teselas por <a href="https://openstreetmap.fr">OpenStreetMap France</a>',
       subdomains: 'abc',
       maxZoom: 20
     }).addTo(map);
 
-    // Dibujar trayectorias (Ida: trazo sólido / Vuelta: trazo punteado)
-    const mapLayers = [];
-    let vertexMarkers = [];
-
+    // Dibujar trayectorias en el mapa
     TRAYECTORIAS.forEach(trayecto => {
       const latlngs = trayecto.coords.map(coord => [coord[1], coord[0]]);
       const isVuelta = trayecto.sentido === "vuelta";
@@ -838,14 +844,16 @@
       mapLayers.push({ trayecto, polyline });
     });
 
-    // Control de Leyenda Colapsable
+    /* ==========================================================================
+       2. LEYENDA DEL MAPA COLAPSABLE
+       ========================================================================== */
     const legend = L.control({ position: 'bottomright' });
     legend.onAdd = function () {
       const div = L.DomUtil.create('div', 'legend');
       div.id = 'map-legend-box';
       div.innerHTML = `
         <div class="legend-header" id="legend-header" onclick="toggleLegend()" title="Toca para mostrar u ocultar">
-          <h4>🗺️ Líneas y Sentidos</h4>
+          <h4>🗺️ Líneas (${DATASET_COLECTIVOS.length})</h4>
           <span id="legend-toggle-icon" class="legend-toggle-icon">▼</span>
         </div>
         <div id="legend-body">
@@ -883,15 +891,31 @@
     };
 
     /* ==========================================================================
-       5. INTERACCIÓN Y EVENTOS
+       3. INTERACCIÓN Y MOTOR DE RECOMENDACIÓN
        ========================================================================== */
+    let origen = null;
+    let destino = null;
+    let clickCount = 0;
+    let searchRadius = 500;
+
+    let origenMarker = null;
+    let destinoMarker = null;
+    let origenCircle = null;
+    let destinoCircle = null;
+    let transferMarker = null;
+    let transferWalkLine = null;
+
+    // Estado para vinculación coordinada (Brushing & Linking)
+    let currentResultsE1 = [];
+    let currentResultsE2 = [];
+    let selectedOption = null; // { strategyKey: 'e1'|'e2', index: number }
 
     function createMarkerIcon(text, className) {
       return L.divIcon({
         className: 'custom-div-icon',
-        html: `<div class="point-marker ${className}" style="width:24px;height:24px;">${text}</div>`,
-        iconSize: [24, 24],
-        iconAnchor: [12, 12]
+        html: `<div class="point-marker ${className}" style="width:26px;height:26px;">${text}</div>`,
+        iconSize: [26, 26],
+        iconAnchor: [13, 13]
       });
     }
 
@@ -899,22 +923,22 @@
       clickCount = 0;
       origen = null;
       destino = null;
+      currentResultsE1 = [];
+      currentResultsE2 = [];
+      selectedOption = null;
 
       if (origenMarker) map.removeLayer(origenMarker);
       if (destinoMarker) map.removeLayer(destinoMarker);
       if (origenCircle) map.removeLayer(origenCircle);
       if (destinoCircle) map.removeLayer(destinoCircle);
+      if (transferMarker) { map.removeLayer(transferMarker); transferMarker = null; }
+      if (transferWalkLine) { map.removeLayer(transferWalkLine); transferWalkLine = null; }
 
       origenMarker = null;
       destinoMarker = null;
       origenCircle = null;
       destinoCircle = null;
 
-      // Limpiar marcadores de vértices
-      vertexMarkers.forEach(m => map.removeLayer(m));
-      vertexMarkers = [];
-
-      // Restaurar estilo normal de líneas
       mapLayers.forEach(({ polyline, trayecto }) => {
         const isVuelta = trayecto.sentido === "vuelta";
         polyline.setStyle({
@@ -925,7 +949,6 @@
         });
       });
 
-      // Resetear UI
       document.getElementById('instruction-box').innerHTML = `
         <strong>Paso 1 de 2</strong>
         Haz clic en el mapa para marcar el <span class="badge-status badge-origin">Origen</span>.
@@ -935,129 +958,340 @@
       document.getElementById('results-e1').innerHTML = '<span class="no-results">Esperando selección de puntos...</span>';
       document.getElementById('results-e2').innerHTML = '<span class="no-results">Esperando selección de puntos...</span>';
       document.getElementById('comparison-container').style.display = 'none';
+
+      updateMobileHeaderTitle("🚌 Paso 1: Toca el Origen");
     }
 
     function executeEvaluation() {
       if (!origen || !destino) return;
 
-      // Limpiar marcadores de vértices previos
-      vertexMarkers.forEach(m => map.removeLayer(m));
-      vertexMarkers = [];
+      // Limpiar marcas de transbordo previas
+      if (transferMarker) { map.removeLayer(transferMarker); transferMarker = null; }
+      if (transferWalkLine) { map.removeLayer(transferWalkLine); transferWalkLine = null; }
 
-      // Ejecución Estrategia 1 con medición de tiempo
       const t0_e1 = performance.now();
-      const resE1 = estrategia1(origen, destino, TRAYECTORIAS, searchRadius);
+      let resE1 = estrategia1(origen, destino, TRAYECTORIAS, searchRadius);
       const t1_e1 = performance.now();
-      const durationE1 = (t1_e1 - t0_e1).toFixed(3);
+      let durationE1 = (t1_e1 - t0_e1).toFixed(3);
 
-      // Ejecución Estrategia 2 con medición de tiempo
       const t0_e2 = performance.now();
-      const resE2 = estrategia2(origen, destino, TRAYECTORIAS, searchRadius);
+      let resE2 = estrategia2(origen, destino, TRAYECTORIAS, searchRadius);
       const t1_e2 = performance.now();
-      const durationE2 = (t1_e2 - t0_e2).toFixed(3);
+      let durationE2 = (t1_e2 - t0_e2).toFixed(3);
 
-      // Conjuntos de recomendadas
-      const e1Labels = new Set(resE1.map(t => t.etiqueta));
-      const e2Labels = new Set(resE2.map(t => t.etiqueta));
-      const allRecommended = new Set([...e1Labels, ...e2Labels]);
+      let isTransbordo = false;
 
-      // Resaltar en el mapa y dibujar vértices
-      mapLayers.forEach(({ polyline, trayecto }) => {
-        const isVuelta = trayecto.sentido === "vuelta";
-        if (allRecommended.has(trayecto.etiqueta)) {
-          polyline.setStyle({
-            color: trayecto.color,
-            weight: 6.5,
-            opacity: 1.0,
-            dashArray: isVuelta ? '8, 6' : null
-          });
-          polyline.bringToFront();
-        } else {
-          polyline.setStyle({
-            color: trayecto.color,
-            weight: 2,
-            opacity: 0.15,
-            dashArray: isVuelta ? '4, 4' : null
-          });
-        }
-      });
+      // Si no existe ninguna línea directa en el sentido solicitado, calcular transbordo automáticamente
+      if (resE1.length === 0 && resE2.length === 0) {
+        isTransbordo = true;
+        const t0_tr1 = performance.now();
+        resE1 = estrategia1Transbordo(origen, destino, TRAYECTORIAS, searchRadius);
+        const t1_tr1 = performance.now();
+        durationE1 = (t1_tr1 - t0_tr1).toFixed(3);
 
-      // Renderizar resultados en Sidebar
+        const t0_tr2 = performance.now();
+        resE2 = estrategia2Transbordo(origen, destino, TRAYECTORIAS, searchRadius);
+        const t1_tr2 = performance.now();
+        durationE2 = (t1_tr2 - t0_tr2).toFixed(3);
+      }
+
+      currentResultsE1 = resE1;
+      currentResultsE2 = resE2;
+
       document.getElementById('time-e1').textContent = `${durationE1} ms`;
       document.getElementById('time-e2').textContent = `${durationE2} ms`;
 
-      renderResultList('results-e1', resE1);
-      renderResultList('results-e2', resE2);
+      renderResultList('results-e1', resE1, 'e1');
+      renderResultList('results-e2', resE2, 'e2');
 
-      // Comparación
       const compBox = document.getElementById('comparison-box');
       const compContainer = document.getElementById('comparison-container');
       compContainer.style.display = 'block';
 
-      const areEqual = e1Labels.size === e2Labels.size && [...e1Labels].every(lbl => e2Labels.has(lbl));
+      if (!isTransbordo) {
+        const e1Labels = new Set(resE1.map(t => t.etiqueta));
+        const e2Labels = new Set(resE2.map(t => t.etiqueta));
+        const areEqual = e1Labels.size === e2Labels.size && [...e1Labels].every(lbl => e2Labels.has(lbl));
 
-      if (areEqual) {
-        compBox.className = 'comparison-box comparison-same';
-        if (e1Labels.size === 0) {
-          compBox.innerHTML = '⚖️ <strong>Coincidencia:</strong> Ninguna dirección de línea conecta este trayecto en el sentido solicitado.';
+        if (areEqual) {
+          compBox.className = 'comparison-box comparison-same';
+          compBox.innerHTML = `⚖️ <strong>Rutas directas:</strong> Ambas estrategias coinciden en las mismas ${e1Labels.size} opción(es) de viaje directo.`;
         } else {
-          compBox.innerHTML = `⚖️ <strong>Coincidencia:</strong> Ambas estrategias recomiendan exactamente las mismas ${e1Labels.size} opción(es) de viaje.`;
+          compBox.className = 'comparison-box comparison-diff';
+          compBox.innerHTML = `⚠️ <strong>Diferencia detectada en rutas directas:</strong><br>
+            • E1 (proximidad vértices): ${e1Labels.size} trayecto(s)<br>
+            • E2 (proyección segmento): ${e2Labels.size} trayecto(s)<br>
+            <em>La Estrategia 2 proyecta la posición continua sobre el eje de la calle con mayor precisión métrica.</em>`;
         }
+        updateMobileHeaderTitle(`✅ ${resE1.length} ruta(s) directa(s)`);
       } else {
-        compBox.className = 'comparison-box comparison-diff';
-        compBox.innerHTML = `⚠️ <strong>Diferencia detectada:</strong><br>
-          • E1 (proximidad vértices): ${e1Labels.size} trayecto(s)<br>
-          • E2 (proyección segmento): ${e2Labels.size} trayecto(s)<br>
-          <em>La Estrategia 2 proyecta la posición a lo largo de los segmentos con mayor precisión métrica.</em>`;
+        if (resE1.length > 0 || resE2.length > 0) {
+          compBox.className = 'comparison-box comparison-diff';
+          compBox.innerHTML = `🔄 <strong>Sin línea directa:</strong> No existe una única línea que conecte origen y destino en el sentido solicitado.<br>
+            Se calcularon automáticamente las mejores opciones con <strong>1 transbordo entre 2 líneas</strong>.`;
+          updateMobileHeaderTitle(`🔄 ${resE1.length} opción(es) con transbordo`);
+        } else {
+          compBox.className = 'comparison-box comparison-diff';
+          compBox.innerHTML = `❌ <strong>Sin cobertura:</strong> No se encontraron líneas directas ni combinaciones con 1 transbordo dentro del radio de ${searchRadius} m. Intenta aumentar el radio de búsqueda.`;
+          updateMobileHeaderTitle(`❌ Sin cobertura`);
+        }
+      }
+
+      // Brushing & Linking: Seleccionar y destacar automáticamente la opción #1 en el mapa
+      if (resE2.length > 0) {
+        selectRouteOption('e2', 0);
+      } else if (resE1.length > 0) {
+        selectRouteOption('e1', 0);
+      } else {
+        selectedOption = null;
+        mapLayers.forEach(({ polyline, trayecto }) => {
+          polyline.setStyle({
+            color: trayecto.color,
+            weight: 2,
+            opacity: 0.15,
+            dashArray: trayecto.sentido === "vuelta" ? '4, 4' : null
+          });
+        });
+      }
+
+      if (window.innerWidth <= 768) {
+        expandMobileSheet();
       }
     }
 
-    function renderResultList(containerId, results) {
+    /* ==========================================================================
+       VINCULACIÓN COORDINADA Y RESALTADO EN EL MAPA (BRUSHING & LINKING)
+       ========================================================================== */
+    function highlightOptionOnMap(item, isPreview = false) {
+      if (!item) return;
+
+      // Limpiar marcas de transbordo previas si existían
+      if (transferMarker) { map.removeLayer(transferMarker); transferMarker = null; }
+      if (transferWalkLine) { map.removeLayer(transferWalkLine); transferWalkLine = null; }
+
+      if (item.tipo === 'transbordo') {
+        const activeLabels = new Set([item.trayecto1.etiqueta, item.trayecto2.etiqueta]);
+
+        mapLayers.forEach(({ polyline, trayecto }) => {
+          const isVuelta = trayecto.sentido === "vuelta";
+          if (activeLabels.has(trayecto.etiqueta)) {
+            polyline.setStyle({
+              color: trayecto.color,
+              weight: isPreview ? 8 : 7,
+              opacity: 1.0,
+              dashArray: isVuelta ? '8, 6' : null
+            });
+            polyline.bringToFront();
+          } else {
+            polyline.setStyle({
+              color: trayecto.color,
+              weight: 2,
+              opacity: 0.10,
+              dashArray: isVuelta ? '4, 4' : null
+            });
+          }
+        });
+
+        // Marcador visual de transbordo en el mapa
+        const transferIcon = L.divIcon({
+          className: 'custom-div-icon',
+          html: '<div class="transfer-marker" style="width:28px;height:28px;">🔄</div>',
+          iconSize: [28, 28],
+          iconAnchor: [14, 14]
+        });
+
+        transferMarker = L.marker([item.puntoBajada1.lat, item.puntoBajada1.lon], { icon: transferIcon })
+          .addTo(map)
+          .bindPopup(`<strong>Punto de Transbordo</strong><br>Desciende de <b>${item.trayecto1.nombre} (${item.trayecto1.sentido})</b> y camina <b>${item.dTransbordo} m</b> para abordar <b>${item.trayecto2.nombre} (${item.trayecto2.sentido})</b>.`);
+
+        // Línea peatonal punteada de conexión entre paraderos
+        if (item.dTransbordo > 5) {
+          transferWalkLine = L.polyline([
+            [item.puntoBajada1.lat, item.puntoBajada1.lon],
+            [item.puntoSubida2.lat, item.puntoSubida2.lon]
+          ], {
+            color: '#7e22ce',
+            weight: 3.5,
+            dashArray: '5, 5'
+          }).addTo(map);
+        }
+      } else {
+        // Opción directa: resaltar exclusivamente la trayectoria de esta tarjeta
+        const targetLabel = item.etiqueta;
+
+        mapLayers.forEach(({ polyline, trayecto }) => {
+          const isVuelta = trayecto.sentido === "vuelta";
+          if (trayecto.etiqueta === targetLabel) {
+            polyline.setStyle({
+              color: trayecto.color,
+              weight: isPreview ? 8.5 : 7.5,
+              opacity: 1.0,
+              dashArray: isVuelta ? '8, 6' : null
+            });
+            polyline.bringToFront();
+          } else {
+            polyline.setStyle({
+              color: trayecto.color,
+              weight: 2,
+              opacity: 0.10,
+              dashArray: isVuelta ? '4, 4' : null
+            });
+          }
+        });
+      }
+    }
+
+    function selectRouteOption(strategyKey, index) {
+      const list = strategyKey === 'e1' ? currentResultsE1 : currentResultsE2;
+      if (!list || !list[index]) return;
+
+      selectedOption = { strategyKey, index };
+      const item = list[index];
+
+      // Actualizar clase activa en las tarjetas de resultados
+      document.querySelectorAll('.result-card').forEach(card => card.classList.remove('selected'));
+      const activeCard = document.getElementById(`card-${strategyKey}-${index}`);
+      if (activeCard) {
+        activeCard.classList.add('selected');
+      }
+
+      highlightOptionOnMap(item, false);
+    }
+
+    function previewRouteOption(strategyKey, index) {
+      const list = strategyKey === 'e1' ? currentResultsE1 : currentResultsE2;
+      if (!list || !list[index]) return;
+
+      highlightOptionOnMap(list[index], true);
+    }
+
+    function restoreSelectedRoute() {
+      if (selectedOption) {
+        const list = selectedOption.strategyKey === 'e1' ? currentResultsE1 : currentResultsE2;
+        if (list && list[selectedOption.index]) {
+          highlightOptionOnMap(list[selectedOption.index], false);
+        }
+      }
+    }
+
+    function renderResultList(containerId, results, strategyKey) {
       const container = document.getElementById(containerId);
       if (results.length === 0) {
-        container.innerHTML = '<span class="no-results">Sin líneas recomendadas en este sentido</span>';
+        container.innerHTML = '<span class="no-results">Sin opciones encontradas en este sentido</span>';
         return;
       }
       let html = '<ul class="results-list">';
       results.forEach((t, idx) => {
-        const badgeClass = t.sentido === 'ida' ? 'badge-ida' : 'badge-vuelta';
         const rankClass = idx === 0 ? 'rank-top' : '';
-        const kmRecorrido = (t.distanciaRecorrido / 1000).toFixed(1);
 
-        html += `
-          <li class="result-card">
-            <div class="result-header">
-              <div class="result-left">
-                <span class="rank-badge ${rankClass}">#${idx + 1}</span>
-                <span class="color-dot" style="background:${t.color}"></span>
-                <span><strong>${t.nombre}</strong></span>
+        if (t.tipo === 'transbordo') {
+          // Tarjeta especial de Transbordo
+          const kmT1 = (t.distanciaRecorridoT1 / 1000).toFixed(1);
+          const kmT2 = (t.distanciaRecorridoT2 / 1000).toFixed(1);
+
+          html += `
+            <li id="card-${strategyKey}-${idx}"
+                class="result-card transfer-card"
+                onclick="selectRouteOption('${strategyKey}', ${idx})"
+                onmouseenter="previewRouteOption('${strategyKey}', ${idx})"
+                onmouseleave="restoreSelectedRoute()"
+                title="Toca para mostrar esta alternativa con transbordo en el mapa">
+              <div class="result-header">
+                <div class="result-left">
+                  <span class="rank-badge ${rankClass}">#${idx + 1}</span>
+                  <span class="transfer-badge">🔄 1 Transbordo</span>
+                </div>
+                <span class="badge-selected-status">✓ En mapa</span>
               </div>
-              <span class="badge-sentido ${badgeClass}">${t.sentido}</span>
-            </div>
-            <div class="result-metrics">
-              <div class="metric-row">
-                <span>🚶 <strong>Caminata total:</strong></span>
-                <span class="metric-val highlight-dist"><strong>${t.dTotalCaminata} m</strong></span>
+
+              <div class="transfer-flow">
+                <div class="transfer-leg">
+                  <div class="transfer-leg-info">
+                    <span class="color-dot" style="background:${t.trayecto1.color}"></span>
+                    <span>${t.trayecto1.nombre}</span>
+                  </div>
+                  <span class="badge-sentido ${t.trayecto1.sentido === 'ida' ? 'badge-ida' : 'badge-vuelta'}">${t.trayecto1.sentido}</span>
+                </div>
+
+                <div class="transfer-separator">
+                  <span>🔄 Transbordo a pie: <strong>${t.dTransbordo} m</strong></span>
+                </div>
+
+                <div class="transfer-leg">
+                  <div class="transfer-leg-info">
+                    <span class="color-dot" style="background:${t.trayecto2.color}"></span>
+                    <span>${t.trayecto2.nombre}</span>
+                  </div>
+                  <span class="badge-sentido ${t.trayecto2.sentido === 'ida' ? 'badge-ida' : 'badge-vuelta'}">${t.trayecto2.sentido}</span>
+                </div>
               </div>
-              <div class="metric-sub">
-                <span>Subida: <strong>${t.dOrigen}m</strong></span>
-                <span>•</span>
-                <span>Bajada: <strong>${t.dDestino}m</strong></span>
-                <span>•</span>
-                <span>En colectivo: <strong>${kmRecorrido} km</strong></span>
+
+              <div class="result-metrics">
+                <div class="metric-row">
+                  <span>🚶 <strong>Caminata total acumulada:</strong></span>
+                  <span class="metric-val highlight-dist"><strong>${t.dTotalCaminata} m</strong></span>
+                </div>
+                <div class="metric-sub">
+                  <span>Subida: <strong>${t.dOrigen}m</strong></span>
+                  <span>•</span>
+                  <span>Tramo 1: <strong>${kmT1} km</strong></span>
+                  <span>•</span>
+                  <span>Transbordo: <strong>${t.dTransbordo}m</strong></span>
+                  <span>•</span>
+                  <span>Tramo 2: <strong>${kmT2} km</strong></span>
+                  <span>•</span>
+                  <span>Bajada: <strong>${t.dDestino}m</strong></span>
+                </div>
               </div>
-            </div>
-          </li>
-        `;
+            </li>
+          `;
+        } else {
+          // Tarjeta de Línea Directa
+          const badgeClass = t.sentido === 'ida' ? 'badge-ida' : 'badge-vuelta';
+          const kmRecorrido = (t.distanciaRecorrido / 1000).toFixed(1);
+
+          html += `
+            <li id="card-${strategyKey}-${idx}"
+                class="result-card"
+                onclick="selectRouteOption('${strategyKey}', ${idx})"
+                onmouseenter="previewRouteOption('${strategyKey}', ${idx})"
+                onmouseleave="restoreSelectedRoute()"
+                title="Toca para mostrar este recorrido en el mapa">
+              <div class="result-header">
+                <div class="result-left">
+                  <span class="rank-badge ${rankClass}">#${idx + 1}</span>
+                  <span class="color-dot" style="background:${t.color}"></span>
+                  <span><strong>${t.nombre}</strong></span>
+                </div>
+                <div style="display:flex; align-items:center; gap:5px;">
+                  <span class="badge-sentido ${badgeClass}">${t.sentido}</span>
+                  <span class="badge-selected-status">✓ En mapa</span>
+                </div>
+              </div>
+              <div class="result-metrics">
+                <div class="metric-row">
+                  <span>🚶 <strong>Caminata total:</strong></span>
+                  <span class="metric-val highlight-dist"><strong>${t.dTotalCaminata} m</strong></span>
+                </div>
+                <div class="metric-sub">
+                  <span>Subida: <strong>${t.dOrigen}m</strong></span>
+                  <span>•</span>
+                  <span>Bajada: <strong>${t.dDestino}m</strong></span>
+                  <span>•</span>
+                  <span>En colectivo: <strong>${kmRecorrido} km</strong></span>
+                </div>
+              </div>
+            </li>
+          `;
+        }
       });
       html += '</ul>';
       container.innerHTML = html;
     }
 
-    // Manejo de clics en el mapa
+    // Eventos de clic en el mapa
     map.on('click', function(e) {
       if (clickCount === 0) {
-        // Primer clic: Origen
         origen = e.latlng;
         clickCount = 1;
 
@@ -1078,8 +1312,12 @@
           <strong>Paso 2 de 2</strong>
           Haz clic en el mapa para marcar el <span class="badge-status badge-dest">Destino</span>.
         `;
+        updateMobileHeaderTitle("🎯 Paso 2: Toca el Destino");
+
+        if (window.innerWidth <= 768) {
+          collapseMobileSheet();
+        }
       } else if (clickCount === 1) {
-        // Segundo clic: Destino
         destino = e.latlng;
         clickCount = 2;
 
@@ -1103,7 +1341,6 @@
 
         executeEvaluation();
       } else {
-        // Tercer clic: Reinicia y marca nuevo origen
         resetPoints();
         origen = e.latlng;
         clickCount = 1;
@@ -1125,6 +1362,7 @@
           <strong>Paso 2 de 2</strong>
           Haz clic en el mapa para marcar el <span class="badge-status badge-dest">Destino</span>.
         `;
+        updateMobileHeaderTitle("🎯 Paso 2: Toca el Destino");
       }
     });
 
@@ -1144,11 +1382,56 @@
       }
     });
 
-    // Botón reiniciar
     document.getElementById('btn-reset').addEventListener('click', resetPoints);
 
     /* ==========================================================================
-       6. GEOLOCALIZACIÓN GPS
+       4. CONTROL RESPONSIVE EN MÓVILES (HOJA INFERIOR DESLIZANTE)
+       ========================================================================== */
+    function toggleMobileSheet(e) {
+      if (e) e.stopPropagation();
+      const sidebar = document.getElementById('sidebar');
+      if (!sidebar) return;
+      if (sidebar.classList.contains('collapsed')) {
+        expandMobileSheet();
+      } else {
+        collapseMobileSheet();
+      }
+    }
+
+    function handleSheetBarClick(e) {
+      if (e.target.id === 'btn-toggle-sheet') return;
+      toggleMobileSheet(e);
+    }
+
+    function expandMobileSheet() {
+      const sidebar = document.getElementById('sidebar');
+      const toggleBtn = document.getElementById('btn-toggle-sheet');
+      if (sidebar) sidebar.classList.remove('collapsed');
+      if (toggleBtn) toggleBtn.innerHTML = '▼ Minimizar';
+      setTimeout(() => map.invalidateSize(), 320);
+    }
+
+    function collapseMobileSheet() {
+      const sidebar = document.getElementById('sidebar');
+      const toggleBtn = document.getElementById('btn-toggle-sheet');
+      if (sidebar) sidebar.classList.add('collapsed');
+      if (toggleBtn) toggleBtn.innerHTML = '▲ Abrir Panel';
+      setTimeout(() => map.invalidateSize(), 320);
+    }
+
+    function updateMobileHeaderTitle(text) {
+      const titleEl = document.getElementById('sheet-mobile-title');
+      if (titleEl) titleEl.textContent = text;
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      if (window.innerWidth <= 768) {
+        collapseMobileSheet();
+      }
+    });
+
+    /* ==========================================================================
+       5. GEOLOCALIZACIÓN GPS
        ========================================================================== */
     function solicitarUbicacionGPS(auto = false) {
       if (!navigator.geolocation) {
@@ -1172,7 +1455,6 @@
           const userLat = position.coords.latitude;
           const userLng = position.coords.longitude;
 
-          // Reiniciar para fijar GPS como origen limpio
           resetPoints();
 
           origen = L.latLng(userLat, userLng);
@@ -1197,6 +1479,11 @@
             <strong>Paso 2 de 2</strong>
             Origen fijado en tu posición GPS. Haz clic en el mapa para marcar el <span class="badge-status badge-dest">Destino</span>.
           `;
+          updateMobileHeaderTitle("🎯 Paso 2: Toca el Destino");
+
+          if (window.innerWidth <= 768) {
+            collapseMobileSheet();
+          }
         },
         (error) => {
           if (btnGps) {
@@ -1224,16 +1511,13 @@
       );
     }
 
-    // Evento botón GPS
     document.getElementById('btn-gps').addEventListener('click', () => solicitarUbicacionGPS(false));
-
-    // Solicitar permiso de ubicación automáticamente al cargar la página
     window.addEventListener('DOMContentLoaded', () => {
       solicitarUbicacionGPS(true);
     });
 
     /* ==========================================================================
-       7. REGISTRO DE SERVICE WORKER E INSTALACIÓN PWA
+       6. REGISTRO DE SERVICE WORKER E INSTALACIÓN PWA
        ========================================================================== */
     if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
       window.addEventListener('load', () => {
@@ -1243,7 +1527,6 @@
       });
     }
 
-    // Manejador del banner de instalación PWA en el celular
     let deferredPrompt = null;
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();

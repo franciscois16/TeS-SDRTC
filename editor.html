@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Editor de Rutas de Colectivos — Administrador TeS-SDRTC</title>
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+      color: #1e293b;
+      background: #f8fafc;
+    }
+
+    /* Barra Superior de Administración */
+    .top-bar {
+      height: 58px;
+      background: #0f172a;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      border-bottom: 1px solid #334155;
+      flex-shrink: 0;
+      z-index: 1001;
+    }
+
+    .top-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .top-left h1 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge-admin {
+      background: #8b5cf6;
+      color: #ffffff;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .badge-status {
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 5px 10px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .badge-unsaved {
+      background: #fef08a;
+      color: #854d0e;
+      border: 1px solid #fde047;
+    }
+
+    .badge-saved {
+      background: #dcfce7;
+      color: #15803d;
+      border: 1px solid #86efac;
+    }
+
+    .badge-file {
+      background: #1e293b;
+      color: #94a3b8;
+      border: 1px solid #334155;
+      font-family: monospace;
+      font-size: 0.75rem;
+    }
+
+    .badge-file.connected {
+      color: #38bdf8;
+      border-color: #0284c7;
+    }
+
+    /* Contenedor Principal (Sidebar + Mapa) */
+    .main-container {
+      display: flex;
+      flex: 1;
+      height: calc(100vh - 58px);
+      overflow: hidden;
+    }
+
+    /* Sidebar del Editor */
+    #sidebar-editor {
+      width: 440px;
+      min-width: 400px;
+      max-width: 480px;
+      height: 100%;
+      background: #ffffff;
+      border-right: 1px solid #e2e8f0;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.04);
+      z-index: 1000;
+    }
+
+    .sidebar-scroll {
+      padding: 18px 20px;
+      overflow-y: auto;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    #map {
+      flex: 1;
+      height: 100%;
+      background: #e2e8f0;
+    }
+
+    /* Componentes UI */
+    .card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .card h3 {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #0f172a;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .instruction-step {
+      background: #f1f5f9;
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 0.85rem;
+      border-left: 4px solid #8b5cf6;
+      line-height: 1.45;
+    }
+
+    .instruction-step strong {
+      display: block;
+      color: #0f172a;
+      margin-bottom: 2px;
+    }
+
+    .btn {
+      padding: 9px 13px;
+      border-radius: 6px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      text-align: center;
+    }
+
+    .btn-primary {
+      background: #2563eb;
+      color: #ffffff;
+      border-color: #1d4ed8;
+    }
+
+    .btn-primary:hover {
+      background: #1d4ed8;
+    }
+
+    .btn-secondary {
+      background: #f1f5f9;
+      color: #334155;
+      border-color: #cbd5e1;
+    }
+
+    .btn-secondary:hover {
+      background: #e2e8f0;
+    }
+
+    .btn-success {
+      background: #10b981;
+      color: #ffffff;
+      border-color: #059669;
+    }
+
+    .btn-success:hover {
+      background: #059669;
+    }
+
+    .btn-warning {
+      background: #f59e0b;
+      color: #ffffff;
+      border-color: #d97706;
+    }
+
+    .btn-warning:hover {
+      background: #d97706;
+    }
+
+    .btn-sm {
+      padding: 6px 10px;
+      font-size: 0.78rem;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .sentido-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-sentido {
+      flex: 1;
+      padding: 8px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid #cbd5e1;
+      background: #f8fafc;
+      color: #475569;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      transition: all 0.15s ease;
+    }
+
+    .btn-sentido.active-ida {
+      background: #e0f2fe;
+      color: #0369a1;
+      border-color: #0284c7;
+    }
+
+    .btn-sentido.active-vuelta {
+      background: #fef3c7;
+      color: #92400e;
+      border-color: #d97706;
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.82rem;
+      color: #334155;
+      cursor: pointer;
+      padding: 4px 2px;
+      user-select: none;
+    }
+
+    .checkbox-row input[type="checkbox"] {
+      width: 17px;
+      height: 17px;
+      accent-color: #2563eb;
+      cursor: pointer;
+    }
+
+    /* Coordenadas por texto */
+    .textarea-coords {
+      width: 100%;
+      min-height: 85px;
+      padding: 8px 10px;
+      font-size: 0.8rem;
+      font-family: monospace;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      resize: vertical;
+      background: #fcfcfd;
+      color: #1e293b;
+    }
+
+    .textarea-coords:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+    }
+
+    .feedback-box {
+      font-size: 0.76rem;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+
+    .feedback-box.success {
+      background: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+    }
+
+    .feedback-box.error {
+      background: #fef2f2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    /* Formulario de Metadatos */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .form-group label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #475569;
+    }
+
+    .input-text {
+      padding: 8px 12px;
+      font-size: 0.85rem;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      color: #1e293b;
+    }
+
+    .input-text:focus {
+      outline: none;
+      border-color: #2563eb;
+    }
+
+    .color-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .color-row input[type="color"] {
+      width: 44px;
+      height: 38px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      cursor: pointer;
+      background: none;
+      padding: 2px;
+    }
+
+    .color-tag {
+      font-family: monospace;
+      font-size: 0.8rem;
+      color: #475569;
+      font-weight: 600;
+    }
+
+    /* Lista de Líneas en el Dataset */
+    .routes-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+
+    .routes-table th {
+      background: #f8fafc;
+      padding: 7px 10px;
+      text-align: left;
+      font-weight: 700;
+      color: #475569;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .routes-table td {
+      padding: 8px 10px;
+      border-bottom: 1px solid #f1f5f9;
+      vertical-align: middle;
+    }
+
+    .routes-table tr:hover td {
+      background: #f8fafc;
+    }
+
+    .linea-tag {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 600;
+    }
+
+    .color-swatch {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .btn-action-icon {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 0.85rem;
+      padding: 4px 6px;
+      border-radius: 4px;
+      transition: background 0.15s ease;
+    }
+
+    .btn-action-icon:hover {
+      background: #fee2e2;
+    }
+
+    .alert-browser-warning {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      color: #92400e;
+      padding: 10px 12px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      line-height: 1.4;
+      display: none;
+    }
+
+    /* Leyenda */
+    .legend {
+      background: rgba(255, 255, 255, 0.96);
+      padding: 10px 12px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.18);
+      font-size: 0.74rem;
+      line-height: 1.4;
+      max-height: 240px;
+      overflow-y: auto;
+      max-width: 220px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Barra Superior de Administración -->
+  <header class="top-bar">
+    <div class="top-left">
+      <h1>🛠️ Editor de Rutas <span class="badge-admin">Admin</span></h1>
+      <span class="badge-file" id="badge-file-status">Archivo: data/rutas.js (en memoria)</span>
+      <span class="badge-status badge-saved" id="badge-save-status">✓ Sincronizado</span>
+    </div>
+
+    <div class="top-actions">
+      <button type="button" class="btn btn-secondary btn-sm" onclick="openRutasFile()" title="Seleccionar el archivo rutas.js de tu computadora para guardado directo">
+        📂 Abrir rutas.js
+      </button>
+      <button type="button" class="btn btn-success btn-sm" onclick="saveDirectToFile()" title="Guardar los cambios directamente en el archivo en disco">
+        💾 Guardar cambios en disco
+      </button>
+      <a href="index.html" target="_blank" class="btn btn-secondary btn-sm" style="text-decoration:none;" title="Abrir la vista de usuario para probar el recomendador">
+        👁️ Ver Vista Ciudadano ↗
+      </a>
+    </div>
+  </header>
+
+  <!-- Contenedor Principal -->
+  <div class="main-container">
+
+    <!-- Panel Lateral del Editor -->
+    <aside id="sidebar-editor">
+      <div class="sidebar-scroll">
+
+        <!-- Advertencia navegador para File System Access -->
+        <div id="browser-warning" class="alert-browser-warning">
+          ⚠️ <strong>Navegador no compatible con guardado directo:</strong> Tu navegador no soporta la <em>File System Access API</em>. Para guardar directamente sobre <code>rutas.js</code> en tu disco, abre esta página en <strong>Google Chrome</strong> o <strong>Microsoft Edge</strong>. De lo contrario, puedes descargar el archivo actualizado con el botón de respaldo al pie del panel.
+        </div>
+
+        <!-- Instrucciones y Estado de Trazado -->
+        <div class="instruction-step">
+          <strong id="editor-step-title">✏️ Trazado de Nueva Línea</strong>
+          <span id="editor-step-desc">Haz clic en el mapa sobre las calles de Punta Arenas para ir fijando los vértices de la ruta, o pega coordenadas en texto abajo.</span>
+        </div>
+
+        <!-- Sentido Activo y Simetría -->
+        <div class="card">
+          <h3>
+            <span>Sentido de Trazado</span>
+            <span class="color-tag" id="current-sentido-label">IDA ACTIVA</span>
+          </h3>
+
+          <div class="sentido-group">
+            <button type="button" id="btn-ida" class="btn-sentido active-ida" onclick="setSentido('ida')">
+              🔵 Ida (<span id="count-ida">0</span> pts)
+            </button>
+            <button type="button" id="btn-vuelta" class="btn-sentido" onclick="setSentido('vuelta')">
+              🟡 Vuelta (<span id="count-vuelta">0</span> pts)
+            </button>
+          </div>
+
+          <label class="checkbox-row" title="Si se activa, el recorrido de vuelta se generará automáticamente invirtiendo los puntos de la ida">
+            <input type="checkbox" id="check-invert" onchange="toggleInvertVuelta(this.checked)" />
+            <span>Vuelta = Ida invertida (caso simétrico)</span>
+          </label>
+
+          <div class="btn-row">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="undoPoint()" title="Deshacer el último vértice agregado">
+              ↩ Deshacer punto
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="clearCurrentTrack()" title="Borrar los vértices del trazado actual">
+              🗑 Limpiar tramo
+            </button>
+            <button type="button" class="btn btn-primary btn-sm" onclick="finishIda()" title="Cerrar la ida y pasar a vuelta">
+              🏁 Finalizar Ida
+            </button>
+          </div>
+        </div>
+
+        <!-- Ingreso de Coordenadas por Texto -->
+        <div class="card">
+          <h3>
+            <span>📋 Pegar Coordenadas (Lat, Lon)</span>
+          </h3>
+          <p style="font-size:0.75rem; color:#64748b; line-height: 1.35;">
+            Pega coordenadas en formato <code>latitud, longitud</code> (una por línea). Se convertirán automáticamente a GeoJSON <code>[lon, lat]</code> al agregarlas.
+          </p>
+          <textarea id="coord-textarea" class="textarea-coords" placeholder="-53.1638, -70.9171&#10;-53.1610, -70.9125&#10;-53.1585, -70.9080"></textarea>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="addPointsFromText()">
+            📥 Agregar al trazado en curso
+          </button>
+          <div id="coord-feedback" class="feedback-box" style="display:none;"></div>
+        </div>
+
+        <!-- Metadatos de la Línea y Guardado -->
+        <div class="card">
+          <h3>Metadatos de la Línea</h3>
+
+          <div class="form-group">
+            <label for="route-name">Nombre / Número identificador *</label>
+            <input type="text" id="route-name" placeholder="Ej: Línea 22 - Playa Norte" class="input-text" />
+          </div>
+
+          <div class="form-group">
+            <label for="route-color">Color en el mapa</label>
+            <div class="color-row">
+              <input type="color" id="route-color" value="#e11d48" onchange="updateColorHex()" />
+              <span id="route-color-hex" class="color-tag">#e11d48</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="route-desc">Descripción técnica (opcional)</label>
+            <input type="text" id="route-desc" placeholder="Ej: Conecta sector norte con centro por Av. Bulnes" class="input-text" />
+          </div>
+
+          <div class="btn-row" style="margin-top: 6px;">
+            <button type="button" class="btn btn-success" style="flex:1;" onclick="addRouteToDataset()">
+              ➕ Incorporar Línea al Dataset
+            </button>
+            <button type="button" class="btn btn-secondary" onclick="resetDraftForm()">
+              Limpiar
+            </button>
+          </div>
+        </div>
+
+        <!-- Tabla de Líneas en el Dataset -->
+        <div class="card">
+          <h3>
+            <span>Líneas en el Dataset (<span id="total-routes-count">0</span>)</span>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="refreshDatasetTable()">↻</button>
+          </h3>
+
+          <div style="max-height: 220px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 6px;">
+            <table class="routes-table">
+              <thead>
+                <tr>
+                  <th>Línea</th>
+                  <th>Ida</th>
+                  <th>Vuelta</th>
+                  <th>Acción</th>
+                </tr>
+              </thead>
+              <tbody id="routes-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Respaldo / Exportación -->
+        <div class="card" style="background:#f8fafc; border-style:dashed;">
+          <h3>Descarga manual de respaldo</h3>
+          <p style="font-size:0.75rem; color:#64748b;">
+            Si prefieres no usar el guardado directo en disco o deseas respaldar en GeoJSON para QGIS/SIG:
+          </p>
+          <div class="btn-row">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="exportBackupJS()">
+              📄 Descargar rutas.js
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="exportBackupGeoJSON()">
+              🗺️ Descargar rutas.geojson
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </aside>
+
+    <!-- Mapa Leaflet -->
+    <div id="map"></div>
+  </div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Dataset de Líneas -->
+  <script src="data/rutas.js"></script>
+  <!-- Motor Compartido de Ruteo y Geoespacial -->
+  <script src="motor.js"></script>
+
+  <script>
+    /* ==========================================================================
+       1. ESTADO DEL EDITOR Y ARCHIVO EN DISCO (FILE SYSTEM ACCESS API)
+       ========================================================================== */
+    let fileHandle = null;
+    let hasUnsavedChanges = false;
+
+    // Verificar soporte de File System Access API
+    if (!('showOpenFilePicker' in window)) {
+      document.getElementById('browser-warning').style.display = 'block';
+    }
+
+    function setUnsavedChanges(status) {
+      hasUnsavedChanges = status;
+      const badge = document.getElementById('badge-save-status');
+      if (status) {
+        badge.className = 'badge-status badge-unsaved';
+        badge.textContent = '● Cambios sin guardar';
+      } else {
+        badge.className = 'badge-status badge-saved';
+        badge.textContent = '✓ Todo guardado';
+      }
+    }
+
+    window.addEventListener('beforeunload', (e) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = 'Tienes cambios en las rutas que aún no has guardado en disco.';
+      }
+    });
+
+    async function openRutasFile() {
+      if (!('showOpenFilePicker' in window)) {
+        alert('Tu navegador no soporta la File System Access API. Se recomienda usar Google Chrome o Microsoft Edge.');
+        return;
+      }
+
+      try {
+        [fileHandle] = await window.showOpenFilePicker({
+          types: [{
+            description: 'Archivo JavaScript (rutas.js)',
+            accept: { 'application/javascript': ['.js'] }
+          }],
+          multiple: false
+        });
+
+        const file = await fileHandle.getFile();
+        const content = await file.text();
+
+        // Intentar leer DATASET_COLECTIVOS desde el archivo abierto
+        const match = content.match(/const\s+DATASET_COLECTIVOS\s*=\s*(\[[\s\S]*?\]);/);
+        if (match) {
+          try {
+            const parsed = JSON.parse(match[1]);
+            if (Array.isArray(parsed)) {
+              DATASET_COLECTIVOS.length = 0;
+              DATASET_COLECTIVOS.push(...parsed);
+              renderPermanentMapLayers();
+              refreshDatasetTable();
+              setUnsavedChanges(false);
+              updateFileBadge(`Vinculado: ${file.name} (${parsed.length} líneas)`, true);
+              alert(`✅ Archivo "${file.name}" cargado exitosamente.\nSe sincronizó con ${parsed.length} líneas.`);
+              return;
+            }
+          } catch (e) {
+            console.warn('Evaluación de sintaxis alternativa:', e);
+          }
+        }
+
+        updateFileBadge(`Vinculado: ${file.name}`, true);
+        alert(`✅ Archivo "${file.name}" vinculado para guardado directo en disco.`);
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          console.error(err);
+          alert('Error al abrir archivo: ' + err.message);
+        }
+      }
+    }
+
+    async function saveDirectToFile() {
+      const jsContent = serializeDatasetToJS(DATASET_COLECTIVOS);
+
+      // Si aún no se seleccionó el archivo pero el navegador soporta showSaveFilePicker
+      if (!fileHandle && ('showSaveFilePicker' in window)) {
+        try {
+          fileHandle = await window.showSaveFilePicker({
+            suggestedName: 'rutas.js',
+            types: [{
+              description: 'Archivo JavaScript',
+              accept: { 'application/javascript': ['.js'] }
+            }]
+          });
+        } catch (err) {
+          if (err.name === 'AbortError') return;
+          console.error(err);
+        }
+      }
+
+      if (fileHandle) {
+        try {
+          const writable = await fileHandle.createWritable();
+          await writable.write(jsContent);
+          await writable.close();
+          setUnsavedChanges(false);
+          const file = await fileHandle.getFile();
+          updateFileBadge(`Guardado en: ${file.name}`, true);
+          alert(`💾 ¡Cambios guardados con éxito directamente en "${file.name}"!`);
+          return;
+        } catch (err) {
+          console.error('Error escribiendo en disco:', err);
+          alert('No se pudo escribir en el archivo: ' + err.message);
+        }
+      }
+
+      // Si no hay API disponible, descargar archivo de respaldo
+      downloadBlob(jsContent, 'rutas.js', 'application/javascript');
+      setUnsavedChanges(false);
+      alert('Se descargó el archivo "rutas.js" con las líneas actualizadas.');
+    }
+
+    function updateFileBadge(text, isConnected) {
+      const badge = document.getElementById('badge-file-status');
+      badge.textContent = text;
+      if (isConnected) badge.classList.add('connected');
+    }
+
+    /* ==========================================================================
+       2. MAPA LEAFLET Y CAPAS
+       ========================================================================== */
+    const map = L.map('map').setView([-53.158, -70.915], 13);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contribuyentes, teselas por <a href="https://openstreetmap.fr">OpenStreetMap France</a>',
+      subdomains: 'abc',
+      maxZoom: 20
+    }).addTo(map);
+
+    let permanentLayers = [];
+
+    function renderPermanentMapLayers() {
+      permanentLayers.forEach(l => map.removeLayer(l));
+      permanentLayers = [];
+
+      DATASET_COLECTIVOS.forEach(linea => {
+        if (linea.ida && linea.ida.length > 0) {
+          const latlngsIda = linea.ida.map(p => [p[1], p[0]]);
+          const polyIda = L.polyline(latlngsIda, {
+            color: linea.color,
+            weight: 3,
+            opacity: 0.65
+          }).addTo(map);
+          polyIda.bindTooltip(`<strong>${linea.nombre} (ida)</strong>`, { sticky: true });
+          permanentLayers.push(polyIda);
+        }
+
+        if (linea.vuelta && linea.vuelta.length > 0) {
+          const latlngsVuelta = linea.vuelta.map(p => [p[1], p[0]]);
+          const polyVuelta = L.polyline(latlngsVuelta, {
+            color: linea.color,
+            weight: 2.5,
+            opacity: 0.6,
+            dashArray: '5, 5'
+          }).addTo(map);
+          polyVuelta.bindTooltip(`<strong>${linea.nombre} (vuelta)</strong>`, { sticky: true });
+          permanentLayers.push(polyVuelta);
+        }
+      });
+    }
+    renderPermanentMapLayers();
+
+    /* ==========================================================================
+       3. LÓGICA DE DIGITALIZACIÓN MANUAL (CLICS Y COORDENADAS)
+       ========================================================================== */
+    let editSentido = 'ida'; // 'ida' | 'vuelta'
+    let draftIda = []; // Array de [lon, lat] (estándar GeoJSON)
+    let draftVuelta = []; // Array de [lon, lat]
+    let isVueltaInverted = false;
+
+    let draftPolylineIda = null;
+    let draftPolylineVuelta = null;
+    let draftVertexMarkers = [];
+
+    map.on('click', function(e) {
+      const ptGeoJSON = [e.latlng.lng, e.latlng.lat];
+
+      if (editSentido === 'ida') {
+        draftIda.push(ptGeoJSON);
+        if (isVueltaInverted) {
+          draftVuelta = [...draftIda].reverse();
+        }
+      } else {
+        if (isVueltaInverted) {
+          isVueltaInverted = false;
+          document.getElementById('check-invert').checked = false;
+        }
+        draftVuelta.push(ptGeoJSON);
+      }
+
+      updateDraftVisuals();
+      updateCounts();
+    });
+
+    function setSentido(sentido) {
+      editSentido = sentido;
+      const btnIda = document.getElementById('btn-ida');
+      const btnVuelta = document.getElementById('btn-vuelta');
+      const label = document.getElementById('current-sentido-label');
+
+      if (sentido === 'ida') {
+        btnIda.className = 'btn-sentido active-ida';
+        btnVuelta.className = 'btn-sentido';
+        label.textContent = 'IDA ACTIVA';
+        label.style.color = '#0284c7';
+      } else {
+        btnIda.className = 'btn-sentido';
+        btnVuelta.className = 'btn-sentido active-vuelta';
+        label.textContent = 'VUELTA ACTIVA';
+        label.style.color = '#d97706';
+      }
+
+      updateDraftVisuals();
+    }
+
+    function toggleInvertVuelta(checked) {
+      isVueltaInverted = checked;
+      if (checked) {
+        draftVuelta = [...draftIda].reverse();
+        updateDraftVisuals();
+        updateCounts();
+      }
+    }
+
+    function undoPoint() {
+      if (editSentido === 'ida') {
+        if (draftIda.length > 0) {
+          draftIda.pop();
+          if (isVueltaInverted) draftVuelta = [...draftIda].reverse();
+        }
+      } else {
+        if (draftVuelta.length > 0) {
+          draftVuelta.pop();
+        }
+      }
+      updateDraftVisuals();
+      updateCounts();
+    }
+
+    function clearCurrentTrack() {
+      if (editSentido === 'ida') {
+        draftIda = [];
+        if (isVueltaInverted) draftVuelta = [];
+      } else {
+        draftVuelta = [];
+      }
+      updateDraftVisuals();
+      updateCounts();
+    }
+
+    function finishIda() {
+      if (draftIda.length < 2) {
+        alert('Fija al menos 2 puntos para el recorrido de Ida.');
+        return;
+      }
+      if (isVueltaInverted) {
+        draftVuelta = [...draftIda].reverse();
+        alert('✅ Recorrido de Ida finalizado. Como marcaste "Vuelta = Ida invertida", la Vuelta ya está lista.');
+      } else {
+        setSentido('vuelta');
+        alert('✅ Recorrido de Ida finalizado. Ahora marca los vértices de la Vuelta.');
+      }
+      updateDraftVisuals();
+      updateCounts();
+    }
+
+    function addPointsFromText() {
+      const textarea = document.getElementById('coord-textarea');
+      const feedback = document.getElementById('coord-feedback');
+      const rawText = textarea.value.trim();
+
+      if (!rawText) {
+        feedback.style.display = 'block';
+        feedback.className = 'feedback-box error';
+        feedback.textContent = '⚠️ Escribe o pega al menos una coordenada en formato latitud, longitud.';
+        return;
+      }
+
+      const { validPoints, invalidCount } = parseCoordinateText(rawText);
+
+      if (validPoints.length === 0) {
+        feedback.style.display = 'block';
+        feedback.className = 'feedback-box error';
+        feedback.textContent = '⚠️ No se reconocieron coordenadas válidas. Formato requerido: -53.1638, -70.9171';
+        return;
+      }
+
+      // Sumar al trazado activo (conservando el orden)
+      validPoints.forEach(pt => {
+        if (editSentido === 'ida') {
+          draftIda.push(pt.geojson);
+        } else {
+          draftVuelta.push(pt.geojson);
+        }
+      });
+
+      if (editSentido === 'ida' && isVueltaInverted) {
+        draftVuelta = [...draftIda].reverse();
+      }
+
+      updateDraftVisuals();
+      updateCounts();
+
+      // Centrar el mapa al tramo
+      const activePts = (editSentido === 'ida' ? draftIda : draftVuelta).map(p => [p[1], p[0]]);
+      if (activePts.length > 0) {
+        map.fitBounds(L.latLngBounds(activePts), { padding: [40, 40] });
+      }
+
+      feedback.style.display = 'block';
+      feedback.className = 'feedback-box success';
+      feedback.textContent = `✅ ${validPoints.length} punto(s) agregados al tramo de ${editSentido.toUpperCase()}.` + (invalidCount > 0 ? ` (${invalidCount} líneas no válidas)` : '');
+      textarea.value = '';
+    }
+
+    function updateColorHex() {
+      const color = document.getElementById('route-color').value;
+      document.getElementById('route-color-hex').textContent = color;
+      updateDraftVisuals();
+    }
+
+    function updateDraftVisuals() {
+      const color = document.getElementById('route-color').value;
+
+      if (draftPolylineIda) { map.removeLayer(draftPolylineIda); draftPolylineIda = null; }
+      if (draftPolylineVuelta) { map.removeLayer(draftPolylineVuelta); draftPolylineVuelta = null; }
+      draftVertexMarkers.forEach(m => map.removeLayer(m));
+      draftVertexMarkers = [];
+
+      // Ida (Sólida)
+      if (draftIda.length > 0) {
+        draftPolylineIda = L.polyline(draftIda.map(p => [p[1], p[0]]), {
+          color: color,
+          weight: 5,
+          opacity: 0.95
+        }).addTo(map);
+      }
+
+      // Vuelta (Punteada)
+      if (draftVuelta.length > 0) {
+        draftPolylineVuelta = L.polyline(draftVuelta.map(p => [p[1], p[0]]), {
+          color: color,
+          weight: 4,
+          opacity: 0.85,
+          dashArray: '6, 6'
+        }).addTo(map);
+      }
+
+      // Vértices del tramo activo
+      const active = editSentido === 'ida' ? draftIda : draftVuelta;
+      active.forEach((p, idx) => {
+        const marker = L.circleMarker([p[1], p[0]], {
+          radius: idx === 0 || idx === active.length - 1 ? 6 : 4,
+          color: '#ffffff',
+          fillColor: color,
+          fillOpacity: 1,
+          weight: 2
+        }).addTo(map);
+        marker.bindTooltip(`${editSentido.toUpperCase()} #${idx + 1}`);
+        draftVertexMarkers.push(marker);
+      });
+    }
+
+    function updateCounts() {
+      document.getElementById('count-ida').textContent = draftIda.length;
+      document.getElementById('count-vuelta').textContent = draftVuelta.length;
+    }
+
+    function addRouteToDataset() {
+      const nameInput = document.getElementById('route-name');
+      const name = nameInput.value.trim();
+      const color = document.getElementById('route-color').value;
+      const desc = document.getElementById('route-desc').value.trim();
+
+      if (!name) {
+        alert('Por favor escribe un nombre o código para la línea (ej: "Línea 22 - Playa Norte").');
+        nameInput.focus();
+        return;
+      }
+      if (draftIda.length < 2) {
+        alert('El recorrido de Ida debe contener al menos 2 puntos.');
+        return;
+      }
+      if (draftVuelta.length < 2) {
+        alert('El recorrido de Vuelta debe contener al menos 2 puntos.');
+        return;
+      }
+
+      const newLine = {
+        id: 'L_' + Date.now().toString(36).toUpperCase(),
+        nombre: name,
+        color: color,
+        descripcion: desc || `Recorrido: ${name}`,
+        ida: [...draftIda],
+        vuelta: [...draftVuelta]
+      };
+
+      DATASET_COLECTIVOS.push(newLine);
+      setUnsavedChanges(true);
+
+      renderPermanentMapLayers();
+      refreshDatasetTable();
+      resetDraftForm();
+
+      alert(`🎉 ¡Línea "${name}" incorporada al dataset en memoria!\nRecuerda hacer clic en "💾 Guardar cambios en disco" para persistir el archivo rutas.js.`);
+    }
+
+    function resetDraftForm() {
+      draftIda = [];
+      draftVuelta = [];
+      isVueltaInverted = false;
+      document.getElementById('check-invert').checked = false;
+      document.getElementById('route-name').value = '';
+      document.getElementById('route-desc').value = '';
+      updateDraftVisuals();
+      updateCounts();
+    }
+
+    function deleteRoute(id) {
+      const idx = DATASET_COLECTIVOS.findIndex(r => r.id === id);
+      if (idx !== -1) {
+        if (!confirm(`¿Eliminar la línea "${DATASET_COLECTIVOS[idx].nombre}" del dataset?`)) return;
+        DATASET_COLECTIVOS.splice(idx, 1);
+        setUnsavedChanges(true);
+        renderPermanentMapLayers();
+        refreshDatasetTable();
+      }
+    }
+
+    function focusRoute(id) {
+      const r = DATASET_COLECTIVOS.find(item => item.id === id);
+      if (!r || !r.ida || r.ida.length === 0) return;
+      const latlngs = r.ida.map(p => [p[1], p[0]]);
+      map.fitBounds(L.latLngBounds(latlngs), { padding: [50, 50] });
+    }
+
+    function refreshDatasetTable() {
+      document.getElementById('total-routes-count').textContent = DATASET_COLECTIVOS.length;
+      const tbody = document.getElementById('routes-table-body');
+      tbody.innerHTML = DATASET_COLECTIVOS.map(linea => `
+        <tr>
+          <td>
+            <div class="linea-tag">
+              <span class="color-swatch" style="background:${linea.color}"></span>
+              <span title="${linea.descripcion || ''}">${linea.nombre}</span>
+            </div>
+          </td>
+          <td>${linea.ida ? linea.ida.length : 0} pts</td>
+          <td>${linea.vuelta ? linea.vuelta.length : 0} pts</td>
+          <td>
+            <button type="button" class="btn-action-icon" onclick="focusRoute('${linea.id}')" title="Centrar mapa en esta línea">🔍</button>
+            <button type="button" class="btn-action-icon" onclick="deleteRoute('${linea.id}')" title="Eliminar línea">🗑</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+    refreshDatasetTable();
+
+    /* ==========================================================================
+       4. EXPORTACIÓN MANUAL DE RESPALDO
+       ========================================================================== */
+    function exportBackupJS() {
+      const content = serializeDatasetToJS(DATASET_COLECTIVOS);
+      downloadBlob(content, 'rutas.js', 'application/javascript');
+    }
+
+    function exportBackupGeoJSON() {
+      const content = serializeDatasetToGeoJSON(DATASET_COLECTIVOS);
+      downloadBlob(content, 'rutas.geojson', 'application/geo+json');
+    }
+  </script>
+</body>
+</html>

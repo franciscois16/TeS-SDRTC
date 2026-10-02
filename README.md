@@ -38,12 +38,15 @@ tesis/
 │   ├── rutas.geojson      # Dataset estándar RFC 7946 interoperable (QGIS / SIG / Python)
 │   └── rutas.js           # Dataset de rutas estructurado para JavaScript
 ├── docs/
+│   ├── FUENTES_BIBLIOGRAFICAS.md # Referencias académicas de la tesis (APA 7ma y BibTeX)
 │   ├── presentaciones/    # Presentaciones y propuesta de tesis (PPTX / PDF)
 │   ├── SPEC.md ...        # Especificación de requisitos original de la beta
 │   └── Stack_Tecnologico_y_Reunion_Profesor.md # Bitácora técnica y acuerdos
-├── index.html             # Interfaz visual, motor de cálculo y cliente PWA
+├── editor.html            # Vista de Administrador/Digitalizador (Desktop, File System API)
+├── index.html             # Vista Ciudadano/Usuario (Recomendador puro, Mobile-First PWA)
+├── motor.js               # Motor geoespacial compartido (Haversine, E1, E2, Parsers)
 ├── manifest.json          # Manifiesto de instalación PWA para dispositivos móviles
-├── sw.js                  # Service Worker para funcionamiento 100% Offline
+├── sw.js                  # Service Worker para funcionamiento 100% Offline (v5)
 └── README.md              # Documentación técnica, metodológica y bitácora
 ```
 
@@ -151,6 +154,12 @@ Ambas estrategias toman como parámetros:
   - Reestructuración de archivos en directorios semánticos: datos en `data/` (`rutas.geojson`, `rutas.js`), assets en `assets/icons/` (`icon.svg`, `icon-192.png`, `icon-512.png`), y presentaciones/documentos en `docs/`.
   - Exclusión de configuración de agentes (`.agents/`) en `.gitignore`.
   - Actualización de referencias en `index.html`, `manifest.json` y Service Worker (`sw.js` v3).
+- **v1.9 (Dos Vistas Separadas, File System Access API y Recomendador con Transbordo):**
+  - **Separación de Vistas:** `index.html` como vista limpia y optimizada para ciudadanos/evaluadores (móvil y escritorio sin controles de edición); `editor.html` como vista de administración y digitalización para computador.
+  - **Motor Compartido (`motor.js`):** Desacoplamiento de fórmulas geoespaciales (Haversine, proyección ortogonal), parsers y algoritmos de recomendación en un script modular sin dependencias externas.
+  - **Recomendación con Transbordo:** Detección automática cuando no existe una línea directa entre origen y destino, calculando la mejor combinación de dos líneas con 1 transbordo peatonal óptimo, desglosando caminata inicial, tramo 1, transbordo a pie, tramo 2 y caminata final, con marcador `🔄` e itinerario visual en el mapa Leaflet.
+  - **Guardado Directo en Disco:** Integración de la *File System Access API* (`showOpenFilePicker` / `createWritable`) en `editor.html` para persistir los cambios directamente en `data/rutas.js` con indicador de cambios sin guardar.
+  - **Fuentes Académicas Consolidadas:** Creación de `docs/FUENTES_BIBLIOGRAFICAS.md` con referencias bibliográficas en norma APA 7.ª edición y bloque exportable BibTeX para la redacción de la tesis.
 
 ---
 

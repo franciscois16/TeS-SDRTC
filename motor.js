@@ -1,0 +1,660 @@
+/**
+ * MOTOR DE CÁLCULO GEOESPACIAL Y RECOMENDACIÓN DE RUTAS (TeS-SDRTC)
+ * ================================================================
+ * Módulo compartido entre index.html (usuario) y editor.html (administrador).
+ * No depende de ningún backend ni framework (Vanilla JS).
+ */
+
+const EARTH_RADIUS_METERS = 6371000;
+
+/**
+ * Calcula la distancia ortodrómica (Haversine) entre dos coordenadas en metros.
+ */
+function haversineDistance(lat1, lon1, lat2, lon2) {
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const rLat1 = lat1 * Math.PI / 180;
+  const rLat2 = lat2 * Math.PI / 180;
+
+  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(rLat1) * Math.cos(rLat2) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return EARTH_RADIUS_METERS * c;
+}
+
+/**
+ * Proyección ortogonal y distancia perpendicular de un punto P a un segmento [A, B].
+ * Retorna { distance: metros, t: fracción 0..1 sobre el segmento }.
+ */
+function projectPointToSegment(pLat, pLon, aLat, aLon, bLat, bLon) {
+  const cosLat = Math.cos(aLat * Math.PI / 180);
+  const kx = (Math.PI / 180) * EARTH_RADIUS_METERS * cosLat;
+  const ky = (Math.PI / 180) * EARTH_RADIUS_METERS;
+
+  const px = (pLon - aLon) * kx;
+  const py = (pLat - aLat) * ky;
+
+  const bx = (bLon - aLon) * kx;
+  const by = (bLat - aLat) * ky;
+
+  const segLenSq = bx * bx + by * by;
+
+  if (segLenSq === 0) {
+    return { distance: Math.hypot(px, py), t: 0 };
+  }
+
+  let t = (px * bx + py * by) / segLenSq;
+  t = Math.max(0, Math.min(1, t));
+
+  const projX = t * bx;
+  const projY = t * by;
+  const distance = Math.hypot(px - projX, py - projY);
+
+  return { distance, t };
+}
+
+/**
+ * Genera la lista de trayectorias evaluables (ida y vuelta) a partir de un dataset de colectivos.
+ */
+function generarTrayectorias(dataset) {
+  const trayectorias = [];
+  if (!Array.isArray(dataset)) return trayectorias;
+
+  dataset.forEach(linea => {
+    if (linea.ida && linea.ida.length > 0) {
+      trayectorias.push({
+        lineaId: linea.id,
+        nombre: linea.nombre,
+        sentido: "ida",
+        etiqueta: `${linea.nombre} (ida)`,
+        color: linea.color,
+        coords: linea.ida
+      });
+    }
+    if (linea.vuelta && linea.vuelta.length > 0) {
+      trayectorias.push({
+        lineaId: linea.id,
+        nombre: linea.nombre,
+        sentido: "vuelta",
+        etiqueta: `${linea.nombre} (vuelta)`,
+        color: linea.color,
+        coords: linea.vuelta
+      });
+    }
+  });
+
+  return trayectorias;
+}
+
+/**
+ * ESTRATEGIA 1: Proximidad métrica simple a vértices
+ * - Busca el nodo más cercano al origen y su distancia acumulada.
+ * - Busca el nodo más cercano al destino y su distancia acumulada.
+ * - Valida radio de cobertura y sentido de circulación (posOrigen < posDestino).
+ * - Ordena por menor distancia de caminata total (dOrigen + dDestino).
+ */
+function estrategia1(origen, destino, trayectorias, r) {
+  const recomendadas = [];
+
+  for (const trayecto of trayectorias) {
+    const coords = trayecto.coords; // Formato estándar [[lon, lat], ...]
+    if (!coords || coords.length < 2) continue;
+
+    const cumDist = new Float64Array(coords.length);
+    cumDist[0] = 0;
+    for (let i = 1; i < coords.length; i++) {
+      const [lonPrev, latPrev] = coords[i - 1];
+      const [lonCurr, latCurr] = coords[i];
+      cumDist[i] = cumDist[i - 1] + haversineDistance(latPrev, lonPrev, latCurr, lonCurr);
+    }
+
+    let bestOrigDist = Infinity;
+    let bestOrigPos = 0;
+    let bestDestDist = Infinity;
+    let bestDestPos = 0;
+
+    for (let i = 0; i < coords.length; i++) {
+      const [lon, lat] = coords[i];
+
+      const dOrig = haversineDistance(origen.lat, origen.lng, lat, lon);
+      if (dOrig < bestOrigDist) {
+        bestOrigDist = dOrig;
+        bestOrigPos = cumDist[i];
+      }
+
+      const dDest = haversineDistance(destino.lat, destino.lng, lat, lon);
+      if (dDest < bestDestDist) {
+        bestDestDist = dDest;
+        bestDestPos = cumDist[i];
+      }
+    }
+
+    if (bestOrigDist <= r && bestDestDist <= r && bestOrigPos < bestDestPos) {
+      recomendadas.push({
+        ...trayecto,
+        dOrigen: Math.round(bestOrigDist),
+        dDestino: Math.round(bestDestDist),
+        dTotalCaminata: Math.round(bestOrigDist + bestDestDist),
+        distanciaRecorrido: Math.round(bestDestPos - bestOrigPos)
+      });
+    }
+  }
+
+  recomendadas.sort((a, b) => a.dTotalCaminata - b.dTotalCaminata);
+  return recomendadas;
+}
+
+/**
+ * ESTRATEGIA 2: Proyección perpendicular continua sobre segmentos de calle
+ * - Proyecta ortogonalmente el origen y el destino a cada segmento de calzada.
+ * - Calcula la distancia perpendicular real a la línea y su posición acumulada continua.
+ * - Valida radio de cobertura y sentido de circulación (posOrigen < posDestino).
+ * - Ordena por menor distancia de caminata total (dOrigen + dDestino).
+ */
+function estrategia2(origen, destino, trayectorias, r) {
+  const recomendadas = [];
+
+  for (const trayecto of trayectorias) {
+    const coords = trayecto.coords;
+    if (!coords || coords.length < 2) continue;
+
+    const segCount = coords.length - 1;
+    const cumSegDist = new Float64Array(segCount + 1);
+    const segLengths = new Float64Array(segCount);
+
+    cumSegDist[0] = 0;
+    for (let i = 0; i < segCount; i++) {
+      const [aLon, aLat] = coords[i];
+      const [bLon, bLat] = coords[i + 1];
+      const len = haversineDistance(aLat, aLon, bLat, bLon);
+      segLengths[i] = len;
+      cumSegDist[i + 1] = cumSegDist[i] + len;
+    }
+
+    let bestOrigDist = Infinity;
+    let bestOrigPos = 0;
+    let bestDestDist = Infinity;
+    let bestDestPos = 0;
+
+    for (let i = 0; i < segCount; i++) {
+      const [aLon, aLat] = coords[i];
+      const [bLon, bLat] = coords[i + 1];
+
+      const projOrig = projectPointToSegment(origen.lat, origen.lng, aLat, aLon, bLat, bLon);
+      if (projOrig.distance < bestOrigDist) {
+        bestOrigDist = projOrig.distance;
+        bestOrigPos = cumSegDist[i] + projOrig.t * segLengths[i];
+      }
+
+      const projDest = projectPointToSegment(destino.lat, destino.lng, aLat, aLon, bLat, bLon);
+      if (projDest.distance < bestDestDist) {
+        bestDestDist = projDest.distance;
+        bestDestPos = cumSegDist[i] + projDest.t * segLengths[i];
+      }
+    }
+
+    if (bestOrigDist <= r && bestDestDist <= r && bestOrigPos < bestDestPos) {
+      recomendadas.push({
+        ...trayecto,
+        dOrigen: Math.round(bestOrigDist),
+        dDestino: Math.round(bestDestDist),
+        dTotalCaminata: Math.round(bestOrigDist + bestDestDist),
+        distanciaRecorrido: Math.round(bestDestPos - bestOrigPos)
+      });
+    }
+  }
+
+  recomendadas.sort((a, b) => a.dTotalCaminata - b.dTotalCaminata);
+  return recomendadas;
+}
+
+/**
+ * ==========================================================================
+ * ESTRATEGIAS DE RECOMENDACIÓN CON TRANSBORDO (1 TRANSBORDO ENTRE 2 LÍNEAS)
+ * ==========================================================================
+ * Se calculan cuando no existe una línea directa que conecte origen y destino
+ * en el sentido solicitado, o como alternativa de viaje multimodal.
+ *
+ * Basado en los principios de ruteo por rondas (RAPTOR, Delling et al., 2014)
+ * y minimización de caminata de enlace (Vuchic, 2005).
+ */
+
+/**
+ * Estrategia 1 con Transbordo: Proximidad métrica nodal
+ * 1. Filtra líneas T1 que abordan en Origen (dOrig <= r).
+ * 2. Filtra líneas T2 que descienden en Destino (dDest <= r).
+ * 3. Para cada par (T1, T2) con T1 != T2, busca nodos de enlace donde:
+ *    posBajada(T1) > posSubida(T1) && posSubida(T2) < posBajada(T2)
+ *    y la distancia a pie entre el transbordo d(T1, T2) <= maxTransferWalk.
+ * 4. Ordena por menor distancia de caminata total (dOrig + dTransbordo + dDest).
+ */
+function estrategia1Transbordo(origen, destino, trayectorias, r, maxTransferWalk = 500) {
+  // Precalcular distancias acumuladas
+  const tInfo = trayectorias.map(t => {
+    const coords = t.coords;
+    const cumDist = new Float64Array(coords.length);
+    cumDist[0] = 0;
+    for (let i = 1; i < coords.length; i++) {
+      cumDist[i] = cumDist[i - 1] + haversineDistance(coords[i - 1][1], coords[i - 1][0], coords[i][1], coords[i][0]);
+    }
+    return { trayecto: t, coords, cumDist };
+  });
+
+  // Candidatos para Etapa 1 (acceso desde Origen)
+  const candEtapa1 = [];
+  for (const item of tInfo) {
+    let bestOrigDist = Infinity;
+    let bestOrigIdx = -1;
+    for (let i = 0; i < item.coords.length; i++) {
+      const [lon, lat] = item.coords[i];
+      const d = haversineDistance(origen.lat, origen.lng, lat, lon);
+      if (d < bestOrigDist) {
+        bestOrigDist = d;
+        bestOrigIdx = i;
+      }
+    }
+    if (bestOrigDist <= r && bestOrigIdx < item.coords.length - 1) {
+      candEtapa1.push({
+        ...item,
+        origDist: bestOrigDist,
+        origIdx: bestOrigIdx,
+        origPos: item.cumDist[bestOrigIdx]
+      });
+    }
+  }
+
+  // Candidatos para Etapa 2 (llegada a Destino)
+  const candEtapa2 = [];
+  for (const item of tInfo) {
+    let bestDestDist = Infinity;
+    let bestDestIdx = -1;
+    for (let i = 0; i < item.coords.length; i++) {
+      const [lon, lat] = item.coords[i];
+      const d = haversineDistance(destino.lat, destino.lng, lat, lon);
+      if (d < bestDestDist) {
+        bestDestDist = d;
+        bestDestIdx = i;
+      }
+    }
+    if (bestDestDist <= r && bestDestIdx > 0) {
+      candEtapa2.push({
+        ...item,
+        destDist: bestDestDist,
+        destIdx: bestDestIdx,
+        destPos: item.cumDist[bestDestIdx]
+      });
+    }
+  }
+
+  const combinaciones = [];
+
+  for (const c1 of candEtapa1) {
+    for (const c2 of candEtapa2) {
+      // No transferir a la misma línea
+      if (c1.trayecto.lineaId === c2.trayecto.lineaId) continue;
+
+      let bestTransfDist = Infinity;
+      let bestT1Idx = -1;
+      let bestT2Idx = -1;
+
+      // Buscar nodos de transbordo en orden cronológico del sentido vial
+      for (let i = c1.origIdx + 1; i < c1.coords.length; i++) {
+        const [lon1, lat1] = c1.coords[i];
+        for (let j = 0; j < c2.destIdx; j++) {
+          const [lon2, lat2] = c2.coords[j];
+          const d = haversineDistance(lat1, lon1, lat2, lon2);
+          if (d < bestTransfDist) {
+            bestTransfDist = d;
+            bestT1Idx = i;
+            bestT2Idx = j;
+          }
+        }
+      }
+
+      if (bestTransfDist <= maxTransferWalk && bestT1Idx !== -1 && bestT2Idx !== -1) {
+        const distRecorrido1 = c1.cumDist[bestT1Idx] - c1.origPos;
+        const distRecorrido2 = c2.destPos - c2.cumDist[bestT2Idx];
+
+        combinaciones.push({
+          tipo: 'transbordo',
+          trayecto1: c1.trayecto,
+          trayecto2: c2.trayecto,
+          etiqueta: `${c1.trayecto.nombre} (${c1.trayecto.sentido}) ➔ ${c2.trayecto.nombre} (${c2.trayecto.sentido})`,
+          puntoSubida1: { lat: c1.coords[c1.origIdx][1], lon: c1.coords[c1.origIdx][0] },
+          puntoBajada1: { lat: c1.coords[bestT1Idx][1], lon: c1.coords[bestT1Idx][0] },
+          puntoSubida2: { lat: c2.coords[bestT2Idx][1], lon: c2.coords[bestT2Idx][0] },
+          puntoBajada2: { lat: c2.coords[c2.destIdx][1], lon: c2.coords[c2.destIdx][0] },
+          dOrigen: Math.round(c1.origDist),
+          dTransbordo: Math.round(bestTransfDist),
+          dDestino: Math.round(c2.destDist),
+          dTotalCaminata: Math.round(c1.origDist + bestTransfDist + c2.destDist),
+          distanciaRecorridoT1: Math.round(distRecorrido1),
+          distanciaRecorridoT2: Math.round(distRecorrido2),
+          distanciaRecorridoTotal: Math.round(distRecorrido1 + distRecorrido2)
+        });
+      }
+    }
+  }
+
+  combinaciones.sort((a, b) => a.dTotalCaminata - b.dTotalCaminata);
+
+  // Descartar duplicados redundantes de las mismas dos líneas quedándose con la óptima
+  const unicos = [];
+  const vistas = new Set();
+  for (const comb of combinaciones) {
+    const key = `${comb.trayecto1.lineaId}_${comb.trayecto1.sentido}__${comb.trayecto2.lineaId}_${comb.trayecto2.sentido}`;
+    if (!vistas.has(key)) {
+      vistas.add(key);
+      unicos.push(comb);
+    }
+  }
+
+  return unicos;
+}
+
+/**
+ * Estrategia 2 con Transbordo: Proyección perpendicular continua
+ * Calcula el transbordo proyectando el punto de enlace de manera continua a lo largo
+ * de los segmentos de calle de ambas trayectorias.
+ */
+function estrategia2Transbordo(origen, destino, trayectorias, r, maxTransferWalk = 500) {
+  // Precalcular longitudes acumuladas por segmento para cada trayectoria
+  const tInfo = trayectorias.map(t => {
+    const coords = t.coords;
+    const segCount = coords.length - 1;
+    const cumSegDist = new Float64Array(segCount + 1);
+    const segLengths = new Float64Array(segCount);
+    cumSegDist[0] = 0;
+    for (let i = 0; i < segCount; i++) {
+      const len = haversineDistance(coords[i][1], coords[i][0], coords[i + 1][1], coords[i + 1][0]);
+      segLengths[i] = len;
+      cumSegDist[i + 1] = cumSegDist[i] + len;
+    }
+    return { trayecto: t, coords, segCount, cumSegDist, segLengths };
+  });
+
+  // Candidatos Etapa 1 proyectados
+  const candEtapa1 = [];
+  for (const item of tInfo) {
+    let bestOrigDist = Infinity;
+    let bestOrigPos = 0;
+    let bestOrigSegIdx = -1;
+
+    for (let i = 0; i < item.segCount; i++) {
+      const [aLon, aLat] = item.coords[i];
+      const [bLon, bLat] = item.coords[i + 1];
+      const proj = projectPointToSegment(origen.lat, origen.lng, aLat, aLon, bLat, bLon);
+      if (proj.distance < bestOrigDist) {
+        bestOrigDist = proj.distance;
+        bestOrigPos = item.cumSegDist[i] + proj.t * item.segLengths[i];
+        bestOrigSegIdx = i;
+      }
+    }
+
+    if (bestOrigDist <= r) {
+      candEtapa1.push({
+        ...item,
+        origDist: bestOrigDist,
+        origPos: bestOrigPos,
+        origSegIdx: bestOrigSegIdx
+      });
+    }
+  }
+
+  // Candidatos Etapa 2 proyectados
+  const candEtapa2 = [];
+  for (const item of tInfo) {
+    let bestDestDist = Infinity;
+    let bestDestPos = 0;
+    let bestDestSegIdx = -1;
+
+    for (let i = 0; i < item.segCount; i++) {
+      const [aLon, aLat] = item.coords[i];
+      const [bLon, bLat] = item.coords[i + 1];
+      const proj = projectPointToSegment(destino.lat, destino.lng, aLat, aLon, bLat, bLon);
+      if (proj.distance < bestDestDist) {
+        bestDestDist = proj.distance;
+        bestDestPos = item.cumSegDist[i] + proj.t * item.segLengths[i];
+        bestDestSegIdx = i;
+      }
+    }
+
+    if (bestDestDist <= r) {
+      candEtapa2.push({
+        ...item,
+        destDist: bestDestDist,
+        destPos: bestDestPos,
+        destSegIdx: bestDestSegIdx
+      });
+    }
+  }
+
+  const combinaciones = [];
+
+  for (const c1 of candEtapa1) {
+    for (const c2 of candEtapa2) {
+      if (c1.trayecto.lineaId === c2.trayecto.lineaId) continue;
+
+      let bestTransfDist = Infinity;
+      let bestT1Pos = 0;
+      let bestT2Pos = 0;
+      let bestPt1 = null;
+      let bestPt2 = null;
+
+      // Buscar aproximación mínima entre los segmentos posteriores al origen en T1
+      // y los segmentos previos al destino en T2
+      for (let i = c1.origSegIdx; i < c1.segCount; i++) {
+        const [aLon, aLat] = c1.coords[i + 1]; // Vértices a lo largo del recorrido
+        const pos1 = c1.cumSegDist[i + 1];
+        if (pos1 <= c1.origPos) continue;
+
+        for (let j = 0; j <= c2.destSegIdx; j++) {
+          const [bLon1, bLat1] = c2.coords[j];
+          const [bLon2, bLat2] = c2.coords[j + 1];
+
+          // Proyectar vértice de T1 sobre segmento j de T2
+          const proj = projectPointToSegment(aLat, aLon, bLat1, bLon1, bLat2, bLon2);
+          const pos2 = c2.cumSegDist[j] + proj.t * c2.segLengths[j];
+
+          if (pos2 < c2.destPos && proj.distance < bestTransfDist) {
+            bestTransfDist = proj.distance;
+            bestT1Pos = pos1;
+            bestT2Pos = pos2;
+            bestPt1 = { lat: aLat, lon: aLon };
+            // Punto proyectado en segmento de T2
+            bestPt2 = {
+              lat: bLat1 + proj.t * (bLat2 - bLat1),
+              lon: bLon1 + proj.t * (bLon2 - bLon1)
+            };
+          }
+        }
+      }
+
+      if (bestTransfDist <= maxTransferWalk && bestPt1 && bestPt2) {
+        const distRecorrido1 = bestT1Pos - c1.origPos;
+        const distRecorrido2 = c2.destPos - bestT2Pos;
+
+        combinaciones.push({
+          tipo: 'transbordo',
+          trayecto1: c1.trayecto,
+          trayecto2: c2.trayecto,
+          etiqueta: `${c1.trayecto.nombre} (${c1.trayecto.sentido}) ➔ ${c2.trayecto.nombre} (${c2.trayecto.sentido})`,
+          puntoSubida1: { lat: origen.lat, lon: origen.lng },
+          puntoBajada1: bestPt1,
+          puntoSubida2: bestPt2,
+          puntoBajada2: { lat: destino.lat, lon: destino.lng },
+          dOrigen: Math.round(c1.origDist),
+          dTransbordo: Math.round(bestTransfDist),
+          dDestino: Math.round(c2.destDist),
+          dTotalCaminata: Math.round(c1.origDist + bestTransfDist + c2.destDist),
+          distanciaRecorridoT1: Math.round(distRecorrido1),
+          distanciaRecorridoT2: Math.round(distRecorrido2),
+          distanciaRecorridoTotal: Math.round(distRecorrido1 + distRecorrido2)
+        });
+      }
+    }
+  }
+
+  combinaciones.sort((a, b) => a.dTotalCaminata - b.dTotalCaminata);
+
+  const unicos = [];
+  const vistas = new Set();
+  for (const comb of combinaciones) {
+    const key = `${comb.trayecto1.lineaId}_${comb.trayecto1.sentido}__${comb.trayecto2.lineaId}_${comb.trayecto2.sentido}`;
+    if (!vistas.has(key)) {
+      vistas.add(key);
+      unicos.push(comb);
+    }
+  }
+
+  return unicos;
+}
+
+/**
+ * Parser de texto con coordenadas en formato natural [latitud, longitud].
+ * Convierte internamente a [longitud, latitud] (formato estándar GeoJSON RFC 7946).
+ */
+function parseCoordinateText(rawText) {
+  const lines = rawText.split('\n');
+  const validPoints = [];
+  let invalidCount = 0;
+
+  for (let line of lines) {
+    line = line.trim();
+    if (!line) continue;
+
+    // Limpiar corchetes, paréntesis y caracteres residuales
+    line = line.replace(/[\[\]\(\)]/g, '').trim();
+
+    const matches = line.match(/[-+]?\d*\.?\d+(?:[eE][-+]?\d+)?/g);
+    if (matches && matches.length >= 2) {
+      const lat = parseFloat(matches[0]);
+      const lon = parseFloat(matches[1]);
+
+      if (!isNaN(lat) && !isNaN(lon) && Math.abs(lat) <= 90 && Math.abs(lon) <= 180) {
+        // Entrada: latitud, longitud -> Almacenamiento GeoJSON: [longitud, latitud]
+        validPoints.push({
+          lat: lat,
+          lon: lon,
+          geojson: [lon, lat]
+        });
+      } else {
+        invalidCount++;
+      }
+    } else {
+      invalidCount++;
+    }
+  }
+
+  return { validPoints, invalidCount };
+}
+
+/**
+ * Genera el string formateado del archivo rutas.js
+ */
+function serializeDatasetToJS(dataset) {
+  const json = JSON.stringify(dataset, null, 2);
+  return `/**
+ * DATASET DE LÍNEAS DE TAXIS COLECTIVOS — PUNTA ARENAS
+ * ======================================================
+ * Trazados ajustados a la red vial y ejes de calles reales de Punta Arenas.
+ * Formato de coordenadas: GeoJSON estándar [longitud, latitud].
+ * Actualizado el: ${new Date().toLocaleString()}
+ * Total de líneas: ${dataset.length}
+ */
+
+const DATASET_COLECTIVOS = ${json};
+`;
+}
+
+/**
+ * Genera la representación estándar GeoJSON FeatureCollection (RFC 7946)
+ */
+function serializeDatasetToGeoJSON(dataset) {
+  const features = [];
+  dataset.forEach(linea => {
+    if (linea.ida && linea.ida.length > 0) {
+      features.push({
+        type: "Feature",
+        properties: {
+          linea_id: linea.id,
+          nombre: linea.nombre,
+          sentido: "ida",
+          color: linea.color,
+          descripcion: `${linea.descripcion || linea.nombre} (Sentido Ida)`
+        },
+        geometry: {
+          type: "LineString",
+          coordinates: linea.ida
+        }
+      });
+    }
+
+    if (linea.vuelta && linea.vuelta.length > 0) {
+      features.push({
+        type: "Feature",
+        properties: {
+          linea_id: linea.id,
+          nombre: linea.nombre,
+          sentido: "vuelta",
+          color: linea.color,
+          descripcion: `${linea.descripcion || linea.nombre} (Sentido Vuelta)`
+        },
+        geometry: {
+          type: "LineString",
+          coordinates: linea.vuelta
+        }
+      });
+    }
+  });
+
+  const geojson = {
+    type: "FeatureCollection",
+    name: "Lineas_Taxis_Colectivos_Punta_Arenas",
+    crs: {
+      type: "name",
+      properties: {
+        name: "urn:ogc:def:crs:OGC:1.3:CRS84"
+      }
+    },
+    features: features
+  };
+
+  return JSON.stringify(geojson, null, 2);
+}
+
+/**
+ * Descarga de archivo mediante Blob de respaldo para navegadores sin File System Access
+ */
+function downloadBlob(content, fileName, contentType) {
+  const blob = new Blob([content], { type: contentType });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = fileName;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => {
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, 200);
+}
+
+// Exportación compatible tanto con navegadores (window) como con Node.js
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    EARTH_RADIUS_METERS,
+    haversineDistance,
+    projectPointToSegment,
+    generarTrayectorias,
+    estrategia1,
+    estrategia2,
+    estrategia1Transbordo,
+    estrategia2Transbordo,
+    parseCoordinateText,
+    serializeDatasetToJS,
+    serializeDatasetToGeoJSON,
+    downloadBlob
+  };
+}
