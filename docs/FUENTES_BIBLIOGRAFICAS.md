@@ -84,14 +84,24 @@ Las citas están estructuradas bajo la norma **APA 7.ª edición** (la más exte
 
 ---
 
-### 6. Software y Librerías de Código Abierto
+### 6. Geocodificación Abierta y Localización Espacial (Geocoding & POI Search)
 
-20. **Agafonkin, V., & Leaflet Contributors.** (2024). *Leaflet: An open-source JavaScript library for mobile-friendly interactive maps* (Versión 1.9.4) [Software]. https://leafletjs.com
+20. **Zandbergen, P. A.** (2008). A comparison of address point, parcel and street centerline data for geocoding. *Cartography and Geographic Information Science*, 35(4), 214–229. https://doi.org/10.1559/152304008786140502
+    * *Aporte al proyecto:* Modelación de algoritmos de geocodificación lineal (*forward geocoding*), análisis de precisión espacial sobre ejes viales (*street centerlines*) e interpolación métrica para localización de direcciones domiciliarias.
+
+21. **OpenStreetMap Contributors.** (2026). *Nominatim: Open-source search and reverse geocoding engine for OpenStreetMap*. OpenStreetMap Foundation. https://nominatim.org
+    * *Aporte al proyecto:* Motor de geocodificación abierta y búsqueda de lugares de interés utilizado para resolver direcciones y puntos clave de Punta Arenas en el lado del cliente sin costos de licencia de API comercial.
+
+---
+
+### 7. Software y Librerías de Código Abierto
+
+22. **Agafonkin, V., & Leaflet Contributors.** (2024). *Leaflet: An open-source JavaScript library for mobile-friendly interactive maps* (Versión 1.9.4) [Software]. https://leafletjs.com
     * *Aporte al proyecto:* Motor cartográfico liviano en el lado del cliente (Frontend Vanilla) para renderizado de capas vectoriales, marcadores táctiles y manejo de proyecciones espaciales en el navegador.
 
 ---
 
-### 7. Archivo BibTeX (para Overleaf / LaTeX)
+### 8. Archivo BibTeX (para Overleaf / LaTeX)
 
 A continuación se presenta el bloque de citas en formato BibTeX para copiar y pegar directamente en su archivo `.bib`:
 
@@ -244,6 +254,24 @@ A continuación se presenta el bloque de citas en formato BibTeX para copiar y p
   pages   = {2356--2365},
   year    = {2013},
   doi     = {10.1109/TVCG.2013.130}
+}
+
+@article{zandbergen2008geocoding,
+  author  = {Paul A. Zandbergen},
+  title   = {A Comparison of Address Point, Parcel and Street Centerline Data for Geocoding},
+  journal = {Cartography and Geographic Information Science},
+  volume  = {35},
+  number  = {4},
+  pages   = {214--229},
+  year    = {2008},
+  doi     = {10.1559/152304008786140502}
+}
+
+@misc{nominatim2026,
+  author       = {{OpenStreetMap Contributors}},
+  title        = {Nominatim: Open-Source Search and Reverse Geocoding Engine for OpenStreetMap},
+  howpublished = {\url{https://nominatim.org}},
+  year         = {2026}
 }
 
 @manual{leaflet2024,

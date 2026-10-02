@@ -176,6 +176,208 @@
       color: #b91c1c;
     }
 
+    /* Buscador de Direcciones y Lugares (Geocodificación) */
+    .search-section {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: #f8fafc;
+      padding: 11px 13px;
+      border-radius: 9px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .search-input-group {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .search-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #334155;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .dot-label {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .dot-origin {
+      background: #16a34a;
+      box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.25);
+    }
+
+    .dot-dest {
+      background: #dc2626;
+      box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.25);
+    }
+
+    .search-input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .search-input-icon {
+      position: absolute;
+      left: 11px;
+      font-size: 13px;
+      pointer-events: none;
+      user-select: none;
+      color: #64748b;
+    }
+
+    .search-input {
+      width: 100%;
+      min-height: 42px;
+      padding: 8px 34px 8px 33px;
+      border-radius: 7px;
+      border: 1.5px solid #cbd5e1;
+      font-size: 0.82rem;
+      color: #0f172a;
+      background: #ffffff;
+      outline: none;
+      transition: all 0.15s ease;
+      touch-action: manipulation;
+    }
+
+    .search-input:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+
+    .btn-clear-search {
+      position: absolute;
+      right: 6px;
+      width: 26px;
+      height: 26px;
+      border: none;
+      background: #f1f5f9;
+      color: #64748b;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: bold;
+      transition: all 0.15s ease;
+    }
+
+    .btn-clear-search:hover {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+
+    .search-dropdown {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      right: 0;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.16);
+      max-height: 240px;
+      overflow-y: auto;
+      z-index: 1200;
+    }
+
+    .search-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      cursor: pointer;
+      border-bottom: 1px solid #f1f5f9;
+      transition: background 0.12s ease;
+      user-select: none;
+    }
+
+    .search-item:last-child {
+      border-bottom: none;
+    }
+
+    .search-item:hover, .search-item:active {
+      background: #eff6ff;
+    }
+
+    .search-item-icon {
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .search-item-info {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .search-item-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .search-item-title span:first-child {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .search-item-sub {
+      font-size: 0.7rem;
+      color: #64748b;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .badge-source {
+      font-size: 0.62rem;
+      font-weight: 700;
+      padding: 1px 5px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+
+    .badge-source-local {
+      background: #ecfdf5;
+      color: #059669;
+      border: 1px solid #a7f3d0;
+    }
+
+    .badge-source-osm {
+      background: #f1f5f9;
+      color: #475569;
+      border: 1px solid #e2e8f0;
+    }
+
+    .search-empty {
+      padding: 12px;
+      font-size: 0.76rem;
+      color: #64748b;
+      text-align: center;
+      font-style: italic;
+    }
+
     .badge-sentido {
       font-size: 0.72rem;
       padding: 2px 7px;
@@ -622,67 +824,76 @@
         width: 100% !important;
         min-width: 100% !important;
         max-width: 100% !important;
-        max-height: 82dvh;
+        max-height: 48dvh !important;
         height: auto;
         border-radius: 18px 18px 0 0;
         box-shadow: 0 -6px 28px rgba(0, 0, 0, 0.25);
         z-index: 1000;
         border-right: none;
         border-top: 1px solid #cbd5e1;
-        transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+        transition: transform 0.28s cubic-bezier(0.25, 1, 0.5, 1);
         display: flex;
         flex-direction: column;
+        background: #ffffff;
       }
 
       .sheet-handle-bar {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 8px 16px;
+        padding: 6px 14px;
         background: #1e293b;
         border-radius: 18px 18px 0 0;
         cursor: pointer;
         user-select: none;
         touch-action: manipulation;
-        min-height: 52px;
+        min-height: 50px;
+        flex-shrink: 0;
       }
 
       .sheet-handle-left {
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 8px;
+        min-width: 0;
+        flex: 1;
       }
 
       .sheet-pill {
-        width: 38px;
-        height: 5px;
+        width: 34px;
+        height: 4px;
         background: #64748b;
-        border-radius: 3px;
+        border-radius: 2px;
+        flex-shrink: 0;
       }
 
       .sheet-title-mobile {
         color: #ffffff;
-        font-size: 0.88rem;
+        font-size: 0.82rem;
         font-weight: 700;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
 
       .sheet-toggle-btn {
         background: rgba(255, 255, 255, 0.16);
         color: #ffffff;
         border: none;
-        padding: 8px 14px;
-        border-radius: 8px;
-        font-size: 0.8rem;
+        padding: 6px 12px;
+        border-radius: 7px;
+        font-size: 0.78rem;
         font-weight: 700;
-        min-height: 44px;
+        min-height: 38px;
         display: inline-flex;
         align-items: center;
         gap: 4px;
         cursor: pointer;
+        flex-shrink: 0;
       }
 
       #sidebar.collapsed {
-        transform: translateY(calc(100% - 54px));
+        transform: translateY(calc(100% - 50px));
       }
 
       .header {
@@ -690,27 +901,63 @@
       }
 
       .content {
-        padding: 12px 16px;
-        gap: 12px;
-        max-height: calc(82dvh - 110px);
+        padding: 10px 14px;
+        gap: 8px;
+        max-height: calc(48dvh - 98px);
         overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .search-section {
+        padding: 8px 10px;
+        gap: 6px;
+      }
+
+      .search-label {
+        font-size: 0.67rem;
+      }
+
+      .search-input {
+        min-height: 38px;
+        font-size: 16px;
+        padding: 6px 30px 6px 30px;
+      }
+
+      .search-dropdown {
+        max-height: 160px;
+        z-index: 2500;
+      }
+
+      .step-box {
+        padding: 6px 10px;
+        font-size: 0.74rem;
+      }
+
+      .control-group {
+        padding: 6px 10px;
+        font-size: 0.74rem;
       }
 
       .footer-actions {
-        padding: 10px 16px max(12px, env(safe-area-inset-bottom, 12px)) 16px;
+        padding: 8px 14px max(8px, env(safe-area-inset-bottom, 8px)) 14px;
+      }
+
+      .btn {
+        min-height: 40px;
+        font-size: 0.8rem;
       }
 
       .leaflet-bottom.leaflet-right {
-        bottom: 64px !important;
-        right: 10px;
-        transition: bottom 0.3s ease;
+        bottom: 58px !important;
+        right: 8px;
+        transition: bottom 0.28s ease;
       }
 
       .legend {
-        max-height: 180px !important;
-        max-width: 190px !important;
-        padding: 6px 10px !important;
-        font-size: 0.7rem !important;
+        max-height: 150px !important;
+        max-width: 170px !important;
+        padding: 5px 8px !important;
+        font-size: 0.68rem !important;
       }
 
       #legend-body {
@@ -722,15 +969,15 @@
 <body>
 
   <!-- Sidebar UI / Hoja Inferior Deslizable en Celulares -->
-  <aside id="sidebar">
+  <aside id="sidebar" class="collapsed">
     <!-- Barra Táctil Superior (Mobile) -->
     <div class="sheet-handle-bar" onclick="handleSheetBarClick(event)">
       <div class="sheet-handle-left">
         <div class="sheet-pill"></div>
-        <span class="sheet-title-mobile" id="sheet-mobile-title">🚌 Paso 1: Toca el Origen</span>
+        <span class="sheet-title-mobile" id="sheet-mobile-title">🚌 Paso 1: Elige el Origen</span>
       </div>
       <button type="button" class="sheet-toggle-btn" id="btn-toggle-sheet" onclick="toggleMobileSheet(event)" title="Colapsar o expandir panel">
-        ▲ Abrir Panel
+        ▲ Ver Rutas
       </button>
     </div>
 
@@ -747,9 +994,38 @@
 
     <!-- Contenido del Recomendador -->
     <div class="content">
+      <!-- Buscador de Lugares y Direcciones (Geocodificación y POIs) -->
+      <div class="search-section">
+        <div class="search-input-group" id="group-search-origen">
+          <label class="search-label" for="input-search-origen">
+            <span class="dot-label dot-origin"></span>
+            <span>Punto de Origen (Partida)</span>
+          </label>
+          <div class="search-input-wrapper">
+            <span class="search-input-icon">🔍</span>
+            <input type="text" id="input-search-origen" class="search-input" placeholder="Buscar lugar o calle (ej: Zona Franca, Bories)..." autocomplete="off" />
+            <button type="button" class="btn-clear-search" id="btn-clear-origen" title="Borrar origen" style="display:none;">✕</button>
+          </div>
+          <div class="search-dropdown" id="dropdown-origen" style="display:none;"></div>
+        </div>
+
+        <div class="search-input-group" id="group-search-destino">
+          <label class="search-label" for="input-search-destino">
+            <span class="dot-label dot-dest"></span>
+            <span>Punto de Destino (Llegada)</span>
+          </label>
+          <div class="search-input-wrapper">
+            <span class="search-input-icon">🎯</span>
+            <input type="text" id="input-search-destino" class="search-input" placeholder="Buscar lugar o calle (ej: Hospital Clínico, UMAG)..." autocomplete="off" />
+            <button type="button" class="btn-clear-search" id="btn-clear-destino" title="Borrar destino" style="display:none;">✕</button>
+          </div>
+          <div class="search-dropdown" id="dropdown-destino" style="display:none;"></div>
+        </div>
+      </div>
+
       <div id="instruction-box" class="step-box">
         <strong>Paso 1 de 2</strong>
-        Haz clic en el mapa para marcar el <span class="badge-status badge-origin">Origen</span>.
+        Busca arriba o toca el mapa para marcar el <span class="badge-status badge-origin">Origen</span>.
       </div>
 
       <div class="control-group">
@@ -910,6 +1186,14 @@
     let currentResultsE2 = [];
     let selectedOption = null; // { strategyKey: 'e1'|'e2', index: number }
 
+    // Estado para búsqueda y geocodificación
+    let origenNombre = null;
+    let destinoNombre = null;
+    let debounceTimerOrigen = null;
+    let debounceTimerDestino = null;
+    let abortCtrlOrigen = null;
+    let abortCtrlDestino = null;
+
     function createMarkerIcon(text, className) {
       return L.divIcon({
         className: 'custom-div-icon',
@@ -923,9 +1207,25 @@
       clickCount = 0;
       origen = null;
       destino = null;
+      origenNombre = null;
+      destinoNombre = null;
       currentResultsE1 = [];
       currentResultsE2 = [];
       selectedOption = null;
+
+      const inputOrigen = document.getElementById('input-search-origen');
+      const inputDestino = document.getElementById('input-search-destino');
+      const btnClearOrigen = document.getElementById('btn-clear-origen');
+      const btnClearDestino = document.getElementById('btn-clear-destino');
+      const dropOrigen = document.getElementById('dropdown-origen');
+      const dropDestino = document.getElementById('dropdown-destino');
+
+      if (inputOrigen) inputOrigen.value = '';
+      if (inputDestino) inputDestino.value = '';
+      if (btnClearOrigen) btnClearOrigen.style.display = 'none';
+      if (btnClearDestino) btnClearDestino.style.display = 'none';
+      if (dropOrigen) { dropOrigen.style.display = 'none'; dropOrigen.innerHTML = ''; }
+      if (dropDestino) { dropDestino.style.display = 'none'; dropDestino.innerHTML = ''; }
 
       if (origenMarker) map.removeLayer(origenMarker);
       if (destinoMarker) map.removeLayer(destinoMarker);
@@ -951,7 +1251,7 @@
 
       document.getElementById('instruction-box').innerHTML = `
         <strong>Paso 1 de 2</strong>
-        Haz clic en el mapa para marcar el <span class="badge-status badge-origin">Origen</span>.
+        Busca arriba o toca el mapa para marcar el <span class="badge-status badge-origin">Origen</span>.
       `;
       document.getElementById('time-e1').textContent = '-- ms';
       document.getElementById('time-e2').textContent = '-- ms';
@@ -959,7 +1259,7 @@
       document.getElementById('results-e2').innerHTML = '<span class="no-results">Esperando selección de puntos...</span>';
       document.getElementById('comparison-container').style.display = 'none';
 
-      updateMobileHeaderTitle("🚌 Paso 1: Toca el Origen");
+      updateMobileHeaderTitle("🚌 Paso 1: Elige el Origen");
     }
 
     function executeEvaluation() {
@@ -1023,13 +1323,23 @@
             • E2 (proyección segmento): ${e2Labels.size} trayecto(s)<br>
             <em>La Estrategia 2 proyecta la posición continua sobre el eje de la calle con mayor precisión métrica.</em>`;
         }
-        updateMobileHeaderTitle(`✅ ${resE1.length} ruta(s) directa(s)`);
+        const topDirect = resE2[0] || resE1[0];
+        if (topDirect) {
+          updateMobileHeaderTitle(`🚌 #1 ${topDirect.nombre} (${topDirect.dTotalCaminata}m)`);
+        } else {
+          updateMobileHeaderTitle(`✅ ${resE1.length} ruta(s) directa(s)`);
+        }
       } else {
         if (resE1.length > 0 || resE2.length > 0) {
           compBox.className = 'comparison-box comparison-diff';
           compBox.innerHTML = `🔄 <strong>Sin línea directa:</strong> No existe una única línea que conecte origen y destino en el sentido solicitado.<br>
             Se calcularon automáticamente las mejores opciones con <strong>1 transbordo entre 2 líneas</strong>.`;
-          updateMobileHeaderTitle(`🔄 ${resE1.length} opción(es) con transbordo`);
+          const topTr = resE2[0] || resE1[0];
+          if (topTr) {
+            updateMobileHeaderTitle(`🔄 #1 ${topTr.trayecto1.nombre} + ${topTr.trayecto2.nombre} (${topTr.dTotalCaminata}m)`);
+          } else {
+            updateMobileHeaderTitle(`🔄 ${resE1.length} opción(es) con transbordo`);
+          }
         } else {
           compBox.className = 'comparison-box comparison-diff';
           compBox.innerHTML = `❌ <strong>Sin cobertura:</strong> No se encontraron líneas directas ni combinaciones con 1 transbordo dentro del radio de ${searchRadius} m. Intenta aumentar el radio de búsqueda.`;
@@ -1055,7 +1365,8 @@
       }
 
       if (window.innerWidth <= 768) {
-        expandMobileSheet();
+        // En móviles colapsar para que la ruta en el mapa quede visible de inmediato
+        collapseMobileSheet();
       }
     }
 
@@ -1156,6 +1467,14 @@
       }
 
       highlightOptionOnMap(item, false);
+
+      if (window.innerWidth <= 768) {
+        if (item.tipo === 'transbordo') {
+          updateMobileHeaderTitle(`🔄 #${index + 1} ${item.trayecto1.nombre} + ${item.trayecto2.nombre} (${item.dTotalCaminata}m)`);
+        } else {
+          updateMobileHeaderTitle(`🚌 #${index + 1} ${item.nombre} (${item.dTotalCaminata}m)`);
+        }
+      }
     }
 
     function previewRouteOption(strategyKey, index) {
@@ -1289,80 +1608,125 @@
       container.innerHTML = html;
     }
 
-    // Eventos de clic en el mapa
-    map.on('click', function(e) {
-      if (clickCount === 0) {
-        origen = e.latlng;
+    /* ==========================================================================
+       GESTIÓN DE PUNTOS (ORIGEN Y DESTINO)
+       ========================================================================== */
+    function setOrigenPoint(lat, lng, label = 'Origen seleccionado') {
+      origen = L.latLng(lat, lng);
+      origenNombre = label;
+
+      const inputOrigen = document.getElementById('input-search-origen');
+      const btnClearOrigen = document.getElementById('btn-clear-origen');
+      if (inputOrigen) inputOrigen.value = label;
+      if (btnClearOrigen) btnClearOrigen.style.display = 'inline-flex';
+
+      if (origenMarker) map.removeLayer(origenMarker);
+      if (origenCircle) map.removeLayer(origenCircle);
+
+      origenMarker = L.marker(origen, {
+        icon: createMarkerIcon('O', 'origin-marker')
+      }).addTo(map).bindPopup(`<strong>Origen (O)</strong><br>${label}`);
+
+      origenCircle = L.circle(origen, {
+        radius: searchRadius,
+        color: '#16a34a',
+        fillColor: '#16a34a',
+        fillOpacity: 0.1,
+        weight: 1.5,
+        dashArray: '4, 4'
+      }).addTo(map);
+
+      if (!destino) {
         clickCount = 1;
-
-        origenMarker = L.marker(origen, {
-          icon: createMarkerIcon('O', 'origin-marker')
-        }).addTo(map).bindPopup('<strong>Origen (O)</strong>');
-
-        origenCircle = L.circle(origen, {
-          radius: searchRadius,
-          color: '#16a34a',
-          fillColor: '#16a34a',
-          fillOpacity: 0.1,
-          weight: 1.5,
-          dashArray: '4, 4'
-        }).addTo(map);
-
         document.getElementById('instruction-box').innerHTML = `
           <strong>Paso 2 de 2</strong>
-          Haz clic en el mapa para marcar el <span class="badge-status badge-dest">Destino</span>.
+          Busca arriba o toca el mapa para marcar el <span class="badge-status badge-dest">Destino</span>.
         `;
-        updateMobileHeaderTitle("🎯 Paso 2: Toca el Destino");
+        updateMobileHeaderTitle("🎯 Paso 2: Elige el Destino");
+        map.setView(origen, 14);
+      } else {
+        clickCount = 2;
+        document.getElementById('instruction-box').innerHTML = `
+          <strong>Ruta calculada</strong>
+          Origen y destino seleccionados. Elige una opción abajo.
+        `;
+        map.fitBounds(L.latLngBounds([origen, destino]).pad(0.2));
+        executeEvaluation();
+      }
+    }
 
+    function setDestinoPoint(lat, lng, label = 'Destino seleccionado') {
+      destino = L.latLng(lat, lng);
+      destinoNombre = label;
+
+      const inputDestino = document.getElementById('input-search-destino');
+      const btnClearDestino = document.getElementById('btn-clear-destino');
+      if (inputDestino) inputDestino.value = label;
+      if (btnClearDestino) btnClearDestino.style.display = 'inline-flex';
+
+      if (destinoMarker) map.removeLayer(destinoMarker);
+      if (destinoCircle) map.removeLayer(destinoCircle);
+
+      destinoMarker = L.marker(destino, {
+        icon: createMarkerIcon('D', 'dest-marker')
+      }).addTo(map).bindPopup(`<strong>Destino (D)</strong><br>${label}`);
+
+      destinoCircle = L.circle(destino, {
+        radius: searchRadius,
+        color: '#dc2626',
+        fillColor: '#dc2626',
+        fillOpacity: 0.1,
+        weight: 1.5,
+        dashArray: '4, 4'
+      }).addTo(map);
+
+      if (!origen) {
+        document.getElementById('instruction-box').innerHTML = `
+          <strong>Falta el Origen</strong>
+          Busca arriba o toca el mapa para marcar el <span class="badge-status badge-origin">Origen</span>.
+        `;
+        updateMobileHeaderTitle("🚌 Paso 1: Elige el Origen");
+        map.setView(destino, 14);
+      } else {
+        clickCount = 2;
+        document.getElementById('instruction-box').innerHTML = `
+          <strong>Ruta calculada</strong>
+          Origen y destino seleccionados. Elige una opción abajo.
+        `;
+        map.fitBounds(L.latLngBounds([origen, destino]).pad(0.2));
+        executeEvaluation();
+      }
+    }
+
+    // Eventos de clic en el mapa
+    map.on('click', function(e) {
+      // En móvil, si la hoja está expandida y ya existen origen y destino,
+      // tocar el mapa debe simplemente minimizar la hoja para ver el mapa despejado
+      if (window.innerWidth <= 768) {
+        const sidebar = document.getElementById('sidebar');
+        if (sidebar && !sidebar.classList.contains('collapsed') && origen && destino) {
+          collapseMobileSheet();
+          return;
+        }
+      }
+
+      const lat = e.latlng.lat;
+      const lng = e.latlng.lng;
+      const coordLabel = `Punto en mapa (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
+
+      if (clickCount === 0) {
+        clickCount = 1;
+        setOrigenPoint(lat, lng, coordLabel);
         if (window.innerWidth <= 768) {
           collapseMobileSheet();
         }
       } else if (clickCount === 1) {
-        destino = e.latlng;
         clickCount = 2;
-
-        destinoMarker = L.marker(destino, {
-          icon: createMarkerIcon('D', 'dest-marker')
-        }).addTo(map).bindPopup('<strong>Destino (D)</strong>');
-
-        destinoCircle = L.circle(destino, {
-          radius: searchRadius,
-          color: '#dc2626',
-          fillColor: '#dc2626',
-          fillOpacity: 0.1,
-          weight: 1.5,
-          dashArray: '4, 4'
-        }).addTo(map);
-
-        document.getElementById('instruction-box').innerHTML = `
-          <strong>Completado</strong>
-          Origen y destino seleccionados. Haz clic de nuevo para reiniciar.
-        `;
-
-        executeEvaluation();
+        setDestinoPoint(lat, lng, coordLabel);
       } else {
         resetPoints();
-        origen = e.latlng;
         clickCount = 1;
-
-        origenMarker = L.marker(origen, {
-          icon: createMarkerIcon('O', 'origin-marker')
-        }).addTo(map).bindPopup('<strong>Origen (O)</strong>');
-
-        origenCircle = L.circle(origen, {
-          radius: searchRadius,
-          color: '#16a34a',
-          fillColor: '#16a34a',
-          fillOpacity: 0.1,
-          weight: 1.5,
-          dashArray: '4, 4'
-        }).addTo(map);
-
-        document.getElementById('instruction-box').innerHTML = `
-          <strong>Paso 2 de 2</strong>
-          Haz clic en el mapa para marcar el <span class="badge-status badge-dest">Destino</span>.
-        `;
-        updateMobileHeaderTitle("🎯 Paso 2: Toca el Destino");
+        setOrigenPoint(lat, lng, coordLabel);
       }
     });
 
@@ -1383,6 +1747,163 @@
     });
 
     document.getElementById('btn-reset').addEventListener('click', resetPoints);
+
+    /* ==========================================================================
+       BÚSQUEDA Y AUTOCOMPLETADO DE DIRECCIONES (GEOCODIFICACIÓN)
+       ========================================================================== */
+    function renderSearchDropdown(dropdownEl, items, type, isPreliminary = false) {
+      if (!items || items.length === 0) {
+        if (!isPreliminary) {
+          dropdownEl.innerHTML = `<div class="search-empty">No se encontraron lugares en Punta Arenas para esta búsqueda.</div>`;
+          dropdownEl.style.display = 'block';
+        }
+        return;
+      }
+
+      let html = '';
+      items.forEach((item, idx) => {
+        const fuenteBadge = item.fuente === 'local' 
+          ? '<span class="badge-source badge-source-local">Hito</span>' 
+          : '<span class="badge-source badge-source-osm">OSM</span>';
+
+        html += `
+          <div class="search-item" data-idx="${idx}">
+            <span class="search-item-icon">${item.icono || '📍'}</span>
+            <div class="search-item-info">
+              <div class="search-item-title">
+                <span>${item.nombre}</span>
+                ${fuenteBadge}
+              </div>
+              <div class="search-item-sub">${item.detalle || ''}</div>
+            </div>
+          </div>
+        `;
+      });
+
+      dropdownEl.innerHTML = html;
+      dropdownEl.style.display = 'block';
+
+      dropdownEl.querySelectorAll('.search-item').forEach((row, i) => {
+        row.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const selected = items[i];
+          if (type === 'origen') {
+            setOrigenPoint(selected.lat, selected.lon, selected.nombre);
+            dropdownEl.style.display = 'none';
+          } else {
+            setDestinoPoint(selected.lat, selected.lon, selected.nombre);
+            dropdownEl.style.display = 'none';
+          }
+        });
+      });
+    }
+
+    const inputOrigen = document.getElementById('input-search-origen');
+    const dropdownOrigen = document.getElementById('dropdown-origen');
+
+    inputOrigen.addEventListener('input', (e) => {
+      const q = e.target.value.trim();
+      document.getElementById('btn-clear-origen').style.display = q.length > 0 ? 'inline-flex' : 'none';
+
+      if (q.length < 2) {
+        dropdownOrigen.style.display = 'none';
+        dropdownOrigen.innerHTML = '';
+        return;
+      }
+
+      // 1. Mostrar de inmediato coincidencias locales (0 ms)
+      const localMatches = typeof buscarHitosLocales === 'function' ? buscarHitosLocales(q, 4) : [];
+      renderSearchDropdown(dropdownOrigen, localMatches, 'origen', true);
+
+      // 2. Debounce para consultar Nominatim OSM
+      clearTimeout(debounceTimerOrigen);
+      if (abortCtrlOrigen) abortCtrlOrigen.abort();
+      abortCtrlOrigen = new AbortController();
+
+      debounceTimerOrigen = setTimeout(async () => {
+        if (typeof buscarUbicacionesHibrido === 'function') {
+          const results = await buscarUbicacionesHibrido(q, 6, abortCtrlOrigen.signal);
+          renderSearchDropdown(dropdownOrigen, results, 'origen', false);
+        }
+      }, 350);
+    });
+
+    const inputDestino = document.getElementById('input-search-destino');
+    const dropdownDestino = document.getElementById('dropdown-destino');
+
+    inputDestino.addEventListener('input', (e) => {
+      const q = e.target.value.trim();
+      document.getElementById('btn-clear-destino').style.display = q.length > 0 ? 'inline-flex' : 'none';
+
+      if (q.length < 2) {
+        dropdownDestino.style.display = 'none';
+        dropdownDestino.innerHTML = '';
+        return;
+      }
+
+      // 1. Mostrar de inmediato coincidencias locales (0 ms)
+      const localMatches = typeof buscarHitosLocales === 'function' ? buscarHitosLocales(q, 4) : [];
+      renderSearchDropdown(dropdownDestino, localMatches, 'destino', true);
+
+      // 2. Debounce para consultar Nominatim OSM
+      clearTimeout(debounceTimerDestino);
+      if (abortCtrlDestino) abortCtrlDestino.abort();
+      abortCtrlDestino = new AbortController();
+
+      debounceTimerDestino = setTimeout(async () => {
+        if (typeof buscarUbicacionesHibrido === 'function') {
+          const results = await buscarUbicacionesHibrido(q, 6, abortCtrlDestino.signal);
+          renderSearchDropdown(dropdownDestino, results, 'destino', false);
+        }
+      }, 350);
+    });
+
+    document.getElementById('btn-clear-origen').addEventListener('click', (e) => {
+      e.stopPropagation();
+      origen = null;
+      origenNombre = null;
+      inputOrigen.value = '';
+      document.getElementById('btn-clear-origen').style.display = 'none';
+      dropdownOrigen.style.display = 'none';
+      if (origenMarker) { map.removeLayer(origenMarker); origenMarker = null; }
+      if (origenCircle) { map.removeLayer(origenCircle); origenCircle = null; }
+      clickCount = 0;
+      if (destino) {
+        document.getElementById('instruction-box').innerHTML = `
+          <strong>Falta el Origen</strong>
+          Busca arriba o toca el mapa para marcar el <span class="badge-status badge-origin">Origen</span>.
+        `;
+        updateMobileHeaderTitle("🚌 Paso 1: Elige el Origen");
+      } else {
+        resetPoints();
+      }
+    });
+
+    document.getElementById('btn-clear-destino').addEventListener('click', (e) => {
+      e.stopPropagation();
+      destino = null;
+      destinoNombre = null;
+      inputDestino.value = '';
+      document.getElementById('btn-clear-destino').style.display = 'none';
+      dropdownDestino.style.display = 'none';
+      if (destinoMarker) { map.removeLayer(destinoMarker); destinoMarker = null; }
+      if (destinoCircle) { map.removeLayer(destinoCircle); destinoCircle = null; }
+      clickCount = origen ? 1 : 0;
+      document.getElementById('instruction-box').innerHTML = `
+        <strong>Paso 2 de 2</strong>
+        Busca arriba o toca el mapa para marcar el <span class="badge-status badge-dest">Destino</span>.
+      `;
+      updateMobileHeaderTitle("🎯 Paso 2: Elige el Destino");
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('#group-search-origen')) {
+        dropdownOrigen.style.display = 'none';
+      }
+      if (!e.target.closest('#group-search-destino')) {
+        dropdownDestino.style.display = 'none';
+      }
+    });
 
     /* ==========================================================================
        4. CONTROL RESPONSIVE EN MÓVILES (HOJA INFERIOR DESLIZANTE)
@@ -1407,7 +1928,7 @@
       const sidebar = document.getElementById('sidebar');
       const toggleBtn = document.getElementById('btn-toggle-sheet');
       if (sidebar) sidebar.classList.remove('collapsed');
-      if (toggleBtn) toggleBtn.innerHTML = '▼ Minimizar';
+      if (toggleBtn) toggleBtn.innerHTML = '▼ Ver Mapa';
       setTimeout(() => map.invalidateSize(), 320);
     }
 
@@ -1415,7 +1936,7 @@
       const sidebar = document.getElementById('sidebar');
       const toggleBtn = document.getElementById('btn-toggle-sheet');
       if (sidebar) sidebar.classList.add('collapsed');
-      if (toggleBtn) toggleBtn.innerHTML = '▲ Abrir Panel';
+      if (toggleBtn) toggleBtn.innerHTML = '▲ Ver Rutas';
       setTimeout(() => map.invalidateSize(), 320);
     }
 
@@ -1456,30 +1977,7 @@
           const userLng = position.coords.longitude;
 
           resetPoints();
-
-          origen = L.latLng(userLat, userLng);
-          clickCount = 1;
-
-          origenMarker = L.marker(origen, {
-            icon: createMarkerIcon('O', 'origin-marker')
-          }).addTo(map).bindPopup('<strong>Tu Ubicación GPS (Origen)</strong>');
-
-          origenCircle = L.circle(origen, {
-            radius: searchRadius,
-            color: '#16a34a',
-            fillColor: '#16a34a',
-            fillOpacity: 0.1,
-            weight: 1.5,
-            dashArray: '4, 4'
-          }).addTo(map);
-
-          map.setView(origen, 14);
-
-          document.getElementById('instruction-box').innerHTML = `
-            <strong>Paso 2 de 2</strong>
-            Origen fijado en tu posición GPS. Haz clic en el mapa para marcar el <span class="badge-status badge-dest">Destino</span>.
-          `;
-          updateMobileHeaderTitle("🎯 Paso 2: Toca el Destino");
+          setOrigenPoint(userLat, userLng, '📍 Mi ubicación GPS');
 
           if (window.innerWidth <= 768) {
             collapseMobileSheet();

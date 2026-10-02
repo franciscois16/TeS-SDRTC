@@ -641,6 +641,174 @@ function downloadBlob(content, fileName, contentType) {
   }, 200);
 }
 
+/**
+ * CATÁLOGO DE HITOS Y PUNTOS DE INTERÉS NOTABLES (POIs) DE PUNTA ARENAS
+ * ====================================================================
+ * Permite autocompletado instantáneo y resolución de destinos clave 100% offline.
+ */
+const HITOS_PUNTA_ARENAS = [
+  // Comercio y Servicios
+  { id: 'poi-zofra', nombre: 'Zona Franca', alias: 'zonAustral zonaustral zofra mall zona franca modulos recinto franco', detalle: 'Recinto Franco Comercial • Av. Manuel Bulnes', lat: -53.1351, lon: -70.8704, icono: '🛍️', categoria: 'Comercio' },
+  { id: 'poi-mall', nombre: 'Mall Espacio Urbano Pionero', alias: 'mall pionero lider frei falabella ripley espacio urbano', detalle: 'Centro Comercial • Av. Eduardo Frei Montalva con Zenteno', lat: -53.1362, lon: -70.8878, icono: '🛍️', categoria: 'Comercio' },
+  { id: 'poi-mercado', nombre: 'Mercado Municipal', alias: 'mercado municipal 21 de mayo cocinerias pescaderia puerto', detalle: 'Mercado y Gastronomía • Calle 21 de Mayo 1480', lat: -53.1672, lon: -70.9085, icono: '🐟', categoria: 'Comercio' },
+  { id: 'poi-unimarc-bories', nombre: 'Supermercado Unimarc (Bories)', alias: 'unimarc centro bories supermercado', detalle: 'Supermercado • Bories 637', lat: -53.1605, lon: -70.9055, icono: '🛒', categoria: 'Comercio' },
+  { id: 'poi-lider-frei', nombre: 'Supermercado Líder (Av. Frei)', alias: 'lider frei hiper lider supermercado', detalle: 'Supermercado • Av. Eduardo Frei Montalva 01110', lat: -53.1370, lon: -70.8885, icono: '🛒', categoria: 'Comercio' },
+
+  // Salud
+  { id: 'poi-hospital', nombre: 'Hospital Clínico de Magallanes', alias: 'hospital regional lautaro navarro hospital frei urgencias clinico', detalle: 'Hospital Regional • Av. Pdte. Eduardo Frei Montalva 01364', lat: -53.1221, lon: -70.8963, icono: '🏥', categoria: 'Salud' },
+  { id: 'poi-redsalud', nombre: 'Clínica RedSalud Magallanes', alias: 'clinica redsalud clinica magallanes pedro montt', detalle: 'Clínica Privada • Av. Salvador Allende con Av. Frei', lat: -53.1410, lon: -70.8990, icono: '🏥', categoria: 'Salud' },
+  { id: 'poi-cesfam-damianovic', nombre: 'CESFAM Dr. Juan Damianovic', alias: 'consultorio sur damianovic cesfam sur salud sur rengifo', detalle: 'Salud Primaria Sur • Zenteno 2850 (Barrio Sur)', lat: -53.1788, lon: -70.9295, icono: '🩺', categoria: 'Salud' },
+  { id: 'poi-cesfam-bencur', nombre: 'CESFAM Dr. Mateo Bencur', alias: 'consultorio 18 cesfam bencur mateo bencur cesfam 18 dieciocho', detalle: 'Salud Primaria • Capitán Guillermo con José Perich', lat: -53.1652, lon: -70.9320, icono: '🩺', categoria: 'Salud' },
+  { id: 'poi-cesfam-fenton', nombre: 'CESFAM Thomas Fenton', alias: 'cesfam fenton consultorio norte fenton suiza playa norte', detalle: 'Salud Primaria • Calle Suiza con Vicente Kusanovic', lat: -53.1415, lon: -70.9015, icono: '🩺', categoria: 'Salud' },
+  { id: 'poi-cesfam-ibanez', nombre: 'CESFAM Carlos Ibáñez', alias: 'cesfam ibanez consultorio ibanez santa juana', detalle: 'Salud Primaria • Av. Eduardo Frei con Santa Juana', lat: -53.1550, lon: -70.9250, icono: '🩺', categoria: 'Salud' },
+
+  // Educación Superior y Colegios
+  { id: 'poi-umag', nombre: 'Universidad de Magallanes (UMAG)', alias: 'umag u magallanes campus central rectoria bulnes universidad', detalle: 'Campus Central Universitario • Av. Manuel Bulnes 01855', lat: -53.1325, lon: -70.8797, icono: '🎓', categoria: 'Educación' },
+  { id: 'poi-inacap', nombre: 'INACAP Punta Arenas', alias: 'inacap cft inacap universidad tecnologica bulnes norte', detalle: 'Instituto Profesional • Av. Manuel Bulnes km 4 Norte', lat: -53.1305, lon: -70.8755, icono: '🎓', categoria: 'Educación' },
+  { id: 'poi-santotomas', nombre: 'Instituto Santo Tomás', alias: 'santo tomas ust ip santo tomas cft mejicana bories', detalle: 'Educación Superior • Calle Mejicana 665', lat: -53.1580, lon: -70.9065, icono: '🎓', categoria: 'Educación' },
+  { id: 'poi-liceo-sanjose', nombre: 'Liceo San José', alias: 'san jose colegio san jose fagnano salesianos', detalle: 'Colegio • Monseñor Fagnano 550', lat: -53.1620, lon: -70.9100, icono: '🏫', categoria: 'Educación' },
+  { id: 'poi-instituto-donbosco', nombre: 'Instituto Don Bosco', alias: 'don bosco colegio don bosco maipu salesianos idb', detalle: 'Colegio Técnico • Calle Maipú 615', lat: -53.1575, lon: -70.9080, icono: '🏫', categoria: 'Educación' },
+  { id: 'poi-liceo-sarabraun', nombre: 'Liceo Sara Braun', alias: 'liceo sara braun liceo de ninas colon plaza', detalle: 'Liceo Municipal • Av. Colón 1027', lat: -53.1630, lon: -70.9070, icono: '🏫', categoria: 'Educación' },
+  { id: 'poi-liceo-mariabehety', nombre: 'Liceo Polivalente María Behety', alias: 'liceo maria behety politecnico arturo prat', detalle: 'Liceo Polivalente • Arturo Prat 1875', lat: -53.1685, lon: -70.9195, icono: '🏫', categoria: 'Educación' },
+
+  // Cívicos, Turismo y Espacios Públicos
+  { id: 'poi-plaza-armas', nombre: 'Plaza Muñoz Gamero (Plaza de Armas)', alias: 'plaza de armas plaza centro centro civico hernando de magallanes indio pata', detalle: 'Plaza de Armas • Centro Cívico e Histórico', lat: -53.1627, lon: -70.9080, icono: '🏛️', categoria: 'Cívico' },
+  { id: 'poi-mirador-cruz', nombre: 'Mirador Cerro de la Cruz', alias: 'cerro de la cruz senoret mirador cruz vista panoramica', detalle: 'Mirador Turístico • Calle Señoret con Fagnano', lat: -53.1610, lon: -70.9168, icono: '🌄', categoria: 'Turismo' },
+  { id: 'poi-muelle-prat', nombre: 'Muelle Arturo Prat / Costanera', alias: 'muelle prat puerto costanera del estrecho embarcadero estrecho', detalle: 'Costanera del Estrecho • Pedro Montt s/n', lat: -53.1648, lon: -70.9030, icono: '🚢', categoria: 'Turismo' },
+  { id: 'poi-cementerio', nombre: 'Cementerio Municipal Sara Braun', alias: 'cementerio municipal sara braun cipreses bulnes', detalle: 'Monumento Histórico • Av. Manuel Bulnes 929', lat: -53.1495, lon: -70.8988, icono: '🌲', categoria: 'Turismo' },
+  { id: 'poi-parque-maria-behety', nombre: 'Parque María Behety', alias: 'parque maria behety parque sur dinosaurios 21 de mayo', detalle: 'Parque Urbano • Costanera Sur / 21 de Mayo', lat: -53.1843, lon: -70.9255, icono: '🌳', categoria: 'Recreación' },
+  { id: 'poi-gimnasio-fiscal', nombre: 'Gimnasio Fiscal de Punta Arenas', alias: 'gimnasio fiscal estadio fiscal alberca piscina fiscal enrique abello', detalle: 'Complejo Deportivo • Enrique Abello con Av. Bulnes', lat: -53.1530, lon: -70.8995, icono: '⚽', categoria: 'Deportes' },
+  { id: 'poi-polideportivo-18', nombre: 'Polideportivo 18 de Septiembre', alias: 'polideportivo 18 de septiembre gimnasio 18 dieciocho', detalle: 'Gimnasio Polideportivo • Salvador Allende 0291', lat: -53.1695, lon: -70.9388, icono: '🏀', categoria: 'Deportes' },
+
+  // Terminales de Buses y Conexión
+  { id: 'poi-terminal-bussur', nombre: 'Terminal de Buses Bus-Sur', alias: 'bus sur bussur buses colon terminal bus-sur buses a natales', detalle: 'Terminal de Buses • Av. Cristóbal Colón 842', lat: -53.1606, lon: -70.9077, icono: '🚌', categoria: 'Transporte' },
+  { id: 'poi-terminal-fernandez', nombre: 'Terminal Buses Fernández', alias: 'buses fernandez armando sanhueza terminal rodoviario', detalle: 'Terminal Interurbano • Armando Sanhueza 745', lat: -53.1600, lon: -70.9060, icono: '🚌', categoria: 'Transporte' },
+
+  // Barrios y Sectores Característicos
+  { id: 'poi-sector-rioseco', nombre: 'Río Seco', alias: 'rio seco caleta rio seco norte ruta 9', detalle: 'Sector Rural Periurbano Norte • Ruta 9 Norte km 13', lat: -53.0620, lon: -70.8510, icono: '🏘️', categoria: 'Sector' },
+  { id: 'poi-barrio-18', nombre: 'Barrio 18 de Septiembre', alias: 'barrio 18 la 18 dieciocho sector alto', detalle: 'Sector Habitacional • Plaza 18 de Septiembre', lat: -53.1700, lon: -70.9350, icono: '🏘️', categoria: 'Sector' },
+  { id: 'poi-barrio-chiloe', nombre: 'Barrio Archipiélago de Chiloé', alias: 'archipielago de chiloe santa juana sur barrio sur alto', detalle: 'Sector Habitacional Sur • Santa Juana / Ancud', lat: -53.1820, lon: -70.9380, icono: '🏘️', categoria: 'Sector' },
+  { id: 'poi-playa-norte', nombre: 'Playa Norte', alias: 'playa norte jorge montt costanera norte', detalle: 'Sector Costero Norte • Av. Jorge Montt', lat: -53.1420, lon: -70.8950, icono: '🏘️', categoria: 'Sector' },
+  { id: 'poi-barrio-prat', nombre: 'Barrio Prat', alias: 'barrio prat plaza condell general del canto zenteno', detalle: 'Sector Tradicional • Plaza Condell / General del Canto', lat: -53.1510, lon: -70.9180, icono: '🏘️', categoria: 'Sector' }
+];
+
+/**
+ * Normaliza una cadena de texto para búsquedas insensibles a mayúsculas y acentos.
+ */
+function normalizeSearchText(str) {
+  return (str || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim();
+}
+
+/**
+ * Búsqueda de hitos locales de Punta Arenas en memoria (0ms, 100% Offline)
+ */
+function buscarHitosLocales(query, limit = 5) {
+  const normQ = normalizeSearchText(query);
+  if (!normQ || normQ.length < 2) return [];
+
+  const words = normQ.split(/\s+/).filter(w => w.length > 0);
+  const matches = [];
+
+  for (const h of HITOS_PUNTA_ARENAS) {
+    const hay = normalizeSearchText(`${h.nombre} ${h.alias || ''} ${h.detalle || ''} ${h.categoria || ''}`);
+    const matchesAllWords = words.every(w => hay.includes(w));
+    if (matchesAllWords) {
+      const normNombre = normalizeSearchText(h.nombre);
+      const score = normNombre.startsWith(normQ) ? 2 : 1;
+      matches.push({
+        nombre: h.nombre,
+        detalle: h.detalle,
+        categoria: h.categoria,
+        icono: h.icono || '📍',
+        lat: h.lat,
+        lon: h.lon,
+        fuente: 'local',
+        score: score
+      });
+    }
+  }
+
+  matches.sort((a, b) => b.score - a.score);
+  return matches.slice(0, limit);
+}
+
+/**
+ * Búsqueda geocodificada en OpenStreetMap (Nominatim API) para calles y direcciones de Punta Arenas.
+ */
+async function buscarDireccionesNominatim(query, limit = 5, signal = null) {
+  const normQ = (query || '').trim();
+  if (normQ.length < 3) return [];
+
+  const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(normQ + ', Punta Arenas, Chile')}&format=json&limit=${limit}&addressdetails=1&viewbox=-71.05,-53.05,-70.80,-53.25`;
+
+  try {
+    const res = await fetch(url, {
+      headers: {
+        'Accept': 'application/json'
+      },
+      signal: signal
+    });
+
+    if (!res.ok) return [];
+    const data = await res.json();
+    if (!Array.isArray(data)) return [];
+
+    return data.map(item => {
+      const parts = item.display_name.split(',').map(p => p.trim());
+      const cleanTitle = parts[0] || normQ;
+      const cleanSubtitle = parts.slice(1, 4).filter(p => !p.includes('Región') && !p.includes('Chile') && !p.includes('Provincia')).join(', ') || 'Punta Arenas';
+
+      let icono = '📍';
+      if (item.type === 'hospital' || item.type === 'clinic') icono = '🏥';
+      else if (item.type === 'school' || item.type === 'university') icono = '🎓';
+      else if (item.class === 'highway') icono = '🛣️';
+      else if (item.class === 'shop') icono = '🛍️';
+
+      return {
+        nombre: cleanTitle,
+        detalle: cleanSubtitle,
+        categoria: item.type || 'Dirección',
+        icono: icono,
+        lat: parseFloat(item.lat),
+        lon: parseFloat(item.lon),
+        fuente: 'osm'
+      };
+    });
+  } catch (err) {
+    if (err.name === 'AbortError') return [];
+    console.warn('[Geocodificación Nominatim]:', err.message);
+    return [];
+  }
+}
+
+/**
+ * Búsqueda Híbrida Inteligente: Combina hitos locales instantáneos + direcciones de OpenStreetMap
+ */
+async function buscarUbicacionesHibrido(query, limit = 6, signal = null) {
+  const localMatches = buscarHitosLocales(query, limit);
+
+  if (localMatches.length >= 4) {
+    return localMatches.slice(0, limit);
+  }
+
+  const remaining = limit - localMatches.length;
+  const osmResults = await buscarDireccionesNominatim(query, remaining + 2, signal);
+
+  const finalResults = [...localMatches];
+  for (const osmItem of osmResults) {
+    const isDuplicate = finalResults.some(item => haversineDistance(item.lat, item.lon, osmItem.lat, osmItem.lon) < 50);
+    if (!isDuplicate && finalResults.length < limit) {
+      finalResults.push(osmItem);
+    }
+  }
+
+  return finalResults;
+}
+
 // Exportación compatible tanto con navegadores (window) como con Node.js
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
@@ -655,6 +823,11 @@ if (typeof module !== 'undefined' && module.exports) {
     parseCoordinateText,
     serializeDatasetToJS,
     serializeDatasetToGeoJSON,
-    downloadBlob
+    downloadBlob,
+    HITOS_PUNTA_ARENAS,
+    normalizeSearchText,
+    buscarHitosLocales,
+    buscarDireccionesNominatim,
+    buscarUbicacionesHibrido
   };
 }

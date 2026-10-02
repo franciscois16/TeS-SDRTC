@@ -159,7 +159,10 @@ Ambas estrategias toman como parámetros:
   - **Motor Compartido (`motor.js`):** Desacoplamiento de fórmulas geoespaciales (Haversine, proyección ortogonal), parsers y algoritmos de recomendación en un script modular sin dependencias externas.
   - **Recomendación con Transbordo:** Detección automática cuando no existe una línea directa entre origen y destino, calculando la mejor combinación de dos líneas con 1 transbordo peatonal óptimo, desglosando caminata inicial, tramo 1, transbordo a pie, tramo 2 y caminata final, con marcador `🔄` e itinerario visual en el mapa Leaflet.
   - **Guardado Directo en Disco:** Integración de la *File System Access API* (`showOpenFilePicker` / `createWritable`) en `editor.html` para persistir los cambios directamente en `data/rutas.js` con indicador de cambios sin guardar.
-  - **Fuentes Académicas Consolidadas:** Creación de `docs/FUENTES_BIBLIOGRAFICAS.md` con referencias bibliográficas en norma APA 7.ª edición y bloque exportable BibTeX para la redacción de la tesis.
+- **v2.0 (Geocodificación Híbrida y Brushing & Linking Coordinado):**
+  - **Buscador de Direcciones y Lugares (Geocodificación):** Integración de autocompletado híbrido en `index.html` con catálogo de 32 hitos urbanos de Punta Arenas (0 ms, offline) y geocodificación en tiempo real sobre OpenStreetMap (Nominatim API acotada a la comuna).
+  - **Interacción Coordinada (*Brushing & Linking*):** Selección por clic de alternativas (#1, #2, #3), previsualización al pasar el cursor (*hover*) y atenuación de líneas no seleccionadas.
+  - **Caché Offline v6:** Actualización del Service Worker para compatibilidad PWA completa.
 
 ---
 
