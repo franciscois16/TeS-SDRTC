@@ -811,22 +811,23 @@ async function buscarDireccionesNominatim(query, limit = 5, signal = null) {
         icono = '🛣️';
         roadKey = road.toLowerCase().trim();
 
-        // Zonificación inteligente de tramos en Punta Arenas (Sur -> Centro -> Centro-Norte -> Norte)
+        // Zonificación y sectorización inteligente de tramos en Punta Arenas
+        const barrioRef = addr.neighbourhood || addr.suburb || '';
         let sectorText = 'Punta Arenas';
         if (lat <= -53.1620) {
-          sectorText = 'Sector Sur (hacia Plaza Muñoz Gamero)';
+          sectorText = barrioRef ? `${barrioRef} (Sector Sur)` : 'Sector Sur (hacia Plaza Muñoz Gamero)';
           if (houseNum && houseNum < 300) score = 2.5;
           else if (houseNum) score = 0.5;
         } else if (lat > -53.1620 && lat <= -53.1585) {
-          sectorText = 'Sector Centro (Plaza - Croacia / Sarmiento)';
+          sectorText = barrioRef ? `${barrioRef} (Sector Centro)` : 'Sector Centro (Plaza - Croacia / Sarmiento)';
           if (houseNum && houseNum >= 300 && houseNum <= 650) score = 2.5;
           else if (houseNum) score = 0.6;
         } else if (lat > -53.1585 && lat <= -53.1520) {
-          sectorText = 'Sector Centro-Norte (Maipú - Angamos)';
+          sectorText = barrioRef ? `${barrioRef} (Sector Centro-Poniente / Norte)` : 'Sector Centro-Norte (Maipú - Angamos)';
           if (houseNum && houseNum > 650 && houseNum <= 1000) score = 2.5;
           else if (houseNum) score = 0.5;
         } else {
-          sectorText = 'Sector Norte (hacia Av. Bulnes)';
+          sectorText = barrioRef ? `${barrioRef} (Sector Norte)` : 'Sector Norte (hacia Av. Bulnes)';
           if (houseNum && houseNum > 1000) score = 2.5;
           else if (houseNum) score = 0.4;
         }
