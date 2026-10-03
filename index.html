@@ -1624,8 +1624,23 @@
       if (origenCircle) map.removeLayer(origenCircle);
 
       origenMarker = L.marker(origen, {
-        icon: createMarkerIcon('O', 'origin-marker')
-      }).addTo(map).bindPopup(`<strong>Origen (O)</strong><br>${label}`);
+        icon: createMarkerIcon('O', 'origin-marker'),
+        draggable: true,
+        title: 'Arrastra el marcador para afinar la ubicación exacta'
+      }).addTo(map).bindPopup(`<strong>Origen (O)</strong><br>${label}<br><small style="color:#16a34a; display:block; margin-top:4px;">↔ Puedes arrastrar este marcador para ajustar la esquina o puerta exacta.</small>`);
+
+      origenMarker.on('dragend', function(e) {
+        const newPos = e.target.getLatLng();
+        origen = newPos;
+        if (origenCircle) origenCircle.setLatLng(newPos);
+        const fineLabel = `Origen ajustado (${newPos.lat.toFixed(4)}, ${newPos.lng.toFixed(4)})`;
+        origenNombre = fineLabel;
+        const inO = document.getElementById('input-search-origen');
+        if (inO) inO.value = fineLabel;
+        if (destino) {
+          executeEvaluation();
+        }
+      });
 
       origenCircle = L.circle(origen, {
         radius: searchRadius,
@@ -1668,8 +1683,23 @@
       if (destinoCircle) map.removeLayer(destinoCircle);
 
       destinoMarker = L.marker(destino, {
-        icon: createMarkerIcon('D', 'dest-marker')
-      }).addTo(map).bindPopup(`<strong>Destino (D)</strong><br>${label}`);
+        icon: createMarkerIcon('D', 'dest-marker'),
+        draggable: true,
+        title: 'Arrastra el marcador para afinar la ubicación exacta'
+      }).addTo(map).bindPopup(`<strong>Destino (D)</strong><br>${label}<br><small style="color:#dc2626; display:block; margin-top:4px;">↔ Puedes arrastrar este marcador para ajustar la esquina o puerta exacta.</small>`);
+
+      destinoMarker.on('dragend', function(e) {
+        const newPos = e.target.getLatLng();
+        destino = newPos;
+        if (destinoCircle) destinoCircle.setLatLng(newPos);
+        const fineLabel = `Destino ajustado (${newPos.lat.toFixed(4)}, ${newPos.lng.toFixed(4)})`;
+        destinoNombre = fineLabel;
+        const inD = document.getElementById('input-search-destino');
+        if (inD) inD.value = fineLabel;
+        if (origen) {
+          executeEvaluation();
+        }
+      });
 
       destinoCircle = L.circle(destino, {
         radius: searchRadius,

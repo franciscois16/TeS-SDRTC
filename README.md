@@ -162,7 +162,11 @@ Ambas estrategias toman como parámetros:
 - **v2.0 (Geocodificación Híbrida y Brushing & Linking Coordinado):**
   - **Buscador de Direcciones y Lugares (Geocodificación):** Integración de autocompletado híbrido en `index.html` con catálogo de 32 hitos urbanos de Punta Arenas (0 ms, offline) y geocodificación en tiempo real sobre OpenStreetMap (Nominatim API acotada a la comuna).
   - **Interacción Coordinada (*Brushing & Linking*):** Selección por clic de alternativas (#1, #2, #3), previsualización al pasar el cursor (*hover*) y atenuación de líneas no seleccionadas.
-  - **Caché Offline v6:** Actualización del Service Worker para compatibilidad PWA completa.
+- **v2.1 (Desambiguación de Direcciones, Marcadores Arrastrables y Mobile No Oclusivo):**
+  - **Desambiguación Inteligente de Direcciones:** Clasificación semántica entre calles (🛣️) y barrios/poblaciones residenciales (🏘️), deduplicación y zonificación automática de tramos viales (Sur, Centro, Centro-Norte, Norte) priorizando según la altura numérica de la puerta (#401, #1200, etc.).
+  - **Marcadores Arrastrables (*Draggable*):** Pines de Origen (O) y Destino (D) arrastrables con el dedo o ratón directamente en el mapa para ajustar con precisión métrica la puerta o esquina deseada, recalculando las rutas en tiempo real al soltar el pin.
+  - **Optimización Móvil No Oclusiva:** Panel inferior deslizable limitado a 48dvh, auto-minimización a barra de 50px al calcular para mantener el mapa y los recorridos 100% visibles.
+  - **Caché Offline v7:** Actualización del Service Worker (`sw.js`).
 
 ---
 

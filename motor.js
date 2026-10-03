@@ -738,18 +738,25 @@ function buscarHitosLocales(query, limit = 5) {
 
 /**
  * Búsqueda geocodificada en OpenStreetMap (Nominatim API) para calles y direcciones de Punta Arenas.
+ * Incluye desambiguación inteligente entre calles, tramos y barrios residenciales.
  */
 async function buscarDireccionesNominatim(query, limit = 5, signal = null) {
   const normQ = (query || '').trim();
   if (normQ.length < 3) return [];
 
-  const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(normQ + ', Punta Arenas, Chile')}&format=json&limit=${limit}&addressdetails=1&viewbox=-71.05,-53.05,-70.80,-53.25`;
+  // Extraer si el usuario ingresó un número de puerta o altura (ej. "401" o "1200")
+  const numMatch = normQ.match(/\b(\d+)\b/);
+  const houseNum = numMatch ? parseInt(numMatch[1], 10) : null;
+
+  const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(normQ + ', Punta Arenas, Chile')}&format=json&limit=${limit + 3}&addressdetails=1&viewbox=-71.05,-53.05,-70.80,-53.25`;
 
   try {
+    const fetchHeaders = typeof window === 'undefined'
+      ? { 'Accept': 'application/json', 'User-Agent': 'TeS-SDRTC-Tesis/1.0' }
+      : { 'Accept': 'application/json' };
+
     const res = await fetch(url, {
-      headers: {
-        'Accept': 'application/json'
-      },
+      headers: fetchHeaders,
       signal: signal
     });
 
@@ -757,27 +764,85 @@ async function buscarDireccionesNominatim(query, limit = 5, signal = null) {
     const data = await res.json();
     if (!Array.isArray(data)) return [];
 
-    return data.map(item => {
-      const parts = item.display_name.split(',').map(p => p.trim());
-      const cleanTitle = parts[0] || normQ;
-      const cleanSubtitle = parts.slice(1, 4).filter(p => !p.includes('Región') && !p.includes('Chile') && !p.includes('Provincia')).join(', ') || 'Punta Arenas';
+    const parsedItems = data.map(item => {
+      const lat = parseFloat(item.lat);
+      const lon = parseFloat(item.lon);
+      const isRoad = item.class === 'highway' || item.addresstype === 'road';
+      const isNeighbourhood = item.class === 'place' || item.addresstype === 'neighbourhood' || item.type === 'suburb';
 
+      const parts = item.display_name.split(',').map(p => p.trim());
+      let nombre = item.name || parts[0] || normQ;
+      let detalle = '';
       let icono = '📍';
-      if (item.type === 'hospital' || item.type === 'clinic') icono = '🏥';
-      else if (item.type === 'school' || item.type === 'university') icono = '🎓';
-      else if (item.class === 'highway') icono = '🛣️';
-      else if (item.class === 'shop') icono = '🛍️';
+      let score = 1.0;
+
+      if (isNeighbourhood) {
+        if (!nombre.toLowerCase().includes('barrio') && !nombre.toLowerCase().includes('población')) {
+          nombre = `Barrio / Población ${nombre}`;
+        }
+        detalle = 'Sector Residencial, Punta Arenas';
+        icono = '🏘️';
+        // Si el usuario escribió un número de casa, priorizar calles sobre barrios
+        score = houseNum ? 0.2 : 0.8;
+      } else if (isRoad) {
+        icono = '🛣️';
+        if (!nombre.toLowerCase().startsWith('calle') && !nombre.toLowerCase().startsWith('avenida') && !nombre.toLowerCase().startsWith('pasaje')) {
+          nombre = `Calle ${nombre}`;
+        }
+
+        // Zonificación de tramos de calles céntricas de Punta Arenas (Sur -> Centro -> Centro-Norte -> Norte)
+        let sectorText = 'Punta Arenas';
+        if (lat <= -53.1620) {
+          sectorText = 'Sector Sur (Plaza de Armas / Menéndez)';
+          if (houseNum && houseNum < 300) score = 2.5;
+          else if (houseNum) score = 0.9;
+        } else if (lat > -53.1620 && lat <= -53.1585) {
+          sectorText = 'Sector Centro (Plaza Muñoz Gamero - Croacia)';
+          if (houseNum && houseNum >= 300 && houseNum <= 650) score = 2.5;
+          else if (houseNum) score = 1.2;
+        } else if (lat > -53.1585 && lat <= -53.1520) {
+          sectorText = 'Sector Centro-Norte (Maipú - Angamos)';
+          if (houseNum && houseNum > 650 && houseNum <= 1000) score = 2.5;
+          else if (houseNum) score = 0.9;
+        } else {
+          sectorText = 'Sector Norte (hacia Av. Bulnes)';
+          if (houseNum && houseNum > 1000) score = 2.5;
+          else if (houseNum) score = 0.8;
+        }
+
+        detalle = houseNum ? `Altura aprox. #${houseNum} • ${sectorText}` : sectorText;
+      } else {
+        if (item.type === 'hospital' || item.type === 'clinic') icono = '🏥';
+        else if (item.type === 'school' || item.type === 'university') icono = '🎓';
+        else if (item.class === 'shop') icono = '🛍️';
+        detalle = parts.slice(1, 3).filter(p => !p.includes('Región') && !p.includes('Chile') && !p.includes('Provincia')).join(', ') || 'Punta Arenas';
+      }
 
       return {
-        nombre: cleanTitle,
-        detalle: cleanSubtitle,
-        categoria: item.type || 'Dirección',
+        nombre: nombre,
+        detalle: detalle,
+        categoria: item.type || (isRoad ? 'Calle' : 'Lugar'),
         icono: icono,
-        lat: parseFloat(item.lat),
-        lon: parseFloat(item.lon),
+        lat: lat,
+        lon: lon,
+        score: score,
         fuente: 'osm'
       };
     });
+
+    // Ordenar por score decreciente
+    parsedItems.sort((a, b) => b.score - a.score);
+
+    // Deduplicar tramos contiguos (< 120m de distancia con mismo nombre)
+    const deduped = [];
+    for (const it of parsedItems) {
+      const isDupe = deduped.some(prev => prev.nombre === it.nombre && haversineDistance(prev.lat, prev.lon, it.lat, it.lon) < 120);
+      if (!isDupe) {
+        deduped.push(it);
+      }
+    }
+
+    return deduped.slice(0, limit);
   } catch (err) {
     if (err.name === 'AbortError') return [];
     console.warn('[Geocodificación Nominatim]:', err.message);
