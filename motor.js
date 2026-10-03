@@ -811,28 +811,19 @@ async function buscarDireccionesNominatim(query, limit = 5, signal = null) {
         icono = '🛣️';
         roadKey = road.toLowerCase().trim();
 
-        // Zonificación y sectorización inteligente de tramos en Punta Arenas
+        // Sectorización descriptiva del tramo en Punta Arenas
         const barrioRef = addr.neighbourhood || addr.suburb || '';
-        let sectorText = 'Punta Arenas';
-        if (lat <= -53.1620) {
-          sectorText = barrioRef ? `${barrioRef} (Sector Sur)` : 'Sector Sur (hacia Plaza Muñoz Gamero)';
-          if (houseNum && houseNum < 300) score = 2.5;
-          else if (houseNum) score = 0.5;
-        } else if (lat > -53.1620 && lat <= -53.1585) {
-          sectorText = barrioRef ? `${barrioRef} (Sector Centro)` : 'Sector Centro (Plaza - Croacia / Sarmiento)';
-          if (houseNum && houseNum >= 300 && houseNum <= 650) score = 2.5;
-          else if (houseNum) score = 0.6;
-        } else if (lat > -53.1585 && lat <= -53.1520) {
-          sectorText = barrioRef ? `${barrioRef} (Sector Centro-Poniente / Norte)` : 'Sector Centro-Norte (Maipú - Angamos)';
-          if (houseNum && houseNum > 650 && houseNum <= 1000) score = 2.5;
-          else if (houseNum) score = 0.5;
-        } else {
-          sectorText = barrioRef ? `${barrioRef} (Sector Norte)` : 'Sector Norte (hacia Av. Bulnes)';
-          if (houseNum && houseNum > 1000) score = 2.5;
-          else if (houseNum) score = 0.4;
-        }
+        const sectorText = barrioRef ? `Sector ${barrioRef}` : 'Punta Arenas';
+        detalle = houseNum ? `Aprox. #${houseNum} • ${sectorText}` : sectorText;
 
-        detalle = houseNum ? `Aprox. altura #${houseNum} • ${sectorText}` : sectorText;
+        // Ponderar relevancia: base 5.0 + importancia de OpenStreetMap
+        score = 5.0 + (parseFloat(item.importance) || 0);
+
+        // Si es calle Bories con número, diferenciar centro vs centro-norte
+        if (road.toLowerCase().includes('bories') && houseNum) {
+          if (lat <= -53.1595 && houseNum <= 600) score += 2.0;
+          else if (lat > -53.1595 && houseNum > 600) score += 2.0;
+        }
       } else {
         if (item.type === 'hospital' || item.type === 'clinic') icono = '🏥';
         else if (item.type === 'school' || item.type === 'university') icono = '🎓';
@@ -849,6 +840,7 @@ async function buscarDireccionesNominatim(query, limit = 5, signal = null) {
         lon: lon,
         score: score,
         roadKey: roadKey,
+        barrio: addr.neighbourhood || addr.suburb || '',
         fuente: 'osm'
       };
     });
@@ -856,15 +848,17 @@ async function buscarDireccionesNominatim(query, limit = 5, signal = null) {
     // Ordenar por score decreciente (las direcciones exactas y mejores tramos primero)
     parsedItems.sort((a, b) => b.score - a.score);
 
-    // Filtrar calles redundantes: si ya existe la mejor opción o número exacto de una misma calle, no mostrar otros tramos inferiores
-    const seenRoads = new Set();
+    // Deduplicar inteligentemente: conservar sectores/barrios distintos de avenidas largas,
+    // pero filtrar segmentos contiguos a menos de 350m o en el mismo barrio
     const deduped = [];
     for (const it of parsedItems) {
-      if (it.roadKey) {
-        if (seenRoads.has(it.roadKey)) continue; // Eliminar opciones duplicadas o a 6 cuadras de la misma vía
-        seenRoads.add(it.roadKey);
+      const isTooClose = deduped.some(prev => 
+        prev.nombre === it.nombre && 
+        ((prev.barrio && it.barrio && prev.barrio === it.barrio) || haversineDistance(prev.lat, prev.lon, it.lat, it.lon) < 350)
+      );
+      if (!isTooClose) {
+        deduped.push(it);
       }
-      deduped.push(it);
     }
 
     return deduped.slice(0, limit);

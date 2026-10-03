@@ -5,7 +5,7 @@
  * y que pueda instalarse en celulares como Progressive Web App (PWA).
  */
 
-const CACHE_NAME = 'colectivos-pua-v9';
+const CACHE_NAME = 'colectivos-pua-v10';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
