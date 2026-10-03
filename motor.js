@@ -814,7 +814,7 @@ async function buscarDireccionesNominatim(query, limit = 5, signal = null) {
         // Sectorización descriptiva del tramo en Punta Arenas
         const barrioRef = addr.neighbourhood || addr.suburb || '';
         const sectorText = barrioRef ? `Sector ${barrioRef}` : 'Punta Arenas';
-        detalle = houseNum ? `Aprox. #${houseNum} • ${sectorText}` : sectorText;
+        detalle = houseNum ? `Aprox. #${houseNum} • ${sectorText} (N° aproximado)` : sectorText;
 
         // Ponderar relevancia: base 5.0 + importancia de OpenStreetMap
         score = 5.0 + (parseFloat(item.importance) || 0);
@@ -848,17 +848,15 @@ async function buscarDireccionesNominatim(query, limit = 5, signal = null) {
     // Ordenar por score decreciente (las direcciones exactas y mejores tramos primero)
     parsedItems.sort((a, b) => b.score - a.score);
 
-    // Deduplicar inteligentemente: conservar sectores/barrios distintos de avenidas largas,
-    // pero filtrar segmentos contiguos a menos de 350m o en el mismo barrio
+    // Regla de Oro: Una sola opción por calle para no abrumar al usuario con opciones redundantes
+    const seenRoads = new Set();
     const deduped = [];
     for (const it of parsedItems) {
-      const isTooClose = deduped.some(prev => 
-        prev.nombre === it.nombre && 
-        ((prev.barrio && it.barrio && prev.barrio === it.barrio) || haversineDistance(prev.lat, prev.lon, it.lat, it.lon) < 350)
-      );
-      if (!isTooClose) {
-        deduped.push(it);
+      if (it.roadKey) {
+        if (seenRoads.has(it.roadKey)) continue; // Solo 1 opción de la misma calle
+        seenRoads.add(it.roadKey);
       }
+      deduped.push(it);
     }
 
     return deduped.slice(0, limit);
