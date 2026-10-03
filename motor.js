@@ -642,55 +642,137 @@ function downloadBlob(content, fileName, contentType) {
 }
 
 /**
- * CATÁLOGO DE HITOS Y PUNTOS DE INTERÉS NOTABLES (POIs) DE PUNTA ARENAS
- * ====================================================================
- * Permite autocompletado instantáneo y resolución de destinos clave 100% offline.
+ * CATÁLOGO EXTENDIDO DE HITOS Y PUNTOS DE INTERÉS (POIs) DE PUNTA ARENAS
+ * ======================================================================
+ * Base de datos geoespacial curada para TeS-SDRTC.
+ * Permite autocompletado instantáneo (0 ms), 100% Offline, sin dependencias
+ * de servidores externos ni errores de numeración domiciliaria.
  */
 const HITOS_PUNTA_ARENAS = [
-  // Comercio y Servicios
-  { id: 'poi-zofra', nombre: 'Zona Franca', alias: 'zonAustral zonaustral zofra mall zona franca modulos recinto franco', detalle: 'Recinto Franco Comercial • Av. Manuel Bulnes', lat: -53.1351, lon: -70.8704, icono: '🛍️', categoria: 'Comercio' },
-  { id: 'poi-mall', nombre: 'Mall Espacio Urbano Pionero', alias: 'mall pionero lider frei falabella ripley espacio urbano', detalle: 'Centro Comercial • Av. Eduardo Frei Montalva con Zenteno', lat: -53.1362, lon: -70.8878, icono: '🛍️', categoria: 'Comercio' },
-  { id: 'poi-mercado', nombre: 'Mercado Municipal', alias: 'mercado municipal 21 de mayo cocinerias pescaderia puerto', detalle: 'Mercado y Gastronomía • Calle 21 de Mayo 1480', lat: -53.1672, lon: -70.9085, icono: '🐟', categoria: 'Comercio' },
-  { id: 'poi-unimarc-bories', nombre: 'Supermercado Unimarc (Bories)', alias: 'unimarc centro bories supermercado', detalle: 'Supermercado • Bories 637', lat: -53.1605, lon: -70.9055, icono: '🛒', categoria: 'Comercio' },
-  { id: 'poi-lider-frei', nombre: 'Supermercado Líder (Av. Frei)', alias: 'lider frei hiper lider supermercado', detalle: 'Supermercado • Av. Eduardo Frei Montalva 01110', lat: -53.1370, lon: -70.8885, icono: '🛒', categoria: 'Comercio' },
+  // ==========================================
+  // 1. COLEGIOS Y LICEOS (EDUCACIÓN BÁSICA Y MEDIA)
+  // ==========================================
+  { id: 'poi-col-sanjose', nombre: 'Liceo San José', alias: 'san jose colegio fagnano salesianos centro basica media', detalle: 'Colegio Salesiano • Monseñor Fagnano 550', lat: -53.1620, lon: -70.9100, icono: '🏫', categoria: 'Colegio' },
+  { id: 'poi-col-donbosco', nombre: 'Instituto Don Bosco (IDB)', alias: 'don bosco colegio maipu salesianos idb industrial tecnico', detalle: 'Colegio Técnico Salesiano • Calle Maipú 615', lat: -53.1575, lon: -70.9080, icono: '🏫', categoria: 'Colegio' },
+  { id: 'poi-col-sarabraun', nombre: 'Liceo Sara Braun', alias: 'sara braun liceo de ninas colon plaza centro municipal', detalle: 'Liceo Municipal • Av. Colón 1027', lat: -53.1630, lon: -70.9070, icono: '🏫', categoria: 'Colegio' },
+  { id: 'poi-col-luisbarrera', nombre: 'Liceo Luis Alberto Barrera', alias: 'luis alberto barrera liceo de hombres colon bories', detalle: 'Liceo Tradicional • Av. Colón 1250', lat: -53.1618, lon: -70.9125, icono: '🏫', categoria: 'Colegio' },
+  { id: 'poi-col-mariabehety', nombre: 'Liceo Polivalente María Behety', alias: 'maria behety politecnico arturo prat liceo tecnico', detalle: 'Liceo Polivalente • Arturo Prat 1875', lat: -53.1685, lon: -70.9195, icono: '🏫', categoria: 'Colegio' },
+  { id: 'poi-col-industrial', nombre: 'Liceo Industrial Armando Sanhueza', alias: 'liceo industrial 21 de mayo sanhueza libardi tecnico', detalle: 'Liceo Industrial • Calle 21 de Mayo 2074', lat: -53.1755, lon: -70.9170, icono: '🏫', categoria: 'Colegio' },
+  { id: 'poi-col-mariaaux', nombre: 'Colegio María Auxiliadora', alias: 'maria auxiliadora sarmiento salesianas monjas bories', detalle: 'Colegio Particular Subvencionado • Sarmiento 298', lat: -53.1590, lon: -70.9085, icono: '🏫', categoria: 'Colegio' },
+  { id: 'poi-col-insafa', nombre: 'Instituto Sagrada Familia (INSAFA)', alias: 'insafa sagrada familia mejicana monjas colegio', detalle: 'Colegio Técnico Femenino • Mejicana 840', lat: -53.1600, lon: -70.9115, icono: '🏫', categoria: 'Colegio' },
+  { id: 'poi-col-leumag', nombre: 'Liceo Experimental UMAG (LEUMAG)', alias: 'leumag liceo experimental umag angamos bulnes', detalle: 'Liceo Universitario • Angamos 17', lat: -53.1510, lon: -70.8980, icono: '🏫', categoria: 'Colegio' },
+  { id: 'poi-col-cruzdelsur', nombre: 'Colegio Cruz del Sur', alias: 'cruz del sur chiloe colegio particular', detalle: 'Colegio Particular • Chiloé 450', lat: -53.1585, lon: -70.9095, icono: '🏫', categoria: 'Colegio' },
+  { id: 'poi-col-nobelius', nombre: 'Colegio Nobelius', alias: 'nobelius colegio manuel aguilar barrio prat', detalle: 'Colegio Particular • Manuel Aguilar 0230', lat: -53.1490, lon: -70.9150, icono: '🏫', categoria: 'Colegio' },
+  { id: 'poi-col-british', nombre: 'The British School', alias: 'british school colegio britanico waldo seguel ingles', detalle: 'Colegio Británico • Waldo Seguel 454', lat: -53.1635, lon: -70.9130, icono: '🏫', categoria: 'Colegio' },
+  { id: 'poi-col-aleman', nombre: 'Colegio Alemán de Punta Arenas', alias: 'colegio aleman manantiales german school el bosque', detalle: 'Colegio Alemán • Av. El Bosque 0489', lat: -53.1310, lon: -70.9030, icono: '🏫', categoria: 'Colegio' },
+  { id: 'poi-col-charlesdarwin', nombre: 'Colegio Charles Darwin', alias: 'charles darwin darwin manantiales colegio', detalle: 'Colegio Particular • Manantiales 0314', lat: -53.1320, lon: -70.9015, icono: '🏫', categoria: 'Colegio' },
+  { id: 'poi-col-pierrefaure', nombre: 'Colegio Pierre Faure', alias: 'pierre faure balmaceda colegio', detalle: 'Colegio Particular • Balmaceda 659', lat: -53.1650, lon: -70.9080, icono: '🏫', categoria: 'Colegio' },
+  { id: 'poi-col-cervantes', nombre: 'Colegio Miguel de Cervantes', alias: 'cervantes miguel de cervantes sarmiento colegio', detalle: 'Colegio • Sarmiento 1055', lat: -53.1565, lon: -70.9175, icono: '🏫', categoria: 'Colegio' },
+  { id: 'poi-col-puntaarenas', nombre: 'Colegio Punta Arenas', alias: 'colegio punta arenas espana colegio particular', detalle: 'Colegio • Av. España 0850', lat: -53.1515, lon: -70.9050, icono: '🏫', categoria: 'Colegio' },
+  { id: 'poi-col-silvahenriquez', nombre: 'Liceo Politécnico Cardenal Silva Henríquez', alias: 'cardenal silva henriquez politecnico karukinka playa norte', detalle: 'Liceo Politécnico • Karukinka 140', lat: -53.1430, lon: -70.9040, icono: '🏫', categoria: 'Colegio' },
+  { id: 'poi-col-esc-portugal', nombre: 'Escuela Portugal', alias: 'escuela portugal mejicana basica escuela d-25', detalle: 'Escuela Básica • Mejicana 527', lat: -53.1595, lon: -70.9090, icono: '🏫', categoria: 'Colegio' },
+  { id: 'poi-col-esc-espana', nombre: 'Escuela España', alias: 'escuela espana av espana basica municipal', detalle: 'Escuela Básica • Av. España 0225', lat: -53.1450, lon: -70.9010, icono: '🏫', categoria: 'Colegio' },
+  { id: 'poi-col-esc-croacia', nombre: 'Escuela Croacia', alias: 'escuela croacia calle croacia basica d-23', detalle: 'Escuela Básica • Croacia 1135', lat: -53.1580, lon: -70.9150, icono: '🏫', categoria: 'Colegio' },
+  { id: 'poi-col-esc-ohiggins', nombre: 'Escuela Bernardo O\'Higgins', alias: 'escuela ohiggins bernardo ohiggins chiloe basica', detalle: 'Escuela Básica • Chiloé 1443', lat: -53.1670, lon: -70.9140, icono: '🏫', categoria: 'Colegio' },
+  { id: 'poi-col-esc-18sept', nombre: 'Escuela 18 de Septiembre', alias: 'escuela 18 de septiembre mateo toro y zambrano basica', detalle: 'Escuela Básica • Mateo de Toro y Zambrano 250', lat: -53.1710, lon: -70.9320, icono: '🏫', categoria: 'Colegio' },
+  { id: 'poi-col-esc-hurtado', nombre: 'Escuela Padre Alberto Hurtado', alias: 'escuela padre alberto hurtado pedro borquez sur', detalle: 'Escuela Básica • Pedro Bórquez 0580', lat: -53.1680, lon: -70.9250, icono: '🏫', categoria: 'Colegio' },
+  { id: 'poi-col-esc-milagrosa', nombre: 'Escuela La Milagrosa', alias: 'escuela la milagrosa frei sur vicentinas catolica', detalle: 'Escuela • Av. Presidente Frei 0399', lat: -53.1480, lon: -70.9260, icono: '🏫', categoria: 'Colegio' },
+  { id: 'poi-col-esc-nieves', nombre: 'Escuela Villa Las Nieves', alias: 'escuela villa las nieves los generales norte', detalle: 'Escuela Básica • Av. Los Generales 0530', lat: -53.1250, lon: -70.8870, icono: '🏫', categoria: 'Colegio' },
+  { id: 'poi-col-esc-argentina', nombre: 'Escuela República Argentina', alias: 'escuela republica argentina manuel aguilar prat', detalle: 'Escuela Básica • Manuel Aguilar 01028', lat: -53.1455, lon: -70.9230, icono: '🏫', categoria: 'Colegio' },
+  { id: 'poi-col-esc-magallanes', nombre: 'Escuela Hernando de Magallanes', alias: 'escuela hernando de magallanes jose gonzales sur', detalle: 'Escuela Básica • José Gonzáles 0450', lat: -53.1750, lon: -70.9350, icono: '🏫', categoria: 'Colegio' },
+  { id: 'poi-col-esc-lemaitre', nombre: 'Escuela Pedro Pablo Lemaitre', alias: 'escuela lemaitre pedro pablo lemaitre el ovejero', detalle: 'Escuela Básica • El Ovejero 0220', lat: -53.1350, lon: -70.9110, icono: '🏫', categoria: 'Colegio' },
+  { id: 'poi-col-esc-rioseco', nombre: 'Escuela Elba Ojeda Gómez (Río Seco)', alias: 'escuela rio seco elba ojeda gomez norte rural', detalle: 'Escuela Básica • Ruta 9 Norte km 13.5', lat: -53.0610, lon: -70.8520, icono: '🏫', categoria: 'Colegio' },
 
-  // Salud
+  // ==========================================
+  // 2. EDUCACIÓN SUPERIOR E INSTITUTOS
+  // ==========================================
+  { id: 'poi-umag', nombre: 'Universidad de Magallanes (UMAG)', alias: 'umag u magallanes campus central rectoria bulnes universidad', detalle: 'Campus Central Universitario • Av. Manuel Bulnes 01855', lat: -53.1325, lon: -70.8797, icono: '🎓', categoria: 'Educación Superior' },
+  { id: 'poi-umag-cadi', nombre: 'CADI-UMAG (Centro Asistencial Docente)', alias: 'cadi umag cadi-umag centro de investigacion frei hospital salud', detalle: 'Centro Médico Docente UMAG • Av. Frei 01364', lat: -53.1215, lon: -70.8955, icono: '🎓', categoria: 'Educación Superior' },
+  { id: 'poi-inacap', nombre: 'INACAP Punta Arenas', alias: 'inacap cft inacap universidad tecnologica bulnes norte', detalle: 'Instituto Profesional • Av. Manuel Bulnes km 4 Norte', lat: -53.1305, lon: -70.8755, icono: '🎓', categoria: 'Educación Superior' },
+  { id: 'poi-santotomas', nombre: 'Instituto Santo Tomás', alias: 'santo tomas ust ip santo tomas cft mejicana bories', detalle: 'Educación Superior • Calle Mejicana 665', lat: -53.1580, lon: -70.9065, icono: '🎓', categoria: 'Educación Superior' },
+
+  // ==========================================
+  // 3. SALUD (HOSPITALES, CLÍNICAS, CESFAM Y URGENCIAS)
+  // ==========================================
   { id: 'poi-hospital', nombre: 'Hospital Clínico de Magallanes', alias: 'hospital regional lautaro navarro hospital frei urgencias clinico', detalle: 'Hospital Regional • Av. Pdte. Eduardo Frei Montalva 01364', lat: -53.1221, lon: -70.8963, icono: '🏥', categoria: 'Salud' },
-  { id: 'poi-redsalud', nombre: 'Clínica RedSalud Magallanes', alias: 'clinica redsalud clinica magallanes pedro montt', detalle: 'Clínica Privada • Av. Salvador Allende con Av. Frei', lat: -53.1410, lon: -70.8990, icono: '🏥', categoria: 'Salud' },
-  { id: 'poi-cesfam-damianovic', nombre: 'CESFAM Dr. Juan Damianovic', alias: 'consultorio sur damianovic cesfam sur salud sur rengifo', detalle: 'Salud Primaria Sur • Zenteno 2850 (Barrio Sur)', lat: -53.1788, lon: -70.9295, icono: '🩺', categoria: 'Salud' },
+  { id: 'poi-redsalud', nombre: 'Clínica RedSalud Magallanes', alias: 'clinica redsalud clinica magallanes salvador allende frei', detalle: 'Clínica Privada • Av. Salvador Allende con Av. Frei', lat: -53.1410, lon: -70.8990, icono: '🏥', categoria: 'Salud' },
+  { id: 'poi-hospital-naval', nombre: 'Hospital de las Fuerzas Armadas (Hospital Naval)', alias: 'hospital naval fuerzas armadas armada bulnes', detalle: 'Hospital Naval • Av. Manuel Bulnes 0200', lat: -53.1450, lon: -70.8940, icono: '🏥', categoria: 'Salud' },
+  { id: 'poi-cesfam-damianovic', nombre: 'CESFAM Dr. Juan Damianovic', alias: 'consultorio sur damianovic cesfam sur salud sur rengifo zenteno', detalle: 'Salud Primaria Sur • Zenteno 2850 (Barrio Sur)', lat: -53.1788, lon: -70.9295, icono: '🩺', categoria: 'Salud' },
   { id: 'poi-cesfam-bencur', nombre: 'CESFAM Dr. Mateo Bencur', alias: 'consultorio 18 cesfam bencur mateo bencur cesfam 18 dieciocho', detalle: 'Salud Primaria • Capitán Guillermo con José Perich', lat: -53.1652, lon: -70.9320, icono: '🩺', categoria: 'Salud' },
+  { id: 'poi-sar-bencur', nombre: 'SAR Dr. Mateo Bencur (Urgencias 18)', alias: 'sar bencur urgencia 18 urgencias bencur noche', detalle: 'Servicio de Alta Resolutividad • Cap. Guillermo con Perich', lat: -53.1650, lon: -70.9325, icono: '🚑', categoria: 'Salud' },
   { id: 'poi-cesfam-fenton', nombre: 'CESFAM Thomas Fenton', alias: 'cesfam fenton consultorio norte fenton suiza playa norte', detalle: 'Salud Primaria • Calle Suiza con Vicente Kusanovic', lat: -53.1415, lon: -70.9015, icono: '🩺', categoria: 'Salud' },
-  { id: 'poi-cesfam-ibanez', nombre: 'CESFAM Carlos Ibáñez', alias: 'cesfam ibanez consultorio ibanez santa juana', detalle: 'Salud Primaria • Av. Eduardo Frei con Santa Juana', lat: -53.1550, lon: -70.9250, icono: '🩺', categoria: 'Salud' },
+  { id: 'poi-cesfam-ibanez', nombre: 'CESFAM Carlos Ibáñez', alias: 'cesfam ibanez consultorio ibanez santa juana frei', detalle: 'Salud Primaria • Av. Eduardo Frei con Santa Juana', lat: -53.1550, lon: -70.9250, icono: '🩺', categoria: 'Salud' },
+  { id: 'poi-cecosf-valencia', nombre: 'CECOSF Fortunato Valencia', alias: 'cecosf 18 fortunato valencia ramon freire', detalle: 'Salud Comunitaria • Ramón Freire 01275 (B° 18)', lat: -53.1730, lon: -70.9390, icono: '🩺', categoria: 'Salud' },
+  { id: 'poi-cecosf-rioseco', nombre: 'CECOSF Río Seco', alias: 'cecosf rio seco posta rural norte', detalle: 'Posta de Salud • Ruta 9 Norte km 13.5', lat: -53.0600, lon: -70.8500, icono: '🩺', categoria: 'Salud' },
 
-  // Educación Superior y Colegios
-  { id: 'poi-umag', nombre: 'Universidad de Magallanes (UMAG)', alias: 'umag u magallanes campus central rectoria bulnes universidad', detalle: 'Campus Central Universitario • Av. Manuel Bulnes 01855', lat: -53.1325, lon: -70.8797, icono: '🎓', categoria: 'Educación' },
-  { id: 'poi-inacap', nombre: 'INACAP Punta Arenas', alias: 'inacap cft inacap universidad tecnologica bulnes norte', detalle: 'Instituto Profesional • Av. Manuel Bulnes km 4 Norte', lat: -53.1305, lon: -70.8755, icono: '🎓', categoria: 'Educación' },
-  { id: 'poi-santotomas', nombre: 'Instituto Santo Tomás', alias: 'santo tomas ust ip santo tomas cft mejicana bories', detalle: 'Educación Superior • Calle Mejicana 665', lat: -53.1580, lon: -70.9065, icono: '🎓', categoria: 'Educación' },
-  { id: 'poi-liceo-sanjose', nombre: 'Liceo San José', alias: 'san jose colegio san jose fagnano salesianos', detalle: 'Colegio • Monseñor Fagnano 550', lat: -53.1620, lon: -70.9100, icono: '🏫', categoria: 'Educación' },
-  { id: 'poi-instituto-donbosco', nombre: 'Instituto Don Bosco', alias: 'don bosco colegio don bosco maipu salesianos idb', detalle: 'Colegio Técnico • Calle Maipú 615', lat: -53.1575, lon: -70.9080, icono: '🏫', categoria: 'Educación' },
-  { id: 'poi-liceo-sarabraun', nombre: 'Liceo Sara Braun', alias: 'liceo sara braun liceo de ninas colon plaza', detalle: 'Liceo Municipal • Av. Colón 1027', lat: -53.1630, lon: -70.9070, icono: '🏫', categoria: 'Educación' },
-  { id: 'poi-liceo-mariabehety', nombre: 'Liceo Polivalente María Behety', alias: 'liceo maria behety politecnico arturo prat', detalle: 'Liceo Polivalente • Arturo Prat 1875', lat: -53.1685, lon: -70.9195, icono: '🏫', categoria: 'Educación' },
+  // ==========================================
+  // 4. COMERCIO, SUPERMERCADOS Y MALLS
+  // ==========================================
+  { id: 'poi-zofra', nombre: 'Zona Franca (ZonAustral)', alias: 'zonAustral zonaustral zofra mall zona franca modulos recinto franco', detalle: 'Recinto Franco Comercial • Av. Manuel Bulnes', lat: -53.1351, lon: -70.8704, icono: '🛍️', categoria: 'Comercio' },
+  { id: 'poi-mall', nombre: 'Mall Espacio Urbano Pionero', alias: 'mall pionero lider frei falabella ripley espacio urbano zenteno cine', detalle: 'Centro Comercial • Av. Eduardo Frei Montalva con Zenteno', lat: -53.1362, lon: -70.8878, icono: '🛍️', categoria: 'Comercio' },
+  { id: 'poi-mercado', nombre: 'Mercado Municipal', alias: 'mercado municipal 21 de mayo cocinerias pescaderia puerto', detalle: 'Mercado y Gastronomía • Calle 21 de Mayo 1480', lat: -53.1672, lon: -70.9085, icono: '🐟', categoria: 'Comercio' },
+  { id: 'poi-unimarc-bories', nombre: 'Supermercado Unimarc (Bories)', alias: 'unimarc centro bories supermercado compras', detalle: 'Supermercado • Bories 637', lat: -53.1605, lon: -70.9055, icono: '🛒', categoria: 'Comercio' },
+  { id: 'poi-unimarc-sur', nombre: 'Supermercado Unimarc (Sur)', alias: 'unimarc sur martinez de aldunate barrio sur', detalle: 'Supermercado • Av. Martínez de Aldunate 1499', lat: -53.1720, lon: -70.9280, icono: '🛒', categoria: 'Comercio' },
+  { id: 'poi-unimarc-espana', nombre: 'Supermercado Unimarc (España)', alias: 'unimarc espana manantiales norte', detalle: 'Supermercado • Av. España con Manantiales', lat: -53.1330, lon: -70.8950, icono: '🛒', categoria: 'Comercio' },
+  { id: 'poi-lider-frei', nombre: 'Supermercado Líder (Av. Frei)', alias: 'lider frei hiper lider supermercado mall', detalle: 'Supermercado • Av. Eduardo Frei Montalva 01110', lat: -53.1370, lon: -70.8885, icono: '🛒', categoria: 'Comercio' },
+  { id: 'poi-sodimac', nombre: 'Sodimac Homecenter / Constructor', alias: 'sodimac homecenter constructor frei manantiales ferreteria', detalle: 'Ferretería y Hogar • Av. Eduardo Frei con Manantiales', lat: -53.1350, lon: -70.8890, icono: '🔨', categoria: 'Comercio' },
 
-  // Cívicos, Turismo y Espacios Públicos
-  { id: 'poi-plaza-armas', nombre: 'Plaza Muñoz Gamero (Plaza de Armas)', alias: 'plaza de armas plaza centro centro civico hernando de magallanes indio pata', detalle: 'Plaza de Armas • Centro Cívico e Histórico', lat: -53.1627, lon: -70.9080, icono: '🏛️', categoria: 'Cívico' },
-  { id: 'poi-mirador-cruz', nombre: 'Mirador Cerro de la Cruz', alias: 'cerro de la cruz senoret mirador cruz vista panoramica', detalle: 'Mirador Turístico • Calle Señoret con Fagnano', lat: -53.1610, lon: -70.9168, icono: '🌄', categoria: 'Turismo' },
-  { id: 'poi-muelle-prat', nombre: 'Muelle Arturo Prat / Costanera', alias: 'muelle prat puerto costanera del estrecho embarcadero estrecho', detalle: 'Costanera del Estrecho • Pedro Montt s/n', lat: -53.1648, lon: -70.9030, icono: '🚢', categoria: 'Turismo' },
-  { id: 'poi-cementerio', nombre: 'Cementerio Municipal Sara Braun', alias: 'cementerio municipal sara braun cipreses bulnes', detalle: 'Monumento Histórico • Av. Manuel Bulnes 929', lat: -53.1495, lon: -70.8988, icono: '🌲', categoria: 'Turismo' },
-  { id: 'poi-parque-maria-behety', nombre: 'Parque María Behety', alias: 'parque maria behety parque sur dinosaurios 21 de mayo', detalle: 'Parque Urbano • Costanera Sur / 21 de Mayo', lat: -53.1843, lon: -70.9255, icono: '🌳', categoria: 'Recreación' },
-  { id: 'poi-gimnasio-fiscal', nombre: 'Gimnasio Fiscal de Punta Arenas', alias: 'gimnasio fiscal estadio fiscal alberca piscina fiscal enrique abello', detalle: 'Complejo Deportivo • Enrique Abello con Av. Bulnes', lat: -53.1530, lon: -70.8995, icono: '⚽', categoria: 'Deportes' },
-  { id: 'poi-polideportivo-18', nombre: 'Polideportivo 18 de Septiembre', alias: 'polideportivo 18 de septiembre gimnasio 18 dieciocho', detalle: 'Gimnasio Polideportivo • Salvador Allende 0291', lat: -53.1695, lon: -70.9388, icono: '🏀', categoria: 'Deportes' },
+  // ==========================================
+  // 5. CÍVICOS, TRÁMITES Y SERVICIOS PÚBLICOS
+  // ==========================================
+  { id: 'poi-plaza-armas', nombre: 'Plaza Muñoz Gamero (Plaza de Armas)', alias: 'plaza de armas plaza centro centro civico hernando de magallanes indio pata kessel', detalle: 'Plaza de Armas • Centro Cívico e Histórico', lat: -53.1627, lon: -70.9080, icono: '🏛️', categoria: 'Cívico' },
+  { id: 'poi-muni-alcaldia', nombre: 'Municipalidad de Punta Arenas (Alcaldía)', alias: 'municipalidad alcaldia plaza munigobernacion centro', detalle: 'Edificio Consistorial • Plaza Muñoz Gamero 770', lat: -53.1630, lon: -70.9075, icono: '🏛️', categoria: 'Cívico' },
+  { id: 'poi-muni-transito', nombre: 'Dirección de Tránsito Municipal', alias: 'transito licencia de conducir 21 de mayo permisos municipalidad', detalle: 'Tránsito y Licencias • Av. 21 de Mayo 1133', lat: -53.1660, lon: -70.9090, icono: '🚗', categoria: 'Cívico' },
+  { id: 'poi-gore', nombre: 'Gobierno Regional de Magallanes (GORE)', alias: 'gore gobierno regional intendencia plaza munoz gamero', detalle: 'Edificio del GORE • Plaza Muñoz Gamero 1028', lat: -53.1625, lon: -70.9085, icono: '🏛️', categoria: 'Cívico' },
+  { id: 'poi-registro-civil', nombre: 'Registro Civil e Identificación', alias: 'registro civil carnet pasaporte certificados ignacio carrera pinto', detalle: 'Registro Civil • Ignacio Carrera Pinto 618', lat: -53.1590, lon: -70.9070, icono: '📝', categoria: 'Cívico' },
+  { id: 'poi-chileatiende', nombre: 'ChileAtiende / IPS Punta Arenas', alias: 'chileatiende ips pensiones tramites pedro montt', detalle: 'Atención Ciudadana • Pedro Montt 895', lat: -53.1642, lon: -70.9065, icono: '🏛️', categoria: 'Cívico' },
+  { id: 'poi-sii', nombre: 'Servicio de Impuestos Internos (SII)', alias: 'sii impuestos internos tributario bories', detalle: 'Oficina SII • Bories 873', lat: -53.1590, lon: -70.9045, icono: '💼', categoria: 'Cívico' },
+  { id: 'poi-serviu', nombre: 'SERVIU Magallanes', alias: 'serviu vivienda subsidio croacia minvu', detalle: 'Vivienda y Urbanismo • Calle Croacia 722', lat: -53.1598, lon: -70.9100, icono: '🏠', categoria: 'Cívico' },
+  { id: 'poi-fonasa', nombre: 'FONASA (Sucursal Centro)', alias: 'fonasa salud bonos bories seguros', detalle: 'Sucursal Fonasa • Bories 710', lat: -53.1600, lon: -70.9050, icono: '💳', categoria: 'Cívico' },
+  { id: 'poi-correos', nombre: 'Correos de Chile (Edificio Central)', alias: 'correos chile cartas encomiendas bories correosdechile', detalle: 'Correo Central • Bories 911', lat: -53.1585, lon: -70.9040, icono: '📦', categoria: 'Cívico' },
+  { id: 'poi-tribunales', nombre: 'Tribunales de Justicia / Corte de Apelaciones', alias: 'tribunales corte de apelaciones juzgado nogueira', detalle: 'Poder Judicial • José Nogueira 1430', lat: -53.1650, lon: -70.9110, icono: '⚖️', categoria: 'Cívico' },
+  { id: 'poi-carabineros-1ra', nombre: '1ª Comisaría de Carabineros', alias: 'primera comisaria carabineros carrera pinto policial', detalle: 'Comisaría Central • Ignacio Carrera Pinto 0145', lat: -53.1605, lon: -70.9200, icono: '👮', categoria: 'Seguridad' },
+  { id: 'poi-pdi', nombre: 'Policía de Investigaciones (PDI)', alias: 'pdi investigaciones cuartel policial errazuriz', detalle: 'Prefectura PDI • Errázuriz 977', lat: -53.1645, lon: -70.9120, icono: '🕵️', categoria: 'Seguridad' },
+  { id: 'poi-bomberos-1ra', nombre: '1ª Compañía de Bomberos (Bomba Magallanes)', alias: 'bomberos primera compania bomba magallanes roca', detalle: 'Cuartel de Bomberos • Roca 826', lat: -53.1620, lon: -70.9060, icono: '🚒', categoria: 'Seguridad' },
 
-  // Terminales de Buses y Conexión
-  { id: 'poi-terminal-bussur', nombre: 'Terminal de Buses Bus-Sur', alias: 'bus sur bussur buses colon terminal bus-sur buses a natales', detalle: 'Terminal de Buses • Av. Cristóbal Colón 842', lat: -53.1606, lon: -70.9077, icono: '🚌', categoria: 'Transporte' },
-  { id: 'poi-terminal-fernandez', nombre: 'Terminal Buses Fernández', alias: 'buses fernandez armando sanhueza terminal rodoviario', detalle: 'Terminal Interurbano • Armando Sanhueza 745', lat: -53.1600, lon: -70.9060, icono: '🚌', categoria: 'Transporte' },
+  // ==========================================
+  // 6. DEPORTES, CULTURA Y ESPACIOS PÚBLICOS
+  // ==========================================
+  { id: 'poi-gimnasio-fiscal', nombre: 'Gimnasio Fiscal / Piscina Fiscal', alias: 'gimnasio fiscal estadio fiscal alberca piscina fiscal enrique abello bulnes deportes', detalle: 'Complejo Deportivo • Enrique Abello con Av. Bulnes', lat: -53.1530, lon: -70.8995, icono: '🏊', categoria: 'Deportes' },
+  { id: 'poi-estadio-confederacion', nombre: 'Estadio Ramón Cañas (Confederación)', alias: 'estadio confederacion ramon canas cancha futbol bulnes ovejero', detalle: 'Estadio de Fútbol • Av. Bulnes con El Ovejero', lat: -53.1480, lon: -70.8970, icono: '⚽', categoria: 'Deportes' },
+  { id: 'poi-polideportivo-18', nombre: 'Polideportivo 18 de Septiembre', alias: 'polideportivo 18 de septiembre gimnasio 18 dieciocho salvador allende', detalle: 'Gimnasio Polideportivo • Salvador Allende 0291', lat: -53.1695, lon: -70.9388, icono: '🏀', categoria: 'Deportes' },
+  { id: 'poi-teatro-municipal', nombre: 'Teatro Municipal José Bohr', alias: 'teatro municipal jose bohr cultura magallanes', detalle: 'Teatro y Cultura • Magallanes 823', lat: -53.1625, lon: -70.9070, icono: '🎭', categoria: 'Cultura' },
+  { id: 'poi-museo-braun', nombre: 'Museo Regional Palacio Braun Menéndez', alias: 'palacio braun menendez museo regional historia magallanes', detalle: 'Museo y Monumento Histórico • Magallanes 949', lat: -53.1615, lon: -70.9065, icono: '🏛️', categoria: 'Cultura' },
+  { id: 'poi-museo-borgatello', nombre: 'Museo Mayorino Borgatello', alias: 'museo salesiano mayorino borgatello historia natural bulnes', detalle: 'Museo Salesiano • Av. Bulnes 336', lat: -53.1565, lon: -70.9015, icono: '🦖', categoria: 'Cultura' },
+  { id: 'poi-cementerio', nombre: 'Cementerio Municipal Sara Braun', alias: 'cementerio municipal sara braun cipreses bulnes mausoleos', detalle: 'Monumento Histórico • Av. Manuel Bulnes 929', lat: -53.1495, lon: -70.8988, icono: '🌲', categoria: 'Turismo' },
+  { id: 'poi-parque-maria-behety', nombre: 'Parque María Behety', alias: 'parque maria behety parque sur dinosaurios 21 de mayo laguna juegos', detalle: 'Parque Urbano • Costanera Sur / 21 de Mayo', lat: -53.1843, lon: -70.9255, icono: '🌳', categoria: 'Recreación' },
+  { id: 'poi-mirador-cruz', nombre: 'Mirador Cerro de la Cruz', alias: 'cerro de la cruz senoret mirador cruz vista panoramica fagnano', detalle: 'Mirador Turístico • Calle Señoret con Fagnano', lat: -53.1610, lon: -70.9168, icono: '🌄', categoria: 'Turismo' },
+  { id: 'poi-muelle-prat', nombre: 'Muelle Arturo Prat / Costanera', alias: 'muelle prat puerto costanera del estrecho embarcadero estrecho pedro montt', detalle: 'Costanera del Estrecho • Pedro Montt s/n', lat: -53.1648, lon: -70.9030, icono: '🚢', categoria: 'Turismo' },
 
-  // Barrios y Sectores Característicos
-  { id: 'poi-sector-rioseco', nombre: 'Río Seco', alias: 'rio seco caleta rio seco norte ruta 9', detalle: 'Sector Rural Periurbano Norte • Ruta 9 Norte km 13', lat: -53.0620, lon: -70.8510, icono: '🏘️', categoria: 'Sector' },
-  { id: 'poi-barrio-18', nombre: 'Barrio 18 de Septiembre', alias: 'barrio 18 la 18 dieciocho sector alto', detalle: 'Sector Habitacional • Plaza 18 de Septiembre', lat: -53.1700, lon: -70.9350, icono: '🏘️', categoria: 'Sector' },
-  { id: 'poi-barrio-chiloe', nombre: 'Barrio Archipiélago de Chiloé', alias: 'archipielago de chiloe santa juana sur barrio sur alto', detalle: 'Sector Habitacional Sur • Santa Juana / Ancud', lat: -53.1820, lon: -70.9380, icono: '🏘️', categoria: 'Sector' },
-  { id: 'poi-playa-norte', nombre: 'Playa Norte', alias: 'playa norte jorge montt costanera norte', detalle: 'Sector Costero Norte • Av. Jorge Montt', lat: -53.1420, lon: -70.8950, icono: '🏘️', categoria: 'Sector' },
-  { id: 'poi-barrio-prat', nombre: 'Barrio Prat', alias: 'barrio prat plaza condell general del canto zenteno', detalle: 'Sector Tradicional • Plaza Condell / General del Canto', lat: -53.1510, lon: -70.9180, icono: '🏘️', categoria: 'Sector' }
+  // ==========================================
+  // 7. TERMINALES DE BUSES Y CONEXIÓN
+  // ==========================================
+  { id: 'poi-terminal-bussur', nombre: 'Terminal de Buses Bus-Sur', alias: 'bus sur bussur buses colon terminal bus-sur buses a natales torres del paine', detalle: 'Terminal de Buses • Av. Cristóbal Colón 842', lat: -53.1606, lon: -70.9077, icono: '🚌', categoria: 'Transporte' },
+  { id: 'poi-terminal-fernandez', nombre: 'Terminal Buses Fernández', alias: 'buses fernandez armando sanhueza terminal rodoviario natales', detalle: 'Terminal Interurbano • Armando Sanhueza 745', lat: -53.1600, lon: -70.9060, icono: '🚌', categoria: 'Transporte' },
+  { id: 'poi-terminal-queilen', nombre: 'Terminal Buses Queilen Bus', alias: 'queilen bus terminal lautaro navarro buses', detalle: 'Terminal de Buses • Lautaro Navarro 975', lat: -53.1625, lon: -70.9050, icono: '🚌', categoria: 'Transporte' },
+  { id: 'poi-tres-puentes-ferry', nombre: 'Terminal Tres Puentes (Ferry Porvenir)', alias: 'tres puentes ferry barcaza porvenir tabsa tierra del fuego', detalle: 'Terminal Marítimo TABSA • Av. Pdte. Ibáñez km 5 Norte', lat: -53.1110, lon: -70.8650, icono: '⛴️', categoria: 'Transporte' },
+
+  // ==========================================
+  // 8. BARRIOS Y POBLACIONES EMBLEMÁTICAS
+  // ==========================================
+  { id: 'poi-barrio-18', nombre: 'Barrio 18 de Septiembre', alias: 'barrio 18 la 18 dieciocho sector alto plaza 18', detalle: 'Sector Habitacional Alto • Plaza 18 de Septiembre', lat: -53.1700, lon: -70.9350, icono: '🏘️', categoria: 'Barrio' },
+  { id: 'poi-barrio-prat', nombre: 'Barrio Prat', alias: 'barrio prat plaza condell general del canto zenteno manuel aguilar', detalle: 'Sector Tradicional • Plaza Condell / General del Canto', lat: -53.1510, lon: -70.9180, icono: '🏘️', categoria: 'Barrio' },
+  { id: 'poi-barrio-chiloe', nombre: 'Barrio Archipiélago de Chiloé', alias: 'archipielago de chiloe santa juana sur barrio sur alto ancud castro', detalle: 'Sector Habitacional Sur • Santa Juana con Ancud', lat: -53.1820, lon: -70.9380, icono: '🏘️', categoria: 'Barrio' },
+  { id: 'poi-playa-norte', nombre: 'Playa Norte', alias: 'playa norte jorge montt costanera norte karukinka bilbao', detalle: 'Sector Costero Norte • Av. Jorge Montt', lat: -53.1420, lon: -70.8950, icono: '🏘️', categoria: 'Barrio' },
+  { id: 'poi-barrio-croata', nombre: 'Barrio Croata', alias: 'barrio croata calle croacia sanhueza caucenes centro', detalle: 'Sector Típico • Croacia con Armando Sanhueza', lat: -53.1590, lon: -70.9100, icono: '🏘️', categoria: 'Barrio' },
+  { id: 'poi-pob-santosmardones', nombre: 'Población Santos Mardones', alias: 'santos mardones cancha santos mardones frei alto', detalle: 'Sector Poniente • Av. Frei con Santos Mardones', lat: -53.1520, lon: -70.9330, icono: '🏘️', categoria: 'Barrio' },
+  { id: 'poi-pob-sanpedro', nombre: 'Población San Pedro', alias: 'poblacion san pedro canal chacao barrio sur', detalle: 'Sector Residencial Sur • Canal de Chacao', lat: -53.1810, lon: -70.9320, icono: '🏘️', categoria: 'Barrio' },
+  { id: 'poi-pob-fitzroy', nombre: 'Población Fitz Roy', alias: 'fitz roy poblacion fitz roy manuel rodriguez sur', detalle: 'Sector Residencial Sur • Manuel Rodríguez', lat: -53.1740, lon: -70.9220, icono: '🏘️', categoria: 'Barrio' },
+  { id: 'poi-sector-rioseco', nombre: 'Río Seco', alias: 'rio seco caleta rio seco norte ruta 9 km 13', detalle: 'Sector Periurbano Norte • Ruta 9 Norte km 13', lat: -53.0620, lon: -70.8510, icono: '🏘️', categoria: 'Barrio' },
+  { id: 'poi-sector-barranco', nombre: 'Barranco Amarillo', alias: 'barranco amarillo humedal norte ruta 9 km 8', detalle: 'Sector Periurbano Norte • Ruta 9 Norte km 8', lat: -53.0900, lon: -70.8600, icono: '🏘️', categoria: 'Barrio' },
+  { id: 'poi-pampa-redonda', nombre: 'Pampa Redonda', alias: 'pampa redonda periurbano alto poniente prolongacion martinez', detalle: 'Sector Periurbano Alto Poniente', lat: -53.1450, lon: -70.9400, icono: '🏘️', categoria: 'Barrio' }
 ];
+
 
 /**
  * Normaliza una cadena de texto para búsquedas insensibles a mayúsculas y acentos.
@@ -704,9 +786,9 @@ function normalizeSearchText(str) {
 }
 
 /**
- * Búsqueda de hitos locales de Punta Arenas en memoria (0ms, 100% Offline)
+ * Búsqueda de hitos y puntos de interés locales de Punta Arenas en memoria (0ms, 100% Offline)
  */
-function buscarHitosLocales(query, limit = 5) {
+function buscarHitosLocales(query, limit = 8) {
   const normQ = normalizeSearchText(query);
   if (!normQ || normQ.length < 2) return [];
 
@@ -718,7 +800,12 @@ function buscarHitosLocales(query, limit = 5) {
     const matchesAllWords = words.every(w => hay.includes(w));
     if (matchesAllWords) {
       const normNombre = normalizeSearchText(h.nombre);
-      const score = normNombre.startsWith(normQ) ? 2 : 1;
+      let score = 1;
+      if (normNombre === normQ) score = 10;
+      else if (normNombre.startsWith(normQ)) score = 5;
+      else if (normNombre.includes(normQ)) score = 3;
+      else if (normalizeSearchText(h.alias || '').includes(normQ)) score = 2;
+
       matches.push({
         nombre: h.nombre,
         detalle: h.detalle,
@@ -737,158 +824,10 @@ function buscarHitosLocales(query, limit = 5) {
 }
 
 /**
- * Búsqueda geocodificada en OpenStreetMap (Nominatim API) para calles y direcciones de Punta Arenas.
- * Incluye detección de numeración exacta (house_number), desambiguación inteligente y eliminación de tramos redundantes.
+ * Búsqueda de Ubicaciones: Resuelve instantáneamente destinos clave (Colegios, Hospitales, Malls, etc.)
  */
-async function buscarDireccionesNominatim(query, limit = 5, signal = null) {
-  const normQ = (query || '').trim();
-  if (normQ.length < 3) return [];
-
-  // Extraer si el usuario ingresó un número de puerta o altura (ej. "401", "610" o "1200")
-  const numMatch = normQ.match(/\b(\d+)\b/);
-  const houseNum = numMatch ? parseInt(numMatch[1], 10) : null;
-
-  const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(normQ + ', Punta Arenas, Chile')}&format=json&limit=${limit + 4}&addressdetails=1&viewbox=-71.05,-53.05,-70.80,-53.25`;
-
-  try {
-    const fetchHeaders = typeof window === 'undefined'
-      ? { 'Accept': 'application/json', 'User-Agent': 'TeS-SDRTC-Tesis/1.0' }
-      : { 'Accept': 'application/json' };
-
-    const res = await fetch(url, {
-      headers: fetchHeaders,
-      signal: signal
-    });
-
-    if (!res.ok) return [];
-    const data = await res.json();
-    if (!Array.isArray(data)) return [];
-
-    const parsedItems = data.map(item => {
-      const lat = parseFloat(item.lat);
-      const lon = parseFloat(item.lon);
-      const addr = item.address || {};
-
-      const hasHouseNumber = !!(addr.house_number || item.type === 'house');
-      const isNeighbourhood = (item.addresstype === 'neighbourhood' || item.addresstype === 'suburb' || item.type === 'neighbourhood' || item.type === 'suburb') && !hasHouseNumber;
-      const isRoad = (item.class === 'highway' || item.addresstype === 'road' || addr.road) && !hasHouseNumber && !isNeighbourhood;
-
-      const parts = item.display_name.split(',').map(p => p.trim());
-      let nombre = item.name || parts[0] || normQ;
-      let detalle = '';
-      let icono = '📍';
-      let score = 1.0;
-      let roadKey = '';
-
-      if (hasHouseNumber) {
-        // 1. Dirección con número de puerta exacto en OpenStreetMap
-        const road = addr.road || parts[1] || 'Calle';
-        const num = addr.house_number || houseNum || '';
-        const cleanRoad = road.toLowerCase().startsWith('calle') || road.toLowerCase().startsWith('avenida') || road.toLowerCase().startsWith('pasaje')
-          ? road
-          : `Calle ${road}`;
-        nombre = `${cleanRoad} #${num}`;
-        const sector = addr.neighbourhood || addr.city || 'Punta Arenas';
-        detalle = `${sector} (Dirección exacta)`;
-        icono = '🏠';
-        score = 3.5; // Máxima relevancia
-        roadKey = road.toLowerCase().trim();
-      } else if (isNeighbourhood) {
-        // 2. Barrio o Población residencial
-        if (!nombre.toLowerCase().includes('barrio') && !nombre.toLowerCase().includes('población')) {
-          nombre = `Barrio / Población ${nombre}`;
-        }
-        detalle = 'Sector Residencial, Punta Arenas';
-        icono = '🏘️';
-        // Si el usuario escribió un número de casa, priorizar calles sobre barrios
-        score = houseNum ? 0.2 : 0.8;
-      } else if (isRoad) {
-        // 3. Calle o tramo vial (sin número exacto cargado)
-        let road = addr.road || item.name || parts[0];
-        nombre = road.toLowerCase().startsWith('calle') || road.toLowerCase().startsWith('avenida') || road.toLowerCase().startsWith('pasaje')
-          ? road
-          : `Calle ${road}`;
-        icono = '🛣️';
-        roadKey = road.toLowerCase().trim();
-
-        // Sectorización descriptiva del tramo en Punta Arenas
-        const barrioRef = addr.neighbourhood || addr.suburb || '';
-        const sectorText = barrioRef ? `Sector ${barrioRef}` : 'Punta Arenas';
-        detalle = houseNum ? `Aprox. #${houseNum} • ${sectorText} (N° aproximado)` : sectorText;
-
-        // Ponderar relevancia: base 5.0 + importancia de OpenStreetMap
-        score = 5.0 + (parseFloat(item.importance) || 0);
-
-        // Si es calle Bories con número, diferenciar centro vs centro-norte
-        if (road.toLowerCase().includes('bories') && houseNum) {
-          if (lat <= -53.1595 && houseNum <= 600) score += 2.0;
-          else if (lat > -53.1595 && houseNum > 600) score += 2.0;
-        }
-      } else {
-        if (item.type === 'hospital' || item.type === 'clinic') icono = '🏥';
-        else if (item.type === 'school' || item.type === 'university') icono = '🎓';
-        else if (item.class === 'shop') icono = '🛍️';
-        detalle = parts.slice(1, 3).filter(p => !p.includes('Región') && !p.includes('Chile') && !p.includes('Provincia')).join(', ') || 'Punta Arenas';
-      }
-
-      return {
-        nombre: nombre,
-        detalle: detalle,
-        categoria: item.type || (hasHouseNumber ? 'Dirección' : (isRoad ? 'Calle' : 'Lugar')),
-        icono: icono,
-        lat: lat,
-        lon: lon,
-        score: score,
-        roadKey: roadKey,
-        barrio: addr.neighbourhood || addr.suburb || '',
-        fuente: 'osm'
-      };
-    });
-
-    // Ordenar por score decreciente (las direcciones exactas y mejores tramos primero)
-    parsedItems.sort((a, b) => b.score - a.score);
-
-    // Regla de Oro: Una sola opción por calle para no abrumar al usuario con opciones redundantes
-    const seenRoads = new Set();
-    const deduped = [];
-    for (const it of parsedItems) {
-      if (it.roadKey) {
-        if (seenRoads.has(it.roadKey)) continue; // Solo 1 opción de la misma calle
-        seenRoads.add(it.roadKey);
-      }
-      deduped.push(it);
-    }
-
-    return deduped.slice(0, limit);
-  } catch (err) {
-    if (err.name === 'AbortError') return [];
-    console.warn('[Geocodificación Nominatim]:', err.message);
-    return [];
-  }
-}
-
-/**
- * Búsqueda Híbrida Inteligente: Combina hitos locales instantáneos + direcciones de OpenStreetMap
- */
-async function buscarUbicacionesHibrido(query, limit = 6, signal = null) {
-  const localMatches = buscarHitosLocales(query, limit);
-
-  if (localMatches.length >= 4) {
-    return localMatches.slice(0, limit);
-  }
-
-  const remaining = limit - localMatches.length;
-  const osmResults = await buscarDireccionesNominatim(query, remaining + 2, signal);
-
-  const finalResults = [...localMatches];
-  for (const osmItem of osmResults) {
-    const isDuplicate = finalResults.some(item => haversineDistance(item.lat, item.lon, osmItem.lat, osmItem.lon) < 50);
-    if (!isDuplicate && finalResults.length < limit) {
-      finalResults.push(osmItem);
-    }
-  }
-
-  return finalResults;
+async function buscarUbicacionesHibrido(query, limit = 8) {
+  return buscarHitosLocales(query, limit);
 }
 
 // Exportación compatible tanto con navegadores (window) como con Node.js
@@ -909,7 +848,6 @@ if (typeof module !== 'undefined' && module.exports) {
     HITOS_PUNTA_ARENAS,
     normalizeSearchText,
     buscarHitosLocales,
-    buscarDireccionesNominatim,
     buscarUbicacionesHibrido
   };
 }

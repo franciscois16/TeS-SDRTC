@@ -167,6 +167,11 @@ Ambas estrategias toman como parámetros:
   - **Marcadores Arrastrables (*Draggable*):** Pines de Origen (O) y Destino (D) arrastrables con el dedo o ratón directamente en el mapa para ajustar con precisión métrica la puerta o esquina deseada, recalculando las rutas en tiempo real al soltar el pin.
   - **Optimización Móvil No Oclusiva:** Panel inferior deslizable limitado a 48dvh, auto-minimización a barra de 50px al calcular para mantener el mapa y los recorridos 100% visibles.
   - **Caché Offline v7:** Actualización del Service Worker (`sw.js`).
+- **v2.2 (Catálogo Local Extendido de 90+ Hitos Urbanos y Búsqueda Local 100% Offline):**
+  - **Catálogo Exhaustivo de Puntos de Interés (POIs):** Incorporación de más de 90 hitos verificados de Punta Arenas clasificados por categoría: Colegios y Liceos (San José, Don Bosco, Sara Braun, Industrial, María Auxiliadora, LEUMAG, Charles Darwin, etc.), Educación Superior (UMAG, CADI-UMAG, INACAP, Santo Tomás), Salud (Hospital Clínico, RedSalud, Hospital Naval, CESFAMs, SAR Bencur), Comercio y Malls (Zona Franca, Mall Pionero, Mercado, supermercados), Cívicos y Servicios (Plaza, GORE, Municipalidad, Registro Civil, FONASA, SII), Deportes, Parques y Terminales de Buses.
+  - **Búsqueda Instantánea y Privacidad (0 ms):** Eliminación de peticiones externas de geocodificación por número de calle (debido a la ausencia estructural de numeración domiciliaria en OpenStreetMap Chile que generaba ambigüedad) a favor de un autocompletado local ultrarrápido, tokenizado y resiliente a tildes y abreviaciones.
+  - **Micro-posicionamiento por Arrastre o Toque:** Cualquier dirección residencial o punto específico de una calle se define de manera intuitiva y exacta tocando el mapa o arrastrando el pin hasta la puerta deseada.
+  - **Caché Offline v12:** Actualización del Service Worker (`sw.js`).
 
 ---
 

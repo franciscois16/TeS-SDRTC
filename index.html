@@ -1003,7 +1003,7 @@
           </label>
           <div class="search-input-wrapper">
             <span class="search-input-icon">🔍</span>
-            <input type="text" id="input-search-origen" class="search-input" placeholder="Buscar lugar o calle (ej: Zona Franca, Bories)..." autocomplete="off" />
+            <input type="text" id="input-search-origen" class="search-input" placeholder="Buscar colegio, liceo o lugar (ej: San José, Zona Franca)..." autocomplete="off" />
             <button type="button" class="btn-clear-search" id="btn-clear-origen" title="Borrar origen" style="display:none;">✕</button>
           </div>
           <div class="search-dropdown" id="dropdown-origen" style="display:none;"></div>
@@ -1016,7 +1016,7 @@
           </label>
           <div class="search-input-wrapper">
             <span class="search-input-icon">🎯</span>
-            <input type="text" id="input-search-destino" class="search-input" placeholder="Buscar lugar o calle (ej: Hospital Clínico, UMAG)..." autocomplete="off" />
+            <input type="text" id="input-search-destino" class="search-input" placeholder="Buscar colegio, liceo o lugar (ej: Hospital, Don Bosco, UMAG)..." autocomplete="off" />
             <button type="button" class="btn-clear-search" id="btn-clear-destino" title="Borrar destino" style="display:none;">✕</button>
           </div>
           <div class="search-dropdown" id="dropdown-destino" style="display:none;"></div>
@@ -1186,13 +1186,9 @@
     let currentResultsE2 = [];
     let selectedOption = null; // { strategyKey: 'e1'|'e2', index: number }
 
-    // Estado para búsqueda y geocodificación
+    // Estado para búsqueda de lugares e hitos
     let origenNombre = null;
     let destinoNombre = null;
-    let debounceTimerOrigen = null;
-    let debounceTimerDestino = null;
-    let abortCtrlOrigen = null;
-    let abortCtrlDestino = null;
 
     function createMarkerIcon(text, className) {
       return L.divIcon({
@@ -1779,22 +1775,23 @@
     document.getElementById('btn-reset').addEventListener('click', resetPoints);
 
     /* ==========================================================================
-       BÚSQUEDA Y AUTOCOMPLETADO DE DIRECCIONES (GEOCODIFICACIÓN)
+       BÚSQUEDA Y AUTOCOMPLETADO DE LUGARES, COLEGIOS E HITOS (100% OFFLINE)
        ========================================================================== */
-    function renderSearchDropdown(dropdownEl, items, type, isPreliminary = false) {
+    function renderSearchDropdown(dropdownEl, items, type) {
       if (!items || items.length === 0) {
-        if (!isPreliminary) {
-          dropdownEl.innerHTML = `<div class="search-empty">No se encontraron lugares en Punta Arenas para esta búsqueda.</div>`;
-          dropdownEl.style.display = 'block';
-        }
+        dropdownEl.innerHTML = `
+          <div class="search-empty">
+            No se encontró ese lugar en la lista.<br>
+            <small style="color:#64748b; margin-top:4px; display:block;">💡 Puedes marcar cualquier punto directamente tocando en el mapa.</small>
+          </div>
+        `;
+        dropdownEl.style.display = 'block';
         return;
       }
 
       let html = '';
       items.forEach((item, idx) => {
-        const fuenteBadge = item.fuente === 'local' 
-          ? '<span class="badge-source badge-source-local">Hito</span>' 
-          : '<span class="badge-source badge-source-osm">OSM</span>';
+        const catBadge = `<span class="badge-source badge-source-local">${item.categoria || 'Lugar'}</span>`;
 
         html += `
           <div class="search-item" data-idx="${idx}">
@@ -1802,7 +1799,7 @@
             <div class="search-item-info">
               <div class="search-item-title">
                 <span>${item.nombre}</span>
-                ${fuenteBadge}
+                ${catBadge}
               </div>
               <div class="search-item-sub">${item.detalle || ''}</div>
             </div>
@@ -1841,21 +1838,9 @@
         return;
       }
 
-      // 1. Mostrar de inmediato coincidencias locales (0 ms)
-      const localMatches = typeof buscarHitosLocales === 'function' ? buscarHitosLocales(q, 4) : [];
-      renderSearchDropdown(dropdownOrigen, localMatches, 'origen', true);
-
-      // 2. Debounce para consultar Nominatim OSM
-      clearTimeout(debounceTimerOrigen);
-      if (abortCtrlOrigen) abortCtrlOrigen.abort();
-      abortCtrlOrigen = new AbortController();
-
-      debounceTimerOrigen = setTimeout(async () => {
-        if (typeof buscarUbicacionesHibrido === 'function') {
-          const results = await buscarUbicacionesHibrido(q, 6, abortCtrlOrigen.signal);
-          renderSearchDropdown(dropdownOrigen, results, 'origen', false);
-        }
-      }, 350);
+      // Búsqueda instantánea de hitos, colegios y lugares (0 ms, 100% Offline)
+      const matches = typeof buscarHitosLocales === 'function' ? buscarHitosLocales(q, 7) : [];
+      renderSearchDropdown(dropdownOrigen, matches, 'origen');
     });
 
     const inputDestino = document.getElementById('input-search-destino');
@@ -1871,21 +1856,9 @@
         return;
       }
 
-      // 1. Mostrar de inmediato coincidencias locales (0 ms)
-      const localMatches = typeof buscarHitosLocales === 'function' ? buscarHitosLocales(q, 4) : [];
-      renderSearchDropdown(dropdownDestino, localMatches, 'destino', true);
-
-      // 2. Debounce para consultar Nominatim OSM
-      clearTimeout(debounceTimerDestino);
-      if (abortCtrlDestino) abortCtrlDestino.abort();
-      abortCtrlDestino = new AbortController();
-
-      debounceTimerDestino = setTimeout(async () => {
-        if (typeof buscarUbicacionesHibrido === 'function') {
-          const results = await buscarUbicacionesHibrido(q, 6, abortCtrlDestino.signal);
-          renderSearchDropdown(dropdownDestino, results, 'destino', false);
-        }
-      }, 350);
+      // Búsqueda instantánea de hitos, colegios y lugares (0 ms, 100% Offline)
+      const matches = typeof buscarHitosLocales === 'function' ? buscarHitosLocales(q, 7) : [];
+      renderSearchDropdown(dropdownDestino, matches, 'destino');
     });
 
     document.getElementById('btn-clear-origen').addEventListener('click', (e) => {
