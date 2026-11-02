@@ -606,6 +606,49 @@
           </div>
         </div>
 
+        <!-- MÓDULO M3: Validación Muestral en Terreno (Grabador GPS en Vivo) -->
+        <div class="card" style="border-left: 4px solid #10b981;">
+          <h3>
+            <span>📡 Validación en Terreno (Módulo M3)</span>
+            <span class="color-tag" id="gps-rec-status">INACTIVO</span>
+          </h3>
+          <p style="font-size:0.74rem; color:#64748b; line-height:1.35;">
+            Captura tu traza GPS real viajando como pasajero y calcula la desviación métrica y concordancia espacial frente al trazado oficial de la SEREMI.
+          </p>
+          <div class="form-group">
+            <label for="select-val-route">Línea oficial a contrastar</label>
+            <select id="select-val-route" class="input-text"></select>
+          </div>
+          <div class="btn-row">
+            <button type="button" class="btn btn-primary btn-sm" id="btn-start-gps-track" onclick="toggleGpsFieldRecording()">
+              🔴 Grabar Traza GPS
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="evaluateCurrentTrackConcordance()" title="Evaluar concordancia usando la traza GPS grabada o los puntos dibujados">
+              📐 Calcular Concordancia
+            </button>
+          </div>
+          <div id="field-validation-result" class="feedback-box" style="display:none; font-size:0.75rem; line-height:1.45;"></div>
+        </div>
+
+        <!-- MÓDULO M4: Benchmark Científico Ground Truth (E0 vs E1 vs E2) -->
+        <div class="card" style="border-left: 4px solid #3b82f6;">
+          <h3>
+            <span>📊 Benchmark Algorítmico (OE2 / OE3)</span>
+          </h3>
+          <p style="font-size:0.74rem; color:#64748b; line-height:1.35;">
+            Evalúa empíricamente <strong>E0 (sin sentido)</strong>, <strong>E1 (vértices)</strong> y <strong>E2 (proyección continua)</strong> sobre pares Origen-Destino de verificación (<em>Ground Truth</em>).
+          </p>
+          <div class="btn-row">
+            <button type="button" class="btn btn-primary btn-sm" style="flex:1;" onclick="runThesisBenchmark()">
+              ⚡ Ejecutar Benchmark (E0 vs E1 vs E2)
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="exportBenchmarkCSV()" title="Exportar tabla de resultados a CSV para LaTeX / Excel">
+              📥 CSV
+            </button>
+          </div>
+          <div id="benchmark-output" style="display:none; margin-top:6px; font-size:0.73rem; overflow-x:auto;"></div>
+        </div>
+
         <!-- Respaldo / Exportación -->
         <div class="card" style="background:#f8fafc; border-style:dashed;">
           <h3>Descarga manual de respaldo</h3>
@@ -1099,11 +1142,231 @@
           </td>
         </tr>
       `).join('');
+      const valSelect = document.getElementById('select-val-route');
+      if (valSelect) {
+        const opts = [];
+        DATASET_COLECTIVOS.forEach(linea => {
+          opts.push(`<option value="${linea.id}__ida">${linea.nombre} (Ida)</option>`);
+          opts.push(`<option value="${linea.id}__vuelta">${linea.nombre} (Vuelta)</option>`);
+        });
+        valSelect.innerHTML = opts.join('');
+      }
     }
     refreshDatasetTable();
 
     /* ==========================================================================
-       4. EXPORTACIÓN MANUAL DE RESPALDO
+       4. MÓDULO M3: GRABACIÓN GPS EN TERRENO Y CONCORDANCIA ESPACIAL
+       ========================================================================== */
+    let gpsWatchId = null;
+    let recordedGpsTrack = [];
+    let recordedGpsLayer = null;
+
+    function toggleGpsFieldRecording() {
+      const btn = document.getElementById('btn-start-gps-track');
+      const statusBadge = document.getElementById('gps-rec-status');
+      const outBox = document.getElementById('field-validation-result');
+
+      if (gpsWatchId !== null) {
+        navigator.geolocation.clearWatch(gpsWatchId);
+        gpsWatchId = null;
+        btn.textContent = '🔴 Grabar Traza GPS';
+        statusBadge.textContent = `DETENIDO (${recordedGpsTrack.length} pts)`;
+        evaluateCurrentTrackConcordance();
+        return;
+      }
+
+      if (!navigator.geolocation) {
+        alert('Tu navegador no soporta geolocalización GPS.');
+        return;
+      }
+
+      recordedGpsTrack = [];
+      if (recordedGpsLayer) {
+        map.removeLayer(recordedGpsLayer);
+        recordedGpsLayer = null;
+      }
+
+      btn.textContent = '⏹ Detener Grabación';
+      statusBadge.textContent = 'GRABANDO EN VIVO...';
+      outBox.style.display = 'block';
+      outBox.className = 'feedback-box success';
+      outBox.innerHTML = '📡 Esperando señal satelital GPS...';
+
+      gpsWatchId = navigator.geolocation.watchPosition(
+        (pos) => {
+          const pt = { lat: pos.coords.latitude, lon: pos.coords.longitude, acc: pos.coords.accuracy };
+          recordedGpsTrack.push(pt);
+          statusBadge.textContent = `EN VIVO (${recordedGpsTrack.length} pts)`;
+
+          const latlngs = recordedGpsTrack.map(p => [p.lat, p.lon]);
+          if (recordedGpsLayer) map.removeLayer(recordedGpsLayer);
+          recordedGpsLayer = L.polyline(latlngs, {
+            color: '#10b981',
+            weight: 5,
+            dashArray: '4, 6'
+          }).addTo(map);
+
+          outBox.innerHTML = `📡 <strong>Capturando traza GPS:</strong> ${recordedGpsTrack.length} puntos registrados (precisión actual: ±${Math.round(pt.acc)} m).`;
+        },
+        (err) => {
+          outBox.className = 'feedback-box warning';
+          outBox.textContent = `⚠️ Error GPS: ${err.message}`;
+        },
+        { enableHighAccuracy: true, maximumAge: 2000, timeout: 10000 }
+      );
+    }
+
+    function evaluateCurrentTrackConcordance() {
+      const valSelect = document.getElementById('select-val-route');
+      const outBox = document.getElementById('field-validation-result');
+      if (!valSelect || !outBox) return;
+
+      const [lineaId, sentido] = (valSelect.value || '').split('__');
+      const linea = DATASET_COLECTIVOS.find(l => l.id === lineaId);
+      if (!linea) return;
+
+      const coordsOficiales = sentido === 'vuelta' ? linea.vuelta : linea.ida;
+
+      // Si no hay traza GPS grabada en vivo, usar los puntos del borrador actual en pantalla
+      let trackToTest = recordedGpsTrack;
+      let fuenteTexto = 'Traza GPS en vivo';
+      if (trackToTest.length === 0) {
+        const activeDraft = editSentido === 'ida' ? draftIda : draftVuelta;
+        if (activeDraft.length > 0) {
+          trackToTest = activeDraft.map(c => ({ lat: c[1], lon: c[0] }));
+          fuenteTexto = `Trazado de prueba en editor (${editSentido})`;
+        } else {
+          // Simulación de muestreo sobre la línea con perturbación realista de GPS urbano (±12m)
+          trackToTest = coordsOficiales.map((c, i) => ({
+            lat: c[1] + ((i % 3 === 0 ? 1 : -1) * 0.00008),
+            lon: c[0] + ((i % 2 === 0 ? 1 : -1) * 0.00011)
+          }));
+          fuenteTexto = 'Muestra sintética GPS (±12 m)';
+        }
+      }
+
+      const res = calcularConcordanciaTerreno(trackToTest, coordsOficiales, 35);
+      if (!res) return;
+
+      outBox.style.display = 'block';
+      outBox.className = 'feedback-box success';
+      outBox.innerHTML = `
+        <strong>📐 Resultado de Concordancia (${linea.nombre} - ${sentido.toUpperCase()}):</strong><br>
+        • Fuente evaluada: <em>${fuenteTexto}</em> (${res.puntosMuestreados} pts)<br>
+        • Desviación media perpendicular: <strong>${res.desviacionMediaMetros} m</strong><br>
+        • Desviación máxima: <strong>${res.desviacionMaxMetros} m</strong><br>
+        • Concordancia espacial (≤ ${res.umbralMetros}m): <strong>${res.porcentajeConcordancia}%</strong>
+      `;
+    }
+
+    /* ==========================================================================
+       5. MÓDULO M4: BENCHMARK ALGORÍTMICO GROUND TRUTH (E0 vs E1 vs E2)
+       ========================================================================== */
+    const GROUND_TRUTH_CASES = [
+      { id: 'GT-01', caso: 'Centro a Zona Franca (Sur -> Norte)', origen: { lat: -53.1626, lng: -70.9080 }, destino: { lat: -53.1336, lng: -70.8760 }, r: 500 },
+      { id: 'GT-02', caso: 'Zona Franca a Centro (Norte -> Sur)', origen: { lat: -53.1336, lng: -70.8760 }, destino: { lat: -53.1626, lng: -70.9080 }, r: 500 },
+      { id: 'GT-03', caso: 'Hospital Clínico a Plaza Muñoz Gamero', origen: { lat: -53.1221, lng: -70.8963 }, destino: { lat: -53.1626, lng: -70.9080 }, r: 500 },
+      { id: 'GT-04', caso: 'Barrio 18 de Septiembre a UMAG', origen: { lat: -53.1652, lng: -70.9300 }, destino: { lat: -53.1362, lng: -70.8787 }, r: 500 },
+      { id: 'GT-05', caso: 'Tramo inter-vértices Av. Bulnes (Mitad de cuadra)', origen: { lat: -53.1493, lng: -70.8982 }, destino: { lat: -53.1362, lng: -70.8787 }, r: 350 },
+      { id: 'GT-06', caso: 'Barrio Sur (Parque M. Behety) a Centro Cívico', origen: { lat: -53.1790, lng: -70.9291 }, destino: { lat: -53.1612, lng: -70.9073 }, r: 500 }
+    ];
+
+    let lastBenchmarkRows = [];
+
+    function runThesisBenchmark() {
+      const trayectorias = generarTrayectorias(DATASET_COLECTIVOS);
+      const rows = [];
+      let totalFpE0 = 0;
+      let totalTimeE0 = 0, totalTimeE1 = 0, totalTimeE2 = 0;
+
+      for (const tc of GROUND_TRUTH_CASES) {
+        const t0_0 = performance.now();
+        const r0 = estrategia0(tc.origen, tc.destino, trayectorias, tc.r);
+        const ms0 = performance.now() - t0_0;
+
+        const t0_1 = performance.now();
+        const r1 = estrategia1(tc.origen, tc.destino, trayectorias, tc.r);
+        const ms1 = performance.now() - t0_1;
+
+        const t0_2 = performance.now();
+        const r2 = estrategia2(tc.origen, tc.destino, trayectorias, tc.r);
+        const ms2 = performance.now() - t0_2;
+
+        // Las rutas de E0 que no cumplen posOrigen < posDestino (presentes en E0 pero no en E2) son Falsos Positivos direccionales
+        const validSet = new Set(r2.map(x => x.etiqueta));
+        const fpE0 = r0.filter(x => !validSet.has(x.etiqueta)).length;
+        const fnE1 = r2.filter(x => !r1.some(y => y.etiqueta === x.etiqueta)).length;
+
+        totalFpE0 += fpE0;
+        totalTimeE0 += ms0;
+        totalTimeE1 += ms1;
+        totalTimeE2 += ms2;
+
+        rows.push({
+          id: tc.id,
+          caso: tc.caso,
+          nE0: r0.length,
+          fpE0,
+          nE1: r1.length,
+          fnE1,
+          nE2: r2.length,
+          walkE1: r1[0] ? r1[0].dTotalCaminata : '-',
+          walkE2: r2[0] ? r2[0].dTotalCaminata : '-',
+          ms0: ms0.toFixed(3),
+          ms1: ms1.toFixed(3),
+          ms2: ms2.toFixed(3)
+        });
+      }
+
+      lastBenchmarkRows = rows;
+      const out = document.getElementById('benchmark-output');
+      out.style.display = 'block';
+      out.innerHTML = `
+        <table class="routes-table" style="font-size:0.71rem;">
+          <thead>
+            <tr>
+              <th>Caso</th>
+              <th>E0 (Sin sent.)</th>
+              <th>FP E0</th>
+              <th>E1 (Vért.)</th>
+              <th>E2 (Proy.)</th>
+              <th>Cam. E1/E2</th>
+              <th>T(ms) E1/E2</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows.map(r => `
+              <tr>
+                <td title="${r.caso}"><strong>${r.id}</strong></td>
+                <td>${r.nE0}</td>
+                <td style="color:#dc2626;font-weight:700;">${r.fpE0} FP</td>
+                <td>${r.nE1}</td>
+                <td style="color:#15803d;font-weight:700;">${r.nE2}</td>
+                <td>${r.walkE1}m / ${r.walkE2}m</td>
+                <td>${r.ms1} / ${r.ms2}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+        <div style="margin-top:6px; padding:6px 8px; background:#eff6ff; border-radius:5px; color:#1e3a8a;">
+          ✅ <strong>Conclusión empírica:</strong> La validación direccional y proyección continua (E2) eliminó <strong>${totalFpE0} falsos positivos</strong> (líneas en sentido inverso) manteniendo un tiempo medio de <strong>${(totalTimeE2 / rows.length).toFixed(3)} ms</strong> por consulta.
+        </div>
+      `;
+    }
+
+    function exportBenchmarkCSV() {
+      if (lastBenchmarkRows.length === 0) {
+        runThesisBenchmark();
+      }
+      const header = 'ID,Caso,Rutas_E0,FalsosPositivos_E0,Rutas_E1,FalsosNegativos_E1,Rutas_E2,CaminataTop1_E1_m,CaminataTop1_E2_m,Tiempo_E0_ms,Tiempo_E1_ms,Tiempo_E2_ms\n';
+      const lines = lastBenchmarkRows.map(r =>
+        `"${r.id}","${r.caso}",${r.nE0},${r.fpE0},${r.nE1},${r.fnE1},${r.nE2},${r.walkE1},${r.walkE2},${r.ms0},${r.ms1},${r.ms2}`
+      ).join('\n');
+      downloadBlob(header + lines, 'benchmark_algoritmos_tesis.csv', 'text/csv;charset=utf-8;');
+    }
+
+    /* ==========================================================================
+       6. EXPORTACIÓN MANUAL DE RESPALDO
        ========================================================================== */
     function exportBackupJS() {
       const content = serializeDatasetToJS(DATASET_COLECTIVOS);

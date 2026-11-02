@@ -88,6 +88,56 @@ function generarTrayectorias(dataset) {
 }
 
 /**
+ * Constantes operacionales de Punta Arenas para estimación de tiempos y tarifas
+ */
+const WALK_SPEED_METERS_PER_MIN = 75;   // ~4.5 km/h velocidad peatonal urbana promedio
+const COLECTIVO_SPEED_KMH = 24;         // ~24 km/h velocidad comercial urbana con detenciones
+const TARIFA_DIURNA_CLP = 700;          // Tarifa referencial diurna taxi colectivo Punta Arenas
+
+function estimarTiemposViaje(dTotalCaminataMetros, dRecorridoMetros) {
+  const tiempoCaminataMin = Math.max(1, Math.round(dTotalCaminataMetros / WALK_SPEED_METERS_PER_MIN));
+  const tiempoColectivoMin = Math.max(2, Math.round(((dRecorridoMetros / 1000) / COLECTIVO_SPEED_KMH) * 60));
+  return {
+    tiempoCaminataMin,
+    tiempoColectivoMin,
+    tiempoTotalMin: tiempoCaminataMin + tiempoColectivoMin
+  };
+}
+
+/**
+ * ESTRATEGIA 0 (Base Ingenua / Sin Restricción Direccional):
+ * Evalúa únicamente si existen vértices dentro del radio r en origen y destino,
+ * sin verificar orden secuencial de avance (posOrigen < posDestino).
+ * Utilizada en el benchmark experimental (OE3) para cuantificar falsos positivos.
+ */
+function estrategia0(origen, destino, trayectorias, r) {
+  const recomendadas = [];
+  for (const trayecto of trayectorias) {
+    const coords = trayecto.coords;
+    if (!coords || coords.length < 2) continue;
+    let bestOrigDist = Infinity;
+    let bestDestDist = Infinity;
+    for (let i = 0; i < coords.length; i++) {
+      const [lon, lat] = coords[i];
+      const dOrig = haversineDistance(origen.lat, origen.lng, lat, lon);
+      if (dOrig < bestOrigDist) bestOrigDist = dOrig;
+      const dDest = haversineDistance(destino.lat, destino.lng, lat, lon);
+      if (dDest < bestDestDist) bestDestDist = dDest;
+    }
+    if (bestOrigDist <= r && bestDestDist <= r) {
+      recomendadas.push({
+        ...trayecto,
+        dOrigen: Math.round(bestOrigDist),
+        dDestino: Math.round(bestDestDist),
+        dTotalCaminata: Math.round(bestOrigDist + bestDestDist)
+      });
+    }
+  }
+  recomendadas.sort((a, b) => a.dTotalCaminata - b.dTotalCaminata);
+  return recomendadas;
+}
+
+/**
  * ESTRATEGIA 1: Proximidad métrica simple a vértices
  * - Busca el nodo más cercano al origen y su distancia acumulada.
  * - Busca el nodo más cercano al destino y su distancia acumulada.
@@ -111,8 +161,10 @@ function estrategia1(origen, destino, trayectorias, r) {
 
     let bestOrigDist = Infinity;
     let bestOrigPos = 0;
+    let bestOrigIdx = 0;
     let bestDestDist = Infinity;
     let bestDestPos = 0;
+    let bestDestIdx = 0;
 
     for (let i = 0; i < coords.length; i++) {
       const [lon, lat] = coords[i];
@@ -121,22 +173,33 @@ function estrategia1(origen, destino, trayectorias, r) {
       if (dOrig < bestOrigDist) {
         bestOrigDist = dOrig;
         bestOrigPos = cumDist[i];
+        bestOrigIdx = i;
       }
 
       const dDest = haversineDistance(destino.lat, destino.lng, lat, lon);
       if (dDest < bestDestDist) {
         bestDestDist = dDest;
         bestDestPos = cumDist[i];
+        bestDestIdx = i;
       }
     }
 
     if (bestOrigDist <= r && bestDestDist <= r && bestOrigPos < bestDestPos) {
+      const dTotalCaminata = Math.round(bestOrigDist + bestDestDist);
+      const distanciaRecorrido = Math.round(bestDestPos - bestOrigPos);
+      const tiempos = estimarTiemposViaje(dTotalCaminata, distanciaRecorrido);
+
       recomendadas.push({
         ...trayecto,
         dOrigen: Math.round(bestOrigDist),
         dDestino: Math.round(bestDestDist),
-        dTotalCaminata: Math.round(bestOrigDist + bestDestDist),
-        distanciaRecorrido: Math.round(bestDestPos - bestOrigPos)
+        dTotalCaminata,
+        distanciaRecorrido,
+        puntoSubida: { lat: coords[bestOrigIdx][1], lon: coords[bestOrigIdx][0] },
+        puntoBajada: { lat: coords[bestDestIdx][1], lon: coords[bestDestIdx][0] },
+        tramoActivoCoords: coords.slice(bestOrigIdx, bestDestIdx + 1),
+        ...tiempos,
+        tarifaReferencial: TARIFA_DIURNA_CLP
       });
     }
   }
@@ -174,8 +237,13 @@ function estrategia2(origen, destino, trayectorias, r) {
 
     let bestOrigDist = Infinity;
     let bestOrigPos = 0;
+    let bestOrigSegIdx = 0;
+    let bestOrigPt = { lat: coords[0][1], lon: coords[0][0] };
+
     let bestDestDist = Infinity;
     let bestDestPos = 0;
+    let bestDestSegIdx = 0;
+    let bestDestPt = { lat: coords[segCount][1], lon: coords[segCount][0] };
 
     for (let i = 0; i < segCount; i++) {
       const [aLon, aLat] = coords[i];
@@ -185,22 +253,47 @@ function estrategia2(origen, destino, trayectorias, r) {
       if (projOrig.distance < bestOrigDist) {
         bestOrigDist = projOrig.distance;
         bestOrigPos = cumSegDist[i] + projOrig.t * segLengths[i];
+        bestOrigSegIdx = i;
+        bestOrigPt = {
+          lat: aLat + projOrig.t * (bLat - aLat),
+          lon: aLon + projOrig.t * (bLon - aLon)
+        };
       }
 
       const projDest = projectPointToSegment(destino.lat, destino.lng, aLat, aLon, bLat, bLon);
       if (projDest.distance < bestDestDist) {
         bestDestDist = projDest.distance;
         bestDestPos = cumSegDist[i] + projDest.t * segLengths[i];
+        bestDestSegIdx = i;
+        bestDestPt = {
+          lat: aLat + projDest.t * (bLat - aLat),
+          lon: aLon + projDest.t * (bLon - aLon)
+        };
       }
     }
 
     if (bestOrigDist <= r && bestDestDist <= r && bestOrigPos < bestDestPos) {
+      const dTotalCaminata = Math.round(bestOrigDist + bestDestDist);
+      const distanciaRecorrido = Math.round(bestDestPos - bestOrigPos);
+      const tiempos = estimarTiemposViaje(dTotalCaminata, distanciaRecorrido);
+
+      const tramoActivoCoords = [[bestOrigPt.lon, bestOrigPt.lat]];
+      for (let k = bestOrigSegIdx + 1; k <= bestDestSegIdx; k++) {
+        tramoActivoCoords.push(coords[k]);
+      }
+      tramoActivoCoords.push([bestDestPt.lon, bestDestPt.lat]);
+
       recomendadas.push({
         ...trayecto,
         dOrigen: Math.round(bestOrigDist),
         dDestino: Math.round(bestDestDist),
-        dTotalCaminata: Math.round(bestOrigDist + bestDestDist),
-        distanciaRecorrido: Math.round(bestDestPos - bestOrigPos)
+        dTotalCaminata,
+        distanciaRecorrido,
+        puntoSubida: bestOrigPt,
+        puntoBajada: bestDestPt,
+        tramoActivoCoords,
+        ...tiempos,
+        tarifaReferencial: TARIFA_DIURNA_CLP
       });
     }
   }
@@ -315,6 +408,9 @@ function estrategia1Transbordo(origen, destino, trayectorias, r, maxTransferWalk
       if (bestTransfDist <= maxTransferWalk && bestT1Idx !== -1 && bestT2Idx !== -1) {
         const distRecorrido1 = c1.cumDist[bestT1Idx] - c1.origPos;
         const distRecorrido2 = c2.destPos - c2.cumDist[bestT2Idx];
+        const dTotalCaminata = Math.round(c1.origDist + bestTransfDist + c2.destDist);
+        const distanciaRecorridoTotal = Math.round(distRecorrido1 + distRecorrido2);
+        const tiempos = estimarTiemposViaje(dTotalCaminata, distanciaRecorridoTotal);
 
         combinaciones.push({
           tipo: 'transbordo',
@@ -328,10 +424,12 @@ function estrategia1Transbordo(origen, destino, trayectorias, r, maxTransferWalk
           dOrigen: Math.round(c1.origDist),
           dTransbordo: Math.round(bestTransfDist),
           dDestino: Math.round(c2.destDist),
-          dTotalCaminata: Math.round(c1.origDist + bestTransfDist + c2.destDist),
+          dTotalCaminata,
           distanciaRecorridoT1: Math.round(distRecorrido1),
           distanciaRecorridoT2: Math.round(distRecorrido2),
-          distanciaRecorridoTotal: Math.round(distRecorrido1 + distRecorrido2)
+          distanciaRecorridoTotal,
+          ...tiempos,
+          tarifaReferencial: TARIFA_DIURNA_CLP * 2
         });
       }
     }
@@ -380,6 +478,7 @@ function estrategia2Transbordo(origen, destino, trayectorias, r, maxTransferWalk
     let bestOrigDist = Infinity;
     let bestOrigPos = 0;
     let bestOrigSegIdx = -1;
+    let bestOrigPt = null;
 
     for (let i = 0; i < item.segCount; i++) {
       const [aLon, aLat] = item.coords[i];
@@ -389,15 +488,20 @@ function estrategia2Transbordo(origen, destino, trayectorias, r, maxTransferWalk
         bestOrigDist = proj.distance;
         bestOrigPos = item.cumSegDist[i] + proj.t * item.segLengths[i];
         bestOrigSegIdx = i;
+        bestOrigPt = {
+          lat: aLat + proj.t * (bLat - aLat),
+          lon: aLon + proj.t * (bLon - aLon)
+        };
       }
     }
 
-    if (bestOrigDist <= r) {
+    if (bestOrigDist <= r && bestOrigPt) {
       candEtapa1.push({
         ...item,
         origDist: bestOrigDist,
         origPos: bestOrigPos,
-        origSegIdx: bestOrigSegIdx
+        origSegIdx: bestOrigSegIdx,
+        origPt: bestOrigPt
       });
     }
   }
@@ -408,6 +512,7 @@ function estrategia2Transbordo(origen, destino, trayectorias, r, maxTransferWalk
     let bestDestDist = Infinity;
     let bestDestPos = 0;
     let bestDestSegIdx = -1;
+    let bestDestPt = null;
 
     for (let i = 0; i < item.segCount; i++) {
       const [aLon, aLat] = item.coords[i];
@@ -417,15 +522,20 @@ function estrategia2Transbordo(origen, destino, trayectorias, r, maxTransferWalk
         bestDestDist = proj.distance;
         bestDestPos = item.cumSegDist[i] + proj.t * item.segLengths[i];
         bestDestSegIdx = i;
+        bestDestPt = {
+          lat: aLat + proj.t * (bLat - aLat),
+          lon: aLon + proj.t * (bLon - aLon)
+        };
       }
     }
 
-    if (bestDestDist <= r) {
+    if (bestDestDist <= r && bestDestPt) {
       candEtapa2.push({
         ...item,
         destDist: bestDestDist,
         destPos: bestDestPos,
-        destSegIdx: bestDestSegIdx
+        destSegIdx: bestDestSegIdx,
+        destPt: bestDestPt
       });
     }
   }
@@ -474,23 +584,28 @@ function estrategia2Transbordo(origen, destino, trayectorias, r, maxTransferWalk
       if (bestTransfDist <= maxTransferWalk && bestPt1 && bestPt2) {
         const distRecorrido1 = bestT1Pos - c1.origPos;
         const distRecorrido2 = c2.destPos - bestT2Pos;
+        const dTotalCaminata = Math.round(c1.origDist + bestTransfDist + c2.destDist);
+        const distanciaRecorridoTotal = Math.round(distRecorrido1 + distRecorrido2);
+        const tiempos = estimarTiemposViaje(dTotalCaminata, distanciaRecorridoTotal);
 
         combinaciones.push({
           tipo: 'transbordo',
           trayecto1: c1.trayecto,
           trayecto2: c2.trayecto,
           etiqueta: `${c1.trayecto.nombre} (${c1.trayecto.sentido}) ➔ ${c2.trayecto.nombre} (${c2.trayecto.sentido})`,
-          puntoSubida1: { lat: origen.lat, lon: origen.lng },
+          puntoSubida1: c1.origPt,
           puntoBajada1: bestPt1,
           puntoSubida2: bestPt2,
-          puntoBajada2: { lat: destino.lat, lon: destino.lng },
+          puntoBajada2: c2.destPt,
           dOrigen: Math.round(c1.origDist),
           dTransbordo: Math.round(bestTransfDist),
           dDestino: Math.round(c2.destDist),
-          dTotalCaminata: Math.round(c1.origDist + bestTransfDist + c2.destDist),
+          dTotalCaminata,
           distanciaRecorridoT1: Math.round(distRecorrido1),
           distanciaRecorridoT2: Math.round(distRecorrido2),
-          distanciaRecorridoTotal: Math.round(distRecorrido1 + distRecorrido2)
+          distanciaRecorridoTotal,
+          ...tiempos,
+          tarifaReferencial: TARIFA_DIURNA_CLP * 2
         });
       }
     }
@@ -509,6 +624,47 @@ function estrategia2Transbordo(origen, destino, trayectorias, r, maxTransferWalk
   }
 
   return unicos;
+}
+
+/**
+ * MÓDULO M3 (VALIDACIÓN EN TERRENO):
+ * Calcula la concordancia espacial entre una traza GPS capturada en terreno
+ * (arreglo de {lat, lon}) y el trazado oficial de una línea (arreglo [[lon, lat], ...]).
+ */
+function calcularConcordanciaTerreno(trazaGps, coordsOficiales, umbralMetros = 35) {
+  if (!Array.isArray(trazaGps) || trazaGps.length === 0 || !Array.isArray(coordsOficiales) || coordsOficiales.length < 2) {
+    return null;
+  }
+
+  let sumaDesviacion = 0;
+  let maxDesviacion = 0;
+  let dentroUmbral = 0;
+
+  for (const pt of trazaGps) {
+    let minDist = Infinity;
+    for (let i = 0; i < coordsOficiales.length - 1; i++) {
+      const [aLon, aLat] = coordsOficiales[i];
+      const [bLon, bLat] = coordsOficiales[i + 1];
+      const proj = projectPointToSegment(pt.lat, pt.lon, aLat, aLon, bLat, bLon);
+      if (proj.distance < minDist) {
+        minDist = proj.distance;
+      }
+    }
+    sumaDesviacion += minDist;
+    if (minDist > maxDesviacion) maxDesviacion = minDist;
+    if (minDist <= umbralMetros) dentroUmbral++;
+  }
+
+  const desviacionMedia = Math.round((sumaDesviacion / trazaGps.length) * 10) / 10;
+  const porcentajeConcordancia = Math.round((dentroUmbral / trazaGps.length) * 1000) / 10;
+
+  return {
+    puntosMuestreados: trazaGps.length,
+    desviacionMediaMetros: desviacionMedia,
+    desviacionMaxMetros: Math.round(maxDesviacion),
+    umbralMetros,
+    porcentajeConcordancia
+  };
 }
 
 /**
@@ -841,10 +997,13 @@ if (typeof module !== 'undefined' && module.exports) {
     haversineDistance,
     projectPointToSegment,
     generarTrayectorias,
+    estimarTiemposViaje,
+    estrategia0,
     estrategia1,
     estrategia2,
     estrategia1Transbordo,
     estrategia2Transbordo,
+    calcularConcordanciaTerreno,
     parseCoordinateText,
     serializeDatasetToJS,
     serializeDatasetToGeoJSON,

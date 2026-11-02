@@ -11,7 +11,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <link rel="manifest" href="manifest.json" />
   <link rel="icon" type="image/svg+xml" href="assets/icons/icon.svg" />
-  <link rel="apple-touch-icon" href="assets/icons/icon.svg" />
+  <link rel="apple-touch-icon" href="assets/icons/icon-192.png" />
 
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -796,6 +796,192 @@
       flex-shrink: 0;
     }
 
+    /* Indicador flotante de estado del Mapa Offline */
+    /* Controles flotantes superiores del mapa (Estado Offline + Capa de Hitos) */
+    .map-floating-controls {
+      position: fixed;
+      top: 12px;
+      right: 12px;
+      z-index: 950;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+      pointer-events: none;
+    }
+
+    .offline-map-badge,
+    .btn-map-float {
+      pointer-events: auto;
+      background: rgba(15, 23, 42, 0.9);
+      color: #f8fafc;
+      padding: 6px 11px;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.22);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      cursor: pointer;
+      user-select: none;
+      backdrop-filter: blur(4px);
+      transition: all 0.2s ease;
+    }
+
+    .offline-map-badge:hover,
+    .btn-map-float:hover {
+      background: rgba(30, 41, 59, 0.96);
+    }
+
+    .offline-map-badge.ready {
+      background: rgba(6, 95, 70, 0.92);
+      border-color: rgba(167, 243, 208, 0.35);
+    }
+
+    .offline-map-badge.offline-mode {
+      background: rgba(180, 83, 9, 0.94);
+      border-color: rgba(253, 230, 138, 0.4);
+    }
+
+    .btn-map-float.active {
+      background: #2563eb;
+      border-color: #93c5fd;
+    }
+
+    /* Botón Invertir Origen y Destino */
+    .btn-swap-points {
+      align-self: flex-end;
+      margin: -2px 0;
+      background: #ffffff;
+      color: #1e293b;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 0.73rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.15s ease;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    }
+
+    .btn-swap-points:hover {
+      background: #eff6ff;
+      border-color: #3b82f6;
+      color: #1d4ed8;
+    }
+
+    /* Letrero Luminoso de Techo del Colectivo */
+    .rooftop-sign {
+      background: #111827;
+      color: #facc15;
+      border: 1.5px solid #f59e0b;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 0.68rem;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      font-family: monospace;
+      flex-shrink: 0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+
+    /* Marcadores de punto exacto de Subida y Bajada en calzada */
+    .access-stop-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 2px 7px;
+      border-radius: 12px;
+      font-size: 0.66rem;
+      font-weight: 800;
+      white-space: nowrap;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+      border: 1.5px solid #ffffff;
+    }
+
+    .boarding-pill {
+      background: #15803d;
+      color: #ffffff;
+    }
+
+    .alighting-pill {
+      background: #b91c1c;
+      color: #ffffff;
+    }
+
+    .direction-arrow-badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: rgba(15, 23, 42, 0.85);
+      color: #ffffff;
+      font-size: 10px;
+      font-weight: bold;
+      border: 1.5px solid #ffffff;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+      pointer-events: none;
+    }
+
+    /* Botón Modo Accesibilidad (Adulto Mayor / Letra Grande) */
+    .btn-a11y {
+      background: rgba(255, 255, 255, 0.14);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      padding: 6px 9px;
+      border-radius: 6px;
+      font-size: 0.76rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      flex-shrink: 0;
+    }
+
+    .btn-a11y.active {
+      background: #facc15;
+      color: #0f172a;
+      border-color: #eab308;
+    }
+
+    body.accessible-mode {
+      font-size: 112%;
+    }
+
+    body.accessible-mode .search-input {
+      font-size: 0.96rem !important;
+      min-height: 46px !important;
+      border-width: 2px;
+    }
+
+    body.accessible-mode .result-card {
+      font-size: 0.92rem;
+      padding: 12px 14px;
+      border-width: 2.5px;
+    }
+
+    body.accessible-mode .result-metrics {
+      font-size: 0.86rem;
+    }
+
+    body.accessible-mode .metric-sub {
+      font-size: 0.82rem;
+      color: #1e293b;
+      font-weight: 600;
+    }
+
+    body.accessible-mode .step-box {
+      font-size: 0.92rem;
+    }
+
     /* ==========================================================================
        RESPONSIVE MOBILE / CELULAR (PUNTO 4: HOJA DESLIZANTE INFERIOR)
        ========================================================================== */
@@ -976,9 +1162,17 @@
         <div class="sheet-pill"></div>
         <span class="sheet-title-mobile" id="sheet-mobile-title">🚌 Paso 1: Elige el Origen</span>
       </div>
-      <button type="button" class="sheet-toggle-btn" id="btn-toggle-sheet" onclick="toggleMobileSheet(event)" title="Colapsar o expandir panel">
-        ▲ Ver Rutas
-      </button>
+      <div style="display:flex; align-items:center; gap:6px; flex-shrink:0;">
+        <button type="button" id="btn-install-pwa-mobile" class="btn-install-pwa" style="padding:5px 9px; min-height:34px; font-size:0.72rem;" title="Instalar aplicación">
+          📲 Instalar
+        </button>
+        <button type="button" class="btn-a11y" id="btn-a11y-mobile" onclick="toggleAccessibleMode(event)" title="Modo letra grande y alto contraste (Adulto Mayor)">
+          Aa
+        </button>
+        <button type="button" class="sheet-toggle-btn" id="btn-toggle-sheet" onclick="toggleMobileSheet(event)" title="Colapsar o expandir panel">
+          ▲ Ver Rutas
+        </button>
+      </div>
     </div>
 
     <!-- Header Desktop -->
@@ -987,9 +1181,14 @@
         <h1>Colectivos Punta Arenas</h1>
         <p>Recomendador de Rutas Inteligente</p>
       </div>
-      <button id="btn-install-pwa" class="btn-install-pwa" title="Instalar aplicación en la pantalla de inicio">
-        📲 Instalar App
-      </button>
+      <div style="display:flex; align-items:center; gap:6px;">
+        <button type="button" class="btn-a11y" id="btn-a11y-desktop" onclick="toggleAccessibleMode(event)" title="Modo letra grande y alto contraste (Adulto Mayor)">
+          Aa Letra Grande
+        </button>
+        <button id="btn-install-pwa" class="btn-install-pwa" title="Instalar aplicación en la pantalla de inicio">
+          📲 Instalar App
+        </button>
+      </div>
     </div>
 
     <!-- Contenido del Recomendador -->
@@ -1008,6 +1207,10 @@
           </div>
           <div class="search-dropdown" id="dropdown-origen" style="display:none;"></div>
         </div>
+
+        <button type="button" class="btn-swap-points" id="btn-swap-points" onclick="swapOriginAndDestination()" title="Invertir Origen y Destino para ver ruta de regreso">
+          ⇅ Invertir Origen ↔ Destino (Regreso)
+        </button>
 
         <div class="search-input-group" id="group-search-destino">
           <label class="search-label" for="input-search-destino">
@@ -1073,8 +1276,18 @@
     </div>
   </aside>
 
-  <!-- Mapa Leaflet -->
+  <!-- Mapa Leaflet y Controles Flotantes Superiores -->
   <div id="map"></div>
+  <div class="map-floating-controls">
+    <div id="offline-map-badge" class="offline-map-badge" title="Estado del mapa sin conexión (toca para verificar)">
+      <span id="offline-map-icon">🗺️</span>
+      <span id="offline-map-text">Verificando mapa offline...</span>
+    </div>
+    <button type="button" id="btn-toggle-pois" class="btn-map-float" onclick="togglePoisOnMap()" title="Mostrar u ocultar colegios, hospitales y lugares en el mapa">
+      <span>🏫</span>
+      <span id="btn-toggle-pois-text">Ver Hitos en Mapa</span>
+    </button>
+  </div>
 
   <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -1090,6 +1303,7 @@
     // Generar trayectorias evaluables con el motor compartido
     const TRAYECTORIAS = generarTrayectorias(DATASET_COLECTIVOS);
     const mapLayers = [];
+    const TILE_CACHE_NAME = 'colectivos-pua-tiles-v1';
 
     // Centrado en Punta Arenas
     const map = L.map('map', {
@@ -1097,11 +1311,91 @@
       tap: true
     }).setView([-53.158, -70.915], 13);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
+    const baseTileLayer = L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contribuyentes, teselas por <a href="https://openstreetmap.fr">OpenStreetMap France</a>',
       subdomains: 'abc',
-      maxZoom: 20
+      maxZoom: 20,
+      crossOrigin: 'anonymous'
     }).addTo(map);
+
+    /**
+     * Genera un lienzo de respaldo limpio (retícula urbana suave) si no hay internet ni tesela padre
+     */
+    function createFallbackGridDataUrl(coords) {
+      const canvas = document.createElement('canvas');
+      canvas.width = 256;
+      canvas.height = 256;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#e2e8f0';
+      ctx.fillRect(0, 0, 256, 256);
+      ctx.strokeStyle = '#cbd5e1';
+      ctx.lineWidth = 1;
+      for (let p = 0; p < 256; p += 64) {
+        ctx.beginPath();
+        ctx.moveTo(p, 0);
+        ctx.lineTo(p, 256);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(0, p);
+        ctx.lineTo(256, p);
+        ctx.stroke();
+      }
+      return canvas.toDataURL('image/png');
+    }
+
+    /**
+     * Respaldo Inteligente Offline (Overzoom desde caché):
+     * Si el usuario hace zoom profundo (ej. z=16..20) sin internet y esa tesela puntual
+     * no está en caché, busca la tesela padre ya guardada en z=15..12 y amplía el cuadrante exacto.
+     */
+    baseTileLayer.on('tileerror', async (event) => {
+      const tile = event.tile;
+      const coords = event.coords;
+      if (!tile || tile.dataset.fallbackApplied === '1') return;
+      tile.dataset.fallbackApplied = '1';
+
+      if ('caches' in window && coords && coords.z > 12) {
+        try {
+          const tileCache = await caches.open(TILE_CACHE_NAME);
+          const maxParentZ = Math.min(coords.z - 1, 15);
+          for (let zParent = maxParentZ; zParent >= 12; zParent--) {
+            const scale = Math.pow(2, coords.z - zParent);
+            const xParent = Math.floor(coords.x / scale);
+            const yParent = Math.floor(coords.y / scale);
+            const canonicalParentUrl = `https://a.tile.openstreetmap.fr/osmfr/${zParent}/${xParent}/${yParent}.png`;
+            const cachedResp = await tileCache.match(canonicalParentUrl);
+            if (cachedResp) {
+              const blob = await cachedResp.blob();
+              const objUrl = URL.createObjectURL(blob);
+              const img = new Image();
+              img.onload = () => {
+                const canvas = document.createElement('canvas');
+                canvas.width = 256;
+                canvas.height = 256;
+                const ctx = canvas.getContext('2d');
+                const subSize = 256 / scale;
+                const sx = ((coords.x % scale) + scale) % scale * subSize;
+                const sy = ((coords.y % scale) + scale) % scale * subSize;
+                ctx.imageSmoothingEnabled = true;
+                ctx.drawImage(img, sx, sy, subSize, subSize, 0, 0, 256, 256);
+                tile.src = canvas.toDataURL('image/png');
+                URL.revokeObjectURL(objUrl);
+              };
+              img.onerror = () => {
+                URL.revokeObjectURL(objUrl);
+                tile.src = createFallbackGridDataUrl(coords);
+              };
+              img.src = objUrl;
+              return;
+            }
+          }
+        } catch (err) {
+          // Si falla la lectura de caché, usar retícula base
+        }
+      }
+
+      tile.src = createFallbackGridDataUrl(coords);
+    });
 
     // Dibujar trayectorias en el mapa
     TRAYECTORIAS.forEach(trayecto => {
@@ -1180,6 +1474,63 @@
     let destinoCircle = null;
     let transferMarker = null;
     let transferWalkLine = null;
+    let boardingMarker = null;
+    let alightingMarker = null;
+    let originWalkLine = null;
+    let destWalkLine = null;
+    let activeSegmentLine = null;
+    let directionArrowMarkers = [];
+    let poiLayerGroup = null;
+    let poisVisible = false;
+
+    function clearRouteAccessOverlays() {
+      if (transferMarker) { map.removeLayer(transferMarker); transferMarker = null; }
+      if (transferWalkLine) { map.removeLayer(transferWalkLine); transferWalkLine = null; }
+      if (boardingMarker) { map.removeLayer(boardingMarker); boardingMarker = null; }
+      if (alightingMarker) { map.removeLayer(alightingMarker); alightingMarker = null; }
+      if (originWalkLine) { map.removeLayer(originWalkLine); originWalkLine = null; }
+      if (destWalkLine) { map.removeLayer(destWalkLine); destWalkLine = null; }
+      if (activeSegmentLine) { map.removeLayer(activeSegmentLine); activeSegmentLine = null; }
+      directionArrowMarkers.forEach(m => map.removeLayer(m));
+      directionArrowMarkers = [];
+    }
+
+    /**
+     * Dibuja flechas direccionales (➤) espaciadas sobre el tramo activo del colectivo
+     */
+    function drawDirectionArrows(coordsGeoJson, colorHex) {
+      if (!Array.isArray(coordsGeoJson) || coordsGeoJson.length < 2) return;
+      let accDist = 0;
+      const stepMeters = 650;
+      let nextMark = 250;
+
+      for (let i = 0; i < coordsGeoJson.length - 1; i++) {
+        const [lon1, lat1] = coordsGeoJson[i];
+        const [lon2, lat2] = coordsGeoJson[i + 1];
+        const segLen = haversineDistance(lat1, lon1, lat2, lon2);
+        if (segLen < 5) continue;
+
+        if (accDist + segLen >= nextMark) {
+          const midLat = (lat1 + lat2) / 2;
+          const midLon = (lon1 + lon2) / 2;
+          const dy = lat2 - lat1;
+          const dx = (lon2 - lon1) * Math.cos((midLat * Math.PI) / 180);
+          // Ángulo en grados donde 0° apunta a la derecha (Este) y rota en sentido horario en CSS
+          const angleDeg = -Math.atan2(dy, dx) * (180 / Math.PI);
+
+          const arrowIcon = L.divIcon({
+            className: 'custom-div-icon',
+            html: `<div class="direction-arrow-badge" style="background:${colorHex}; transform:rotate(${angleDeg.toFixed(1)}deg);">➤</div>`,
+            iconSize: [18, 18],
+            iconAnchor: [9, 9]
+          });
+          const m = L.marker([midLat, midLon], { icon: arrowIcon, interactive: false }).addTo(map);
+          directionArrowMarkers.push(m);
+          nextMark = accDist + segLen + stepMeters;
+        }
+        accDist += segLen;
+      }
+    }
 
     // Estado para vinculación coordinada (Brushing & Linking)
     let currentResultsE1 = [];
@@ -1227,8 +1578,7 @@
       if (destinoMarker) map.removeLayer(destinoMarker);
       if (origenCircle) map.removeLayer(origenCircle);
       if (destinoCircle) map.removeLayer(destinoCircle);
-      if (transferMarker) { map.removeLayer(transferMarker); transferMarker = null; }
-      if (transferWalkLine) { map.removeLayer(transferWalkLine); transferWalkLine = null; }
+      clearRouteAccessOverlays();
 
       origenMarker = null;
       destinoMarker = null;
@@ -1261,9 +1611,8 @@
     function executeEvaluation() {
       if (!origen || !destino) return;
 
-      // Limpiar marcas de transbordo previas
-      if (transferMarker) { map.removeLayer(transferMarker); transferMarker = null; }
-      if (transferWalkLine) { map.removeLayer(transferWalkLine); transferWalkLine = null; }
+      // Limpiar marcas previas de acceso y transbordo
+      clearRouteAccessOverlays();
 
       const t0_e1 = performance.now();
       let resE1 = estrategia1(origen, destino, TRAYECTORIAS, searchRadius);
@@ -1321,7 +1670,7 @@
         }
         const topDirect = resE2[0] || resE1[0];
         if (topDirect) {
-          updateMobileHeaderTitle(`🚌 #1 ${topDirect.nombre} (${topDirect.dTotalCaminata}m)`);
+          updateMobileHeaderTitle(`🚌 #1 ${topDirect.nombre} (${topDirect.dTotalCaminata}m • ~${topDirect.tiempoTotalMin} min)`);
         } else {
           updateMobileHeaderTitle(`✅ ${resE1.length} ruta(s) directa(s)`);
         }
@@ -1372,9 +1721,7 @@
     function highlightOptionOnMap(item, isPreview = false) {
       if (!item) return;
 
-      // Limpiar marcas de transbordo previas si existían
-      if (transferMarker) { map.removeLayer(transferMarker); transferMarker = null; }
-      if (transferWalkLine) { map.removeLayer(transferWalkLine); transferWalkLine = null; }
+      clearRouteAccessOverlays();
 
       if (item.tipo === 'transbordo') {
         const activeLabels = new Set([item.trayecto1.etiqueta, item.trayecto2.etiqueta]);
@@ -1398,6 +1745,18 @@
             });
           }
         });
+
+        // Caminata Origen -> Subida 1 y Bajada 2 -> Destino
+        if (origen && item.puntoSubida1) {
+          originWalkLine = L.polyline([[origen.lat, origen.lng], [item.puntoSubida1.lat, item.puntoSubida1.lon]], {
+            color: '#15803d', weight: 3, dashArray: '4, 5'
+          }).addTo(map);
+        }
+        if (destino && item.puntoBajada2) {
+          destWalkLine = L.polyline([[item.puntoBajada2.lat, item.puntoBajada2.lon], [destino.lat, destino.lng]], {
+            color: '#b91c1c', weight: 3, dashArray: '4, 5'
+          }).addTo(map);
+        }
 
         // Marcador visual de transbordo en el mapa
         const transferIcon = L.divIcon({
@@ -1423,7 +1782,7 @@
           }).addTo(map);
         }
       } else {
-        // Opción directa: resaltar exclusivamente la trayectoria de esta tarjeta
+        // Opción directa: mostrar línea completa tenue y destacar con brillo el tramo a bordo
         const targetLabel = item.etiqueta;
 
         mapLayers.forEach(({ polyline, trayecto }) => {
@@ -1431,20 +1790,70 @@
           if (trayecto.etiqueta === targetLabel) {
             polyline.setStyle({
               color: trayecto.color,
-              weight: isPreview ? 8.5 : 7.5,
-              opacity: 1.0,
-              dashArray: isVuelta ? '8, 6' : null
+              weight: 4,
+              opacity: 0.35,
+              dashArray: isVuelta ? '6, 6' : null
             });
             polyline.bringToFront();
           } else {
             polyline.setStyle({
               color: trayecto.color,
               weight: 2,
-              opacity: 0.10,
+              opacity: 0.08,
               dashArray: isVuelta ? '4, 4' : null
             });
           }
         });
+
+        // Tramo exacto a bordo del colectivo y flechas direccionales
+        if (item.tramoActivoCoords && item.tramoActivoCoords.length >= 2) {
+          const activeLatLngs = item.tramoActivoCoords.map(c => [c[1], c[0]]);
+          activeSegmentLine = L.polyline(activeLatLngs, {
+            color: item.color,
+            weight: isPreview ? 9 : 8,
+            opacity: 1.0,
+            dashArray: item.sentido === 'vuelta' ? '10, 6' : null
+          }).addTo(map);
+          drawDirectionArrows(item.tramoActivoCoords, item.color);
+        }
+
+        // Punto exacto de Subida y línea de caminata inicial
+        if (origen && item.puntoSubida) {
+          originWalkLine = L.polyline([[origen.lat, origen.lng], [item.puntoSubida.lat, item.puntoSubida.lon]], {
+            color: '#15803d',
+            weight: 3,
+            dashArray: '4, 5'
+          }).addTo(map);
+
+          const boardingIcon = L.divIcon({
+            className: 'custom-div-icon',
+            html: `<div class="access-stop-pill boarding-pill">🟢 Subir (${item.dOrigen}m)</div>`,
+            iconSize: [96, 22],
+            iconAnchor: [48, 26]
+          });
+          boardingMarker = L.marker([item.puntoSubida.lat, item.puntoSubida.lon], { icon: boardingIcon })
+            .addTo(map)
+            .bindPopup(`<strong>🟢 Punto de Subida</strong><br>Camina <b>${item.dOrigen} m</b> desde tu origen hasta esta calzada para abordar <b>${item.nombre} (${item.sentido})</b>.`);
+        }
+
+        // Punto exacto de Bajada y línea de caminata final
+        if (destino && item.puntoBajada) {
+          destWalkLine = L.polyline([[item.puntoBajada.lat, item.puntoBajada.lon], [destino.lat, destino.lng]], {
+            color: '#b91c1c',
+            weight: 3,
+            dashArray: '4, 5'
+          }).addTo(map);
+
+          const alightingIcon = L.divIcon({
+            className: 'custom-div-icon',
+            html: `<div class="access-stop-pill alighting-pill">🔴 Bajar (${item.dDestino}m)</div>`,
+            iconSize: [96, 22],
+            iconAnchor: [48, -4]
+          });
+          alightingMarker = L.marker([item.puntoBajada.lat, item.puntoBajada.lon], { icon: alightingIcon })
+            .addTo(map)
+            .bindPopup(`<strong>🔴 Punto de Bajada</strong><br>Desciende aquí de <b>${item.nombre}</b> y camina <b>${item.dDestino} m</b> hasta tu destino.`);
+        }
       }
     }
 
@@ -1468,7 +1877,7 @@
         if (item.tipo === 'transbordo') {
           updateMobileHeaderTitle(`🔄 #${index + 1} ${item.trayecto1.nombre} + ${item.trayecto2.nombre} (${item.dTotalCaminata}m)`);
         } else {
-          updateMobileHeaderTitle(`🚌 #${index + 1} ${item.nombre} (${item.dTotalCaminata}m)`);
+          updateMobileHeaderTitle(`🚌 #${index + 1} ${item.nombre} (${item.dTotalCaminata}m • ~${item.tiempoTotalMin || 10} min)`);
         }
       }
     }
@@ -1543,8 +1952,8 @@
 
               <div class="result-metrics">
                 <div class="metric-row">
-                  <span>🚶 <strong>Caminata total acumulada:</strong></span>
-                  <span class="metric-val highlight-dist"><strong>${t.dTotalCaminata} m</strong></span>
+                  <span>🚶 <strong>Caminata total:</strong></span>
+                  <span class="metric-val highlight-dist"><strong>${t.dTotalCaminata} m</strong> <span style="font-weight:500;color:#64748b;font-size:0.72rem;">(~${t.tiempoCaminataMin || 5} min)</span></span>
                 </div>
                 <div class="metric-sub">
                   <span>Subida: <strong>${t.dOrigen}m</strong></span>
@@ -1571,7 +1980,7 @@
                 onclick="selectRouteOption('${strategyKey}', ${idx})"
                 onmouseenter="previewRouteOption('${strategyKey}', ${idx})"
                 onmouseleave="restoreSelectedRoute()"
-                title="Toca para mostrar este recorrido en el mapa">
+                title="Toca para mostrar este recorrido y puntos de subida/bajada en el mapa">
               <div class="result-header">
                 <div class="result-left">
                   <span class="rank-badge ${rankClass}">#${idx + 1}</span>
@@ -1586,7 +1995,7 @@
               <div class="result-metrics">
                 <div class="metric-row">
                   <span>🚶 <strong>Caminata total:</strong></span>
-                  <span class="metric-val highlight-dist"><strong>${t.dTotalCaminata} m</strong></span>
+                  <span class="metric-val highlight-dist"><strong>${t.dTotalCaminata} m</strong> <span style="font-weight:500;color:#64748b;font-size:0.72rem;">(~${t.tiempoCaminataMin || 4} min)</span></span>
                 </div>
                 <div class="metric-sub">
                   <span>Subida: <strong>${t.dOrigen}m</strong></span>
@@ -1602,6 +2011,97 @@
       });
       html += '</ul>';
       container.innerHTML = html;
+    }
+
+    /**
+     * Invierte instantáneamente el punto de Origen y Destino para consultar el viaje de regreso
+     */
+    function swapOriginAndDestination() {
+      if (!origen && !destino) return;
+      const oldOrigen = origen ? L.latLng(origen.lat, origen.lng) : null;
+      const oldOrigenNombre = origenNombre || 'Origen';
+      const oldDestino = destino ? L.latLng(destino.lat, destino.lng) : null;
+      const oldDestinoNombre = destinoNombre || 'Destino';
+
+      resetPoints();
+
+      if (oldDestino && oldOrigen) {
+        setOrigenPoint(oldDestino.lat, oldDestino.lng, oldDestinoNombre);
+        setDestinoPoint(oldOrigen.lat, oldOrigen.lng, oldOrigenNombre);
+      } else if (oldDestino) {
+        setOrigenPoint(oldDestino.lat, oldDestino.lng, oldDestinoNombre);
+      } else if (oldOrigen) {
+        setDestinoPoint(oldOrigen.lat, oldOrigen.lng, oldOrigenNombre);
+      }
+    }
+
+    /**
+     * Muestra u oculta la capa interactiva de Hitos de Punta Arenas sobre el mapa (100% Offline)
+     */
+    function togglePoisOnMap() {
+      const btn = document.getElementById('btn-toggle-pois');
+      const txt = document.getElementById('btn-toggle-pois-text');
+
+      if (!poiLayerGroup) {
+        poiLayerGroup = L.layerGroup();
+        if (typeof HITOS_PUNTA_ARENAS !== 'undefined') {
+          HITOS_PUNTA_ARENAS.forEach((h, idx) => {
+            const poiIcon = L.divIcon({
+              className: 'custom-div-icon',
+              html: `<div style="background:#ffffff;border:1.5px solid #334155;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:13px;box-shadow:0 2px 5px rgba(0,0,0,0.28);">${h.icono || '📍'}</div>`,
+              iconSize: [24, 24],
+              iconAnchor: [12, 12]
+            });
+            const m = L.marker([h.lat, h.lon], { icon: poiIcon });
+            m.bindPopup(`
+              <div style="min-width:185px;">
+                <strong style="font-size:0.84rem;color:#0f172a;">${h.icono || '📍'} ${h.nombre}</strong>
+                <div style="font-size:0.72rem;color:#64748b;margin:3px 0 8px 0;">${h.detalle || h.categoria}</div>
+                <div style="display:flex;gap:6px;">
+                  <button type="button" onclick="window.selectPoiFromMap(${idx}, 'origen')" style="flex:1;background:#16a34a;color:#fff;border:none;border-radius:5px;padding:5px 6px;font-size:0.72rem;font-weight:700;cursor:pointer;">🟢 Origen</button>
+                  <button type="button" onclick="window.selectPoiFromMap(${idx}, 'destino')" style="flex:1;background:#dc2626;color:#fff;border:none;border-radius:5px;padding:5px 6px;font-size:0.72rem;font-weight:700;cursor:pointer;">🔴 Destino</button>
+                </div>
+              </div>
+            `);
+            poiLayerGroup.addLayer(m);
+          });
+        }
+      }
+
+      poisVisible = !poisVisible;
+      if (poisVisible) {
+        poiLayerGroup.addTo(map);
+        if (btn) btn.classList.add('active');
+        if (txt) txt.textContent = 'Ocultar Hitos';
+      } else {
+        map.removeLayer(poiLayerGroup);
+        if (btn) btn.classList.remove('active');
+        if (txt) txt.textContent = 'Ver Hitos en Mapa';
+      }
+    }
+
+    window.selectPoiFromMap = function(poiIdx, tipo) {
+      if (typeof HITOS_PUNTA_ARENAS === 'undefined' || !HITOS_PUNTA_ARENAS[poiIdx]) return;
+      const h = HITOS_PUNTA_ARENAS[poiIdx];
+      map.closePopup();
+      if (tipo === 'origen') {
+        setOrigenPoint(h.lat, h.lon, h.nombre);
+      } else {
+        setDestinoPoint(h.lat, h.lon, h.nombre);
+      }
+    };
+
+    /**
+     * Activa o desactiva el Modo Accesibilidad (Letra Grande y Alto Contraste)
+     */
+    function toggleAccessibleMode(e) {
+      if (e) e.stopPropagation();
+      document.body.classList.toggle('accessible-mode');
+      const isActive = document.body.classList.contains('accessible-mode');
+      const btnD = document.getElementById('btn-a11y-desktop');
+      const btnM = document.getElementById('btn-a11y-mobile');
+      if (btnD) btnD.classList.toggle('active', isActive);
+      if (btnM) btnM.classList.toggle('active', isActive);
     }
 
     /* ==========================================================================
@@ -2018,13 +2518,176 @@
     });
 
     /* ==========================================================================
-       6. REGISTRO DE SERVICE WORKER E INSTALACIÓN PWA
+       6. REGISTRO DE SERVICE WORKER, PRE-CARGA DE MAPA OFFLINE E INSTALACIÓN PWA
        ========================================================================== */
+    function lon2tile(lon, zoom) {
+      return Math.floor(((lon + 180) / 360) * Math.pow(2, zoom));
+    }
+
+    function lat2tile(lat, zoom) {
+      const latRad = (lat * Math.PI) / 180;
+      return Math.floor(
+        ((1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2) *
+          Math.pow(2, zoom)
+      );
+    }
+
+    /**
+     * Genera la lista completa de teselas (z=12..15) que cubren todo el radio urbano
+     * de Punta Arenas (desde Zona Franca / Hospital al Norte hasta Barrio Sur / Archipiélago de Chiloé).
+     */
+    function getPuntaArenasUrbanTiles() {
+      const bounds = {
+        minLat: -53.190,
+        maxLat: -53.110,
+        minLon: -70.960,
+        maxLon: -70.865
+      };
+      const tiles = [];
+      for (const z of [12, 13, 14, 15]) {
+        const xMin = lon2tile(bounds.minLon, z);
+        const xMax = lon2tile(bounds.maxLon, z);
+        const yMin = lat2tile(bounds.maxLat, z); // Norte tiene menor índice Y
+        const yMax = lat2tile(bounds.minLat, z);
+        for (let x = xMin; x <= xMax; x++) {
+          for (let y = yMin; y <= yMax; y++) {
+            tiles.push({ z, x, y });
+          }
+        }
+      }
+      return tiles;
+    }
+
+    let isPrecachingTiles = false;
+
+    async function precachePuntaArenasMapTiles() {
+      const badge = document.getElementById('offline-map-badge');
+      const iconEl = document.getElementById('offline-map-icon');
+      const textEl = document.getElementById('offline-map-text');
+      if (!('caches' in window)) {
+        if (badge) badge.style.display = 'none';
+        return;
+      }
+
+      if (!navigator.onLine) {
+        if (badge) {
+          badge.className = 'offline-map-badge offline-mode';
+          iconEl.textContent = '📴';
+          textEl.textContent = 'Sin internet • Mapa Offline activo';
+        }
+        return;
+      }
+
+      if (isPrecachingTiles) return;
+      isPrecachingTiles = true;
+
+      try {
+        const tileCache = await caches.open(TILE_CACHE_NAME);
+        const allTiles = getPuntaArenasUrbanTiles();
+        const missingTiles = [];
+
+        for (const t of allTiles) {
+          const canonicalUrl = `https://a.tile.openstreetmap.fr/osmfr/${t.z}/${t.x}/${t.y}.png`;
+          const exists = await tileCache.match(canonicalUrl);
+          if (!exists) {
+            missingTiles.push({ ...t, canonicalUrl });
+          }
+        }
+
+        if (missingTiles.length === 0) {
+          if (badge) {
+            badge.className = 'offline-map-badge ready';
+            iconEl.textContent = '✅';
+            textEl.textContent = 'Mapa Offline Listo (100%)';
+          }
+          isPrecachingTiles = false;
+          return;
+        }
+
+        const total = allTiles.length;
+        let completed = total - missingTiles.length;
+        const subdomains = ['a', 'b', 'c'];
+        const batchSize = 6;
+
+        for (let i = 0; i < missingTiles.length; i += batchSize) {
+          if (!navigator.onLine) break;
+          const batch = missingTiles.slice(i, i + batchSize);
+          await Promise.all(
+            batch.map(async (t, idx) => {
+              const sub = subdomains[(i + idx) % subdomains.length];
+              const fetchUrl = `https://${sub}.tile.openstreetmap.fr/osmfr/${t.z}/${t.x}/${t.y}.png`;
+              try {
+                const resp = await fetch(fetchUrl, { mode: 'cors', credentials: 'omit' });
+                if (resp && resp.ok) {
+                  await tileCache.put(t.canonicalUrl, resp.clone());
+                  completed++;
+                }
+              } catch (e) {
+                // Ignorar fallo individual de red
+              }
+            })
+          );
+
+          if (badge) {
+            const pct = Math.min(100, Math.round((completed / total) * 100));
+            badge.className = 'offline-map-badge';
+            iconEl.textContent = '📥';
+            textEl.textContent = `Guardando mapa offline (${pct}%)...`;
+          }
+        }
+
+        if (badge) {
+          if (completed >= total * 0.95) {
+            badge.className = 'offline-map-badge ready';
+            iconEl.textContent = '✅';
+            textEl.textContent = 'Mapa Offline Listo (100%)';
+          } else if (!navigator.onLine) {
+            badge.className = 'offline-map-badge offline-mode';
+            iconEl.textContent = '📴';
+            textEl.textContent = 'Sin internet • Mapa Offline activo';
+          }
+        }
+      } catch (err) {
+        console.warn('[PWA] Error precargando teselas del mapa:', err);
+      } finally {
+        isPrecachingTiles = false;
+      }
+    }
+
+    const offlineBadge = document.getElementById('offline-map-badge');
+    if (offlineBadge) {
+      offlineBadge.addEventListener('click', () => {
+        precachePuntaArenasMapTiles();
+      });
+    }
+
+    window.addEventListener('online', () => {
+      precachePuntaArenasMapTiles();
+    });
+
+    window.addEventListener('offline', () => {
+      const badge = document.getElementById('offline-map-badge');
+      const iconEl = document.getElementById('offline-map-icon');
+      const textEl = document.getElementById('offline-map-text');
+      if (badge) {
+        badge.className = 'offline-map-badge offline-mode';
+        iconEl.textContent = '📴';
+        textEl.textContent = 'Sin internet • Mapa Offline activo';
+      }
+    });
+
     if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js')
-          .then(reg => console.log('[PWA] ServiceWorker activo en:', reg.scope))
+          .then(reg => {
+            console.log('[PWA] ServiceWorker activo en:', reg.scope);
+            setTimeout(() => precachePuntaArenasMapTiles(), 800);
+          })
           .catch(err => console.warn('[PWA] Error registrando ServiceWorker:', err));
+      });
+    } else {
+      window.addEventListener('load', () => {
+        setTimeout(() => precachePuntaArenasMapTiles(), 800);
       });
     }
 
@@ -2033,26 +2696,36 @@
       e.preventDefault();
       deferredPrompt = e;
       const btn = document.getElementById('btn-install-pwa');
+      const btnMob = document.getElementById('btn-install-pwa-mobile');
       if (btn) btn.style.display = 'inline-flex';
+      if (btnMob) btnMob.style.display = 'inline-flex';
     });
 
-    const btnInstall = document.getElementById('btn-install-pwa');
-    if (btnInstall) {
-      btnInstall.addEventListener('click', async () => {
-        if (deferredPrompt) {
-          deferredPrompt.prompt();
-          const { outcome } = await deferredPrompt.userChoice;
-          console.log('[PWA] Resultado de instalación:', outcome);
-          deferredPrompt = null;
-          btnInstall.style.display = 'none';
-        }
-      });
+    async function triggerPwaInstall(e) {
+      if (e) e.stopPropagation();
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log('[PWA] Resultado de instalación:', outcome);
+        deferredPrompt = null;
+        const btn = document.getElementById('btn-install-pwa');
+        const btnMob = document.getElementById('btn-install-pwa-mobile');
+        if (btn) btn.style.display = 'none';
+        if (btnMob) btnMob.style.display = 'none';
+      }
     }
+
+    const btnInstall = document.getElementById('btn-install-pwa');
+    const btnInstallMob = document.getElementById('btn-install-pwa-mobile');
+    if (btnInstall) btnInstall.addEventListener('click', triggerPwaInstall);
+    if (btnInstallMob) btnInstallMob.addEventListener('click', triggerPwaInstall);
 
     window.addEventListener('appinstalled', () => {
       console.log('[PWA] Aplicación instalada exitosamente');
       const btn = document.getElementById('btn-install-pwa');
+      const btnMob = document.getElementById('btn-install-pwa-mobile');
       if (btn) btn.style.display = 'none';
+      if (btnMob) btnMob.style.display = 'none';
     });
   </script>
 </body>
