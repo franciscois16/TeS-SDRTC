@@ -1277,6 +1277,7 @@
       const trayectorias = generarTrayectorias(DATASET_COLECTIVOS);
       const rows = [];
       let totalFpE0 = 0;
+      let totalFnE1 = 0;
       let totalTimeE0 = 0, totalTimeE1 = 0, totalTimeE2 = 0;
 
       for (const tc of GROUND_TRUTH_CASES) {
@@ -1298,6 +1299,7 @@
         const fnE1 = r2.filter(x => !r1.some(y => y.etiqueta === x.etiqueta)).length;
 
         totalFpE0 += fpE0;
+        totalFnE1 += fnE1;
         totalTimeE0 += ms0;
         totalTimeE1 += ms1;
         totalTimeE2 += ms2;
@@ -1340,7 +1342,7 @@
                 <td title="${r.caso}"><strong>${r.id}</strong></td>
                 <td>${r.nE0}</td>
                 <td style="color:#dc2626;font-weight:700;">${r.fpE0} FP</td>
-                <td>${r.nE1}</td>
+                <td>${r.nE1}${r.fnE1 > 0 ? ` <span style="color:#d97706;font-size:0.65rem;">(-${r.fnE1} FN)</span>` : ''}</td>
                 <td style="color:#15803d;font-weight:700;">${r.nE2}</td>
                 <td>${r.walkE1}m / ${r.walkE2}m</td>
                 <td>${r.ms1} / ${r.ms2}</td>
@@ -1349,7 +1351,7 @@
           </tbody>
         </table>
         <div style="margin-top:6px; padding:6px 8px; background:#eff6ff; border-radius:5px; color:#1e3a8a;">
-          ✅ <strong>Conclusión empírica:</strong> La validación direccional y proyección continua (E2) eliminó <strong>${totalFpE0} falsos positivos</strong> (líneas en sentido inverso) manteniendo un tiempo medio de <strong>${(totalTimeE2 / rows.length).toFixed(3)} ms</strong> por consulta.
+          ✅ <strong>Conclusión empírica (Dataset Oficial SEREMI MTT):</strong> La proyección ortogonal continua (E2) eliminó <strong>${totalFpE0} falsos positivos</strong> direccionales de E0 y rescató <strong>${totalFnE1} rutas válidas (falsos negativos)</strong> que E1 omitió en tramos rectos entre esquinas del KMZ oficial, manteniendo un tiempo medio de <strong>${(totalTimeE2 / rows.length).toFixed(3)} ms</strong>.
         </div>
       `;
     }
